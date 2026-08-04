@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
@@ -169,22 +168,6 @@ export default function NewTransfer() {
 
   return (
     <main className="min-h-full bg-[#f7f8fa]">
-      <header className="border-b border-border bg-background">
-        <div className="mx-auto flex h-14 w-full max-w-[1080px] items-center justify-between px-4 sm:px-6">
-          <Link
-            href="/"
-            className="font-display text-sm font-bold tracking-[0.14em] text-brand uppercase no-underline"
-          >
-            C.N Connect
-          </Link>
-          <p className="text-xs text-muted">
-            {inRequestPhase || isSubmittedScreen
-              ? "New transfer"
-              : "Complete payment"}
-          </p>
-        </div>
-      </header>
-
       <div className="mx-auto w-full max-w-[1080px] px-4 py-8 sm:px-6 md:py-12">
         {!isSubmittedScreen && !isCompleteScreen ? (
           <div className="mb-10">

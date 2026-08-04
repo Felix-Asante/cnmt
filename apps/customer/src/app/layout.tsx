@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Schibsted_Grotesk } from "next/font/google";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const display = Barlow_Condensed({
@@ -24,7 +26,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${display.variable} ${sans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="flex min-h-full flex-col font-sans">
+        <SiteHeader />
+        <div className="flex flex-1 flex-col">{children}</div>
+        <SiteFooter />
+      </body>
     </html>
   );
 }
