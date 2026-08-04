@@ -15,18 +15,18 @@ export default function Home() {
           <p className="mb-6 font-display text-sm font-semibold tracking-[0.22em] text-brand uppercase">
             C.N Connect
           </p>
-          <h1 className="text-foreground">
+          <h1 className="font-display text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold leading-[1.05] tracking-[0.02em] text-foreground uppercase">
             <span className="text-brand">C.N</span> International
             <br />
             <span className="text-brand">Money Transfer</span>
           </h1>
-          <p className="mt-6 text-lg text-muted md:text-xl">
+          <p className="mt-6 max-w-[65ch] text-lg text-muted md:text-xl">
             Secure, reliable transfers across borders — built for people who
             move money with intention.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <a
-              href="#send"
+              href="/transfer"
               className="inline-flex items-center justify-center rounded-pill bg-brand px-7 py-3 font-display text-sm font-bold tracking-[0.14em] text-white uppercase no-underline transition-colors duration-200 hover:bg-brand-hover"
             >
               Send money
