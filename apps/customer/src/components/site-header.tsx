@@ -53,7 +53,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 w-full max-w-[1080px] items-center justify-between gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-5">
           <Link
             href="/"
@@ -151,7 +151,13 @@ export function SiteHeader() {
                     href={SUPPORT.phoneHref}
                     icon={Phone}
                     label={SUPPORT.phoneDisplay}
-                    detail="Call our support line"
+                    detail="Primary support line"
+                  />
+                  <SupportLink
+                    href={SUPPORT.phoneSecondaryHref}
+                    icon={Phone}
+                    label={SUPPORT.phoneSecondaryDisplay}
+                    detail="Alternate support line"
                   />
                   <SupportLink
                     href={SUPPORT.emailHref}
