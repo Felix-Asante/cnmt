@@ -1,10 +1,12 @@
 export type ReceivingMethod = "mobile_money" | "bank";
 
+export type SendCurrency = "GBP" | "EUR" | "MAD";
+
 export type SenderCountry = {
   code: string;
   name: string;
   flag: string;
-  currency: "GBP" | "EUR" | "USD";
+  currency: SendCurrency;
 };
 
 export type RecipientCountry = {
@@ -38,16 +40,18 @@ export const STEPS = [...REQUEST_STEPS, ...FULFILLMENT_STEPS] as const;
 export const CURRENCIES = [
   { code: "GBP", label: "British Pound" },
   { code: "EUR", label: "Euro" },
-  { code: "USD", label: "US Dollar" },
+  { code: "MAD", label: "Moroccan Dirham" },
 ] as const;
 
+/** Send-from markets from the C.N Connect flyer */
 export const SENDER_COUNTRIES: SenderCountry[] = [
   { code: "GB", name: "United Kingdom", flag: "🇬🇧", currency: "GBP" },
   { code: "FR", name: "France", flag: "🇫🇷", currency: "EUR" },
   { code: "ES", name: "Spain", flag: "🇪🇸", currency: "EUR" },
-  { code: "US", name: "United States", flag: "🇺🇸", currency: "USD" },
+  { code: "MA", name: "Morocco", flag: "🇲🇦", currency: "MAD" },
 ];
 
+/** Receive markets from the C.N Connect flyer */
 export const RECIPIENT_COUNTRIES: RecipientCountry[] = [
   {
     code: "GH",
@@ -70,44 +74,44 @@ export const RECIPIENT_COUNTRIES: RecipientCountry[] = [
     receiveCurrency: "NGN",
   },
   {
-    code: "SN",
-    name: "Senegal",
-    flag: "🇸🇳",
+    code: "SL",
+    name: "Sierra Leone",
+    flag: "🇸🇱",
     methods: ["mobile_money", "bank"],
     methodLabels: ["Mobile Money", "Bank"],
-    networks: ["Orange Money", "Wave", "Free Money"],
-    banks: ["SGBS", "Ecobank Senegal", "Banque Atlantique"],
-    receiveCurrency: "XOF",
+    networks: ["Orange Money", "Africell Money"],
+    banks: ["Rokel Commercial Bank", "Ecobank Sierra Leone", "Zenith Bank SL"],
+    receiveCurrency: "SLE",
   },
   {
-    code: "CI",
-    name: "Ivory Coast",
-    flag: "🇨🇮",
+    code: "LR",
+    name: "Liberia",
+    flag: "🇱🇷",
     methods: ["mobile_money", "bank"],
     methodLabels: ["Mobile Money", "Bank"],
-    networks: ["Orange Money", "MTN MoMo", "Wave"],
-    banks: ["SGBCI", "Ecobank Côte d'Ivoire", "NSIA Banque"],
-    receiveCurrency: "XOF",
+    networks: ["Orange Money", "Lonestar MTN MoMo"],
+    banks: ["Ecobank Liberia", "GTBank Liberia", "LBDI"],
+    receiveCurrency: "LRD",
   },
   {
-    code: "CM",
-    name: "Cameroon",
-    flag: "🇨🇲",
+    code: "KE",
+    name: "Kenya",
+    flag: "🇰🇪",
     methods: ["mobile_money", "bank"],
     methodLabels: ["Mobile Money", "Bank"],
-    networks: ["MTN MoMo", "Orange Money"],
-    banks: ["Afriland First Bank", "Ecobank Cameroon", "UBA Cameroon"],
-    receiveCurrency: "XAF",
+    networks: ["M-Pesa", "Airtel Money"],
+    banks: ["Equity Bank", "KCB", "Co-operative Bank", "Absa Bank Kenya"],
+    receiveCurrency: "KES",
   },
   {
-    code: "CG",
-    name: "Congo",
-    flag: "🇨🇬",
+    code: "UG",
+    name: "Uganda",
+    flag: "🇺🇬",
     methods: ["mobile_money", "bank"],
     methodLabels: ["Mobile Money", "Bank"],
-    networks: ["Airtel Money", "MTN MoMo"],
-    banks: ["BGFI Bank", "Ecobank Congo", "Crédit du Congo"],
-    receiveCurrency: "XAF",
+    networks: ["MTN MoMo", "Airtel Money"],
+    banks: ["Stanbic Bank Uganda", "Centenary Bank", "Equity Bank Uganda"],
+    receiveCurrency: "UGX",
   },
   {
     code: "MA",
@@ -116,7 +120,7 @@ export const RECIPIENT_COUNTRIES: RecipientCountry[] = [
     methods: ["bank"],
     methodLabels: ["Bank"],
     networks: [],
-    banks: ["Attijariwafa Bank", "Banque Populaire", "BMCE Bank"],
+    banks: ["Attijariwafa Bank", "Banque Populaire", "Bank of Africa"],
     receiveCurrency: "MAD",
   },
 ];
@@ -126,25 +130,31 @@ export const COUNTRIES = RECIPIENT_COUNTRIES;
 const STATIC_RATES: Record<string, number> = {
   "GBP-GHS": 16.42,
   "GBP-NGN": 1650,
-  "GBP-XOF": 790,
-  "GBP-XAF": 790,
+  "GBP-SLE": 28.5,
+  "GBP-LRD": 230,
+  "GBP-KES": 165,
+  "GBP-UGX": 4700,
   "GBP-MAD": 12.8,
   "EUR-GHS": 14.1,
   "EUR-NGN": 1415,
-  "EUR-XOF": 655.957,
-  "EUR-XAF": 655.957,
+  "EUR-SLE": 24.5,
+  "EUR-LRD": 198,
+  "EUR-KES": 142,
+  "EUR-UGX": 4050,
   "EUR-MAD": 10.9,
-  "USD-GHS": 12.95,
-  "USD-NGN": 1300,
-  "USD-XOF": 600,
-  "USD-XAF": 600,
-  "USD-MAD": 10.05,
+  "MAD-GHS": 1.28,
+  "MAD-NGN": 129,
+  "MAD-SLE": 2.25,
+  "MAD-LRD": 18,
+  "MAD-KES": 12.9,
+  "MAD-UGX": 368,
+  "MAD-MAD": 1,
 };
 
 const STATIC_FEES: Record<string, number> = {
   GBP: 2.99,
   EUR: 3.49,
-  USD: 3.99,
+  MAD: 29,
 };
 
 export const STATIC_QUOTE = {

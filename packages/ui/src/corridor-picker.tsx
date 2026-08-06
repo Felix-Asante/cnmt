@@ -124,7 +124,7 @@ function CountrySlot({
       ? createPortal(
           <div
             ref={menuRef}
-            className="fixed z-[100] border border-border bg-background shadow-md"
+            className="fixed z-100 border border-border bg-background shadow-md"
             style={{
               top: position.top,
               left: position.left,

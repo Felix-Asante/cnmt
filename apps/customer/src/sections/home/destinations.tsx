@@ -20,8 +20,8 @@ export function HomeDestinations() {
               Send money to multiple countries
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-muted">
-              Reach family and partners across Europe and Africa with mobile
-              money or bank payout options.
+              Send from the UK, France, Spain, and Morocco — receive in Ghana,
+              Nigeria, Sierra Leone, Liberia, Kenya, Uganda, and Morocco.
             </p>
           </div>
           <Button asChild variant="outline" size="lg">

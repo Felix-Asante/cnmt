@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { UseFormReturn } from "react-hook-form";
+import { useFormState, useWatch, type UseFormReturn } from "react-hook-form";
 import { AmountInput } from "@repo/ui/amount-input";
 import { CorridorPicker } from "@repo/ui/corridor-picker";
 import {
@@ -19,15 +19,26 @@ type TransferStepProps = {
 };
 
 export function TransferStep({ form }: TransferStepProps) {
-  const [recent, setRecent] = useState<RecentCorridor[]>([]);
-  const senderCode = form.watch("senderCountryCode");
-  const recipientCode = form.watch("recipientCountryCode");
-  const amount = form.watch("sendAmount");
-  const errors = form.formState.errors;
+  const [recent] = useState<RecentCorridor[]>(getRecentCorridors());
+  const senderCode = useWatch({
+    control: form.control,
+    name: "senderCountryCode",
+  });
+  const recipientCode = useWatch({
+    control: form.control,
+    name: "recipientCountryCode",
+  });
+  const amount = useWatch({ control: form.control, name: "sendAmount" });
+  const sendCurrency = useWatch({
+    control: form.control,
+    name: "sendCurrency",
+  });
+
+  const errors = form.formState?.errors;
 
   const sender = getSenderCountry(senderCode);
   const recipient = getRecipientCountry(recipientCode);
-  const currency = sender?.currency ?? form.watch("sendCurrency");
+  const currency = sender?.currency ?? sendCurrency;
 
   const quote = getTransferQuote(
     amount,
@@ -36,19 +47,14 @@ export function TransferStep({ form }: TransferStepProps) {
   );
 
   useEffect(() => {
-    setRecent(getRecentCorridors());
-  }, []);
-
-  // Keep send currency locked to the selected sender country.
-  useEffect(() => {
     if (!sender) return;
-    if (form.getValues("sendCurrency") !== sender.currency) {
+    if (sendCurrency !== sender.currency) {
       form.setValue("sendCurrency", sender.currency, {
         shouldDirty: true,
         shouldValidate: true,
       });
     }
-  }, [form, sender]);
+  }, [form, sendCurrency, sender]);
 
   function applyCorridor(nextSender: string, nextRecipient: string) {
     const senderCountry = getSenderCountry(nextSender);
@@ -174,11 +180,7 @@ export function TransferStep({ form }: TransferStepProps) {
             shouldTouch: true,
           })
         }
-        error={
-          form.formState.touchedFields.sendAmount || form.formState.isSubmitted
-            ? errors.sendAmount?.message
-            : undefined
-        }
+        error={errors?.sendAmount?.message}
         helperText={
           quote.hasAmount
             ? `Recipient receives ${quote.receiveLabel}`
@@ -187,30 +189,6 @@ export function TransferStep({ form }: TransferStepProps) {
               : undefined
         }
       />
-
-      <dl className="grid grid-cols-2 gap-x-6 gap-y-4 border-t border-border pt-6 sm:grid-cols-3">
-        <div>
-          <dt className="text-xs text-muted">Rate</dt>
-          <dd className="mt-1 text-sm font-medium text-foreground">
-            {quote.rateLabel}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs text-muted">Fee</dt>
-          <dd className="mt-1 text-sm font-medium text-foreground">
-            {quote.feeLabel}
-          </dd>
-        </div>
-        <div className="col-span-2 sm:col-span-1">
-          <dt className="text-xs text-muted">They receive</dt>
-          <dd
-            className="mt-1 text-sm font-semibold text-navy"
-            aria-live="polite"
-          >
-            {quote.receiveLabel}
-          </dd>
-        </div>
-      </dl>
     </div>
   );
 }

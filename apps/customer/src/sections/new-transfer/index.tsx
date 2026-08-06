@@ -38,9 +38,6 @@ const stepMotion = {
   transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const },
 };
 
-/**
- * 0 Transfer · 1 Recipient · 2 Submitted · 3 Pay · 4 Proof · 5 Done
- */
 export default function NewTransfer() {
   const [step, setStep] = useState(0);
   const [reference, setReference] = useState(() => createReferenceNumber());
@@ -77,8 +74,15 @@ export default function NewTransfer() {
       ? 0
       : Math.max(step - 3, 0);
 
-  const summaryItems = useMemo(
-    () => [
+  const summaryItems = useMemo(() => {
+    const payoutDetail =
+      values.receivingMethod === "mobile_money"
+        ? values.network || "Mobile money"
+        : [values.bank, values.bankAccountNumber]
+            .filter(Boolean)
+            .join(" · ") || "Bank transfer";
+
+    return [
       {
         label: "From",
         value: sender ? `${sender.flag} ${sender.name}` : "—",
@@ -87,13 +91,20 @@ export default function NewTransfer() {
         label: "To",
         value: recipient ? `${recipient.flag} ${recipient.name}` : "—",
       },
+      {
+        label: "Recipient",
+        value: values.recipientName.trim() || "—",
+      },
+      {
+        label: "Payout",
+        value: payoutDetail,
+      },
       { label: "You send", value: quote.sendLabel, emphasis: true },
       { label: "Recipient gets", value: quote.receiveLabel, emphasis: true },
       { label: "Fee", value: quote.feeLabel },
       { label: "Rate", value: quote.rateLabel },
-    ],
-    [quote, recipient, sender],
-  );
+    ];
+  }, [quote, recipient, sender, values]);
 
   async function goNext() {
     const fields = stepFieldMap[step];
@@ -143,6 +154,8 @@ export default function NewTransfer() {
       receivingMethod: data.receivingMethod,
       network: data.network,
       bank: data.bank,
+      bankAccountName: data.bankAccountName,
+      bankAccountNumber: data.bankAccountNumber,
       senderCountryCode: data.senderCountryCode,
       recipientCountryCode: data.recipientCountryCode,
       sendCurrency: data.sendCurrency,
@@ -216,7 +229,7 @@ export default function NewTransfer() {
             </AnimatePresence>
 
             {showFooter ? (
-              <div className="mt-12 flex items-center justify-between gap-3 border-t border-border pt-6">
+              <div className="mt-12 flex items-center justify-between gap-3">
                 {step > 0 ? (
                   <Button type="button" variant="ghost" onClick={goBack}>
                     <ArrowLeft className="size-4" aria-hidden />

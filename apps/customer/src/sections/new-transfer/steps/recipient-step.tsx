@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { UseFormReturn } from "react-hook-form";
+import { useWatch, type UseFormReturn } from "react-hook-form";
 import { Label } from "@repo/ui/label";
 import { Input } from "@repo/ui/input";
 import { Field } from "@repo/ui/field";
@@ -39,7 +39,10 @@ function SelectField({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor={htmlFor} className="text-xs font-medium tracking-wide text-muted">
+      <Label
+        htmlFor={htmlFor}
+        className="text-xs font-medium tracking-wide text-muted"
+      >
         {label}
         {required ? <span className="text-brand"> *</span> : null}
       </Label>
@@ -55,9 +58,20 @@ function SelectField({
 
 export function RecipientStep({ form }: RecipientStepProps) {
   const [saved, setSaved] = useState<SavedRecipient[]>([]);
-  const country = getCountry(form.watch("recipientCountryCode"));
-  const method = form.watch("receivingMethod");
+  const recipientCode = useWatch({
+    control: form.control,
+    name: "recipientCountryCode",
+  });
+  const country = getCountry(recipientCode);
+  const method = useWatch({ control: form.control, name: "receivingMethod" });
+  const network = useWatch({ control: form.control, name: "network" });
+  const bank = useWatch({ control: form.control, name: "bank" });
+  const recipientName = useWatch({
+    control: form.control,
+    name: "recipientName",
+  });
   const errors = form.formState.errors;
+  const isMobileMoney = method === "mobile_money";
 
   useEffect(() => {
     setSaved(getSavedRecipients());
@@ -96,6 +110,43 @@ export function RecipientStep({ form }: RecipientStepProps) {
       shouldDirty: true,
       shouldValidate: true,
     });
+    form.setValue("bankAccountName", recipient.bankAccountName ?? "", {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    form.setValue("bankAccountNumber", recipient.bankAccountNumber ?? "", {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  }
+
+  function setMethod(next: "mobile_money" | "bank") {
+    form.setValue("receivingMethod", next, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+
+    if (next === "mobile_money") {
+      form.setValue("network", country?.networks[0] ?? "", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      form.setValue("bank", "", { shouldDirty: true });
+      form.setValue("bankAccountName", "", { shouldDirty: true });
+      form.setValue("bankAccountNumber", "", { shouldDirty: true });
+      return;
+    }
+
+    form.setValue("network", "", { shouldDirty: true });
+    form.setValue("recipientPhone", "", { shouldDirty: true });
+    form.clearErrors("recipientPhone");
+    form.setValue("bank", country?.banks[0] ?? "", {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    if (!form.getValues("bankAccountName") && recipientName) {
+      form.setValue("bankAccountName", recipientName, { shouldDirty: true });
+    }
   }
 
   if (!country) return null;
@@ -103,6 +154,7 @@ export function RecipientStep({ form }: RecipientStepProps) {
   const matchingSaved = saved.filter(
     (item) => item.recipientCountryCode === country.code,
   );
+  const recipientNameField = form.register("recipientName");
 
   return (
     <div className="space-y-10">
@@ -111,8 +163,8 @@ export function RecipientStep({ form }: RecipientStepProps) {
           Recipient details
         </h1>
         <p className="text-[15px] leading-relaxed text-muted">
-          Use the name and number registered to their{" "}
-          {method === "mobile_money" ? "mobile money" : "bank"} account.
+          Add your WhatsApp for updates, then the details for their{" "}
+          {isMobileMoney ? "mobile money" : "bank"} payout.
         </p>
       </header>
 
@@ -134,12 +186,21 @@ export function RecipientStep({ form }: RecipientStepProps) {
                     {recipient.name}
                   </span>
                   <span className="block truncate text-xs text-muted">
-                    {recipient.phone}
-                    {recipient.network
-                      ? ` · ${recipient.network}`
-                      : recipient.bank
-                        ? ` · ${recipient.bank}`
-                        : ""}
+                    {recipient.receivingMethod === "bank"
+                      ? [
+                          recipient.bank,
+                          recipient.bankAccountNumber
+                            ? `••••${recipient.bankAccountNumber.slice(-4)}`
+                            : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")
+                      : [
+                          recipient.phone,
+                          recipient.network ? recipient.network : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
                   </span>
                 </span>
                 <span className="shrink-0 text-xs font-medium text-navy">
@@ -152,34 +213,51 @@ export function RecipientStep({ form }: RecipientStepProps) {
       ) : null}
 
       <div className="space-y-5">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field
-            label="Full name"
-            htmlFor="recipientName"
-            required
-            error={errors.recipientName?.message}
-          >
-            <Input
-              {...form.register("recipientName")}
-              placeholder="Ama Mensah"
-              autoComplete="name"
-            />
-          </Field>
+        <Field
+          label="Your WhatsApp number"
+          htmlFor="senderWhatsApp"
+          required
+          description="We’ll use this to update you on the transfer."
+          error={errors.senderWhatsApp?.message}
+        >
+          <Input
+            {...form.register("senderWhatsApp")}
+            placeholder="+44 7700 900123"
+            inputMode="tel"
+            autoComplete="tel"
+          />
+        </Field>
 
-          <Field
-            label="Phone number"
-            htmlFor="recipientPhone"
-            required
-            error={errors.recipientPhone?.message}
-          >
-            <Input
-              {...form.register("recipientPhone")}
-              placeholder="+233 24 000 0000"
-              inputMode="tel"
-              autoComplete="tel"
-            />
-          </Field>
+        <div className="border-t border-border pt-5">
+          <p className="text-xs font-medium tracking-wide text-muted">
+            Recipient
+          </p>
         </div>
+
+        <Field
+          label="Full name"
+          htmlFor="recipientName"
+          required
+          error={errors.recipientName?.message}
+        >
+          <Input
+            {...recipientNameField}
+            placeholder="Ama Mensah"
+            autoComplete="name"
+            onBlur={(event) => {
+              void recipientNameField.onBlur(event);
+              if (
+                method === "bank" &&
+                !form.getValues("bankAccountName") &&
+                event.target.value.trim()
+              ) {
+                form.setValue("bankAccountName", event.target.value.trim(), {
+                  shouldDirty: true,
+                });
+              }
+            }}
+          />
+        </Field>
 
         <fieldset className="space-y-2">
           <legend className="text-xs font-medium tracking-wide text-muted">
@@ -195,24 +273,7 @@ export function RecipientStep({ form }: RecipientStepProps) {
                   key={item}
                   type="button"
                   aria-pressed={selected}
-                  onClick={() => {
-                    form.setValue("receivingMethod", item, {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    });
-                    form.setValue(
-                      "network",
-                      item === "mobile_money"
-                        ? (country.networks[0] ?? "")
-                        : "",
-                      { shouldDirty: true, shouldValidate: true },
-                    );
-                    form.setValue(
-                      "bank",
-                      item === "bank" ? (country.banks[0] ?? "") : "",
-                      { shouldDirty: true, shouldValidate: true },
-                    );
-                  }}
+                  onClick={() => setMethod(item)}
                   className={cn(
                     "px-3 py-2.5 text-sm font-medium transition-colors duration-150",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/15",
@@ -228,68 +289,116 @@ export function RecipientStep({ form }: RecipientStepProps) {
           </div>
         </fieldset>
 
-        {method === "mobile_money" ? (
-          <SelectField
-            label="Network"
-            htmlFor="network"
-            required
-            error={errors.network?.message}
-          >
-            <Select
-              value={form.watch("network") || undefined}
-              onValueChange={(value) =>
-                form.setValue("network", value, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
+        {isMobileMoney ? (
+          <>
+            <SelectField
+              label="Network"
+              htmlFor="network"
+              required
+              error={errors.network?.message}
             >
-              <SelectTrigger
-                id="network"
-                aria-invalid={Boolean(errors.network) || undefined}
+              <Select
+                value={network || undefined}
+                onValueChange={(value) =>
+                  form.setValue("network", value, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
               >
-                <SelectValue placeholder="Choose network" />
-              </SelectTrigger>
-              <SelectContent>
-                {country.networks.map((network) => (
-                  <SelectItem key={network} value={network}>
-                    {network}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </SelectField>
+                <SelectTrigger
+                  id="network"
+                  aria-invalid={Boolean(errors.network) || undefined}
+                >
+                  <SelectValue placeholder="Choose network" />
+                </SelectTrigger>
+                <SelectContent>
+                  {country.networks.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </SelectField>
+
+            <Field
+              label="Mobile money number"
+              htmlFor="recipientPhone"
+              required
+              description="Must match the number registered on their wallet."
+              error={errors.recipientPhone?.message}
+            >
+              <Input
+                {...form.register("recipientPhone")}
+                placeholder="+233 24 000 0000"
+                inputMode="tel"
+                autoComplete="tel"
+              />
+            </Field>
+          </>
         ) : (
-          <SelectField
-            label="Bank"
-            htmlFor="bank"
-            required
-            error={errors.bank?.message}
-          >
-            <Select
-              value={form.watch("bank") || undefined}
-              onValueChange={(value) =>
-                form.setValue("bank", value, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
+          <>
+            <SelectField
+              label="Bank"
+              htmlFor="bank"
+              required
+              error={errors.bank?.message}
             >
-              <SelectTrigger
-                id="bank"
-                aria-invalid={Boolean(errors.bank) || undefined}
+              <Select
+                value={bank || undefined}
+                onValueChange={(value) =>
+                  form.setValue("bank", value, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
               >
-                <SelectValue placeholder="Choose bank" />
-              </SelectTrigger>
-              <SelectContent>
-                {country.banks.map((bank) => (
-                  <SelectItem key={bank} value={bank}>
-                    {bank}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </SelectField>
+                <SelectTrigger
+                  id="bank"
+                  aria-invalid={Boolean(errors.bank) || undefined}
+                >
+                  <SelectValue placeholder="Choose bank" />
+                </SelectTrigger>
+                <SelectContent>
+                  {country.banks.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </SelectField>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field
+                label="Account holder name"
+                htmlFor="bankAccountName"
+                required
+                error={errors.bankAccountName?.message}
+              >
+                <Input
+                  {...form.register("bankAccountName")}
+                  placeholder="Ama Mensah"
+                  autoComplete="name"
+                />
+              </Field>
+
+              <Field
+                label="Account number"
+                htmlFor="bankAccountNumber"
+                required
+                error={errors.bankAccountNumber?.message}
+              >
+                <Input
+                  {...form.register("bankAccountNumber")}
+                  placeholder="0123456789"
+                  inputMode="numeric"
+                  autoComplete="off"
+                />
+              </Field>
+            </div>
+          </>
         )}
       </div>
     </div>

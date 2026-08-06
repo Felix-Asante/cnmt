@@ -15,9 +15,11 @@ export type SavedRecipient = {
   receivingMethod: ReceivingMethod;
   network?: string;
   bank?: string;
+  bankAccountName?: string;
+  bankAccountNumber?: string;
   senderCountryCode: string;
   recipientCountryCode: string;
-  sendCurrency: "GBP" | "EUR" | "USD";
+  sendCurrency: "GBP" | "EUR" | "MAD";
 };
 
 function canUseStorage() {
@@ -40,6 +42,17 @@ function writeJson<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
+function recipientKey(recipient: Pick<
+  SavedRecipient,
+  "phone" | "bankAccountNumber" | "recipientCountryCode" | "name"
+>) {
+  const identity =
+    recipient.phone ||
+    recipient.bankAccountNumber ||
+    recipient.name.toLowerCase();
+  return `${identity}-${recipient.recipientCountryCode}`;
+}
+
 export function getRecentCorridors(): RecentCorridor[] {
   return readJson<RecentCorridor[]>(CORRIDORS_KEY, []);
 }
@@ -60,16 +73,13 @@ export function getSavedRecipients(): SavedRecipient[] {
 }
 
 export function rememberRecipient(recipient: Omit<SavedRecipient, "id">) {
+  const nextKey = recipientKey(recipient);
   const existing = getSavedRecipients().filter(
-    (item) =>
-      !(
-        item.phone === recipient.phone &&
-        item.recipientCountryCode === recipient.recipientCountryCode
-      ),
+    (item) => recipientKey(item) !== nextKey,
   );
   const next: SavedRecipient = {
     ...recipient,
-    id: `${recipient.phone}-${recipient.recipientCountryCode}`,
+    id: nextKey,
   };
   writeJson(RECIPIENTS_KEY, [next, ...existing].slice(0, 6));
 }
