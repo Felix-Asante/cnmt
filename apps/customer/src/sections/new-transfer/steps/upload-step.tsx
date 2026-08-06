@@ -4,13 +4,14 @@ import type { UseFormReturn } from "react-hook-form";
 import { InformationBanner } from "@repo/ui/information-banner";
 import { UploadArea } from "@repo/ui/upload-area";
 import type { TransferFormValues } from "../schema";
+import { useWatch } from "react-hook-form";
 
 type UploadStepProps = {
   form: UseFormReturn<TransferFormValues>;
 };
 
 export function UploadStep({ form }: UploadStepProps) {
-  const file = form.watch("proofFile");
+  const file = useWatch({ control: form.control, name: "proofFile" });
   const error = form.formState.errors.proofFile?.message;
 
   return (
