@@ -1,159 +1,139 @@
-# Turborepo starter
+# C.N Connect
 
-This Turborepo starter is maintained by the Turborepo core team.
+Web monorepo for **C.N International Money Transfer** — a cross-border remittance product that helps people send money from Europe and Morocco to family and partners across Africa.
 
-## Using this example
+The customer-facing app is built as a premium fintech experience: clear rates, verified payouts, and a short path from corridor selection to submitted transfer request.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+## Product
+
+**Brand:** C.N Connect / C.N International Money Transfer  
+**Promise:** Smooth, secure international money transfer  
+**Primary action:** Start a transfer → `/transfer`
+
+### Corridors
+
+| Direction | Markets |
+| --- | --- |
+| **Send from** | United Kingdom, France, Spain, Morocco |
+| **Receive in** | Ghana, Nigeria, Sierra Leone, Liberia, Kenya, Uganda, Morocco |
+
+Payout methods depend on the destination: **mobile money** and/or **bank transfer**. Morocco receives via bank only.
+
+### Transfer flow (customer app)
+
+1. **Transfer** — choose From → To corridor and amount (currency locked to sender country)
+2. **Recipient** — sender WhatsApp, recipient name, and channel-specific payout details
+3. **Submitted** — request logged; payment & proof come next
+4. **Pay → Upload proof → Done** — fulfillment after the request exists
+
+The transfer UI is frontend-first today (form validation, quotes, local “recent corridor / saved recipient” memory). Submitting a request logs the payload for handoff to a real API later.
+
+---
+
+## Repository layout
+
+Bun + Turborepo monorepo.
+
+```
+apps/
+  customer/          # Next.js customer site + transfer flow
+packages/
+  ui/                # Shared UI primitives (button, inputs, corridor picker, …)
+  tailwind-config/   # Design tokens & shared Tailwind styles
+  eslint-config/     # Shared ESLint configs
+  typescript-config/ # Shared TypeScript configs
 ```
 
-## What's inside?
+### Customer app (`apps/customer`)
 
-This Turborepo includes the following packages/apps:
+| Area | Role |
+| --- | --- |
+| `src/app/` | Next.js App Router routes (`/`, `/transfer`) |
+| `src/sections/home/` | Marketing homepage |
+| `src/sections/new-transfer/` | Transfer flow orchestrator, schema, steps |
+| `src/components/` | Site chrome (header, footer) |
+| `src/constants/` | Support contacts |
 
-### Apps and Packages
+Routes stay thin; product UI lives in `sections/`. Shared components that other apps may reuse live in `@repo/ui`.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+---
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Stack
 
-### Utilities
+- **Runtime / package manager:** Bun
+- **Apps:** Next.js 16 (App Router), React 19
+- **Styling:** Tailwind CSS v4, shared tokens in `@repo/tailwind-config`
+- **Forms:** React Hook Form + Zod
+- **Motion:** Framer Motion
+- **Monorepo:** Turborepo
 
-This Turborepo has some additional tools already setup for you:
+**Brand system:** flyer-derived red / navy / gold; display type **Barlow Condensed**, body **Schibsted Grotesk**.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+---
 
-### Build
+## Getting started
 
-To build all apps and packages, run the following command:
+### Requirements
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+- Node.js 18+
+- [Bun](https://bun.sh) 1.2+
 
-```sh
-cd my-turborepo
-turbo build
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-bun dlx turbo build
-bun exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### Install
 
 ```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
+bun install
 ```
 
 ### Develop
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Run everything:
 
 ```sh
-cd my-turborepo
-turbo dev
+bun run dev
 ```
 
-Without global `turbo`, use your package manager:
+Or only the customer app:
 
 ```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
+bun run dev --filter=customer
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Open [http://localhost:3000](http://localhost:3000).
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### Build & check
 
 ```sh
-turbo dev --filter=web
+bun run build
+bun run lint
+bun run check-types
 ```
 
-Without global `turbo`:
+Format:
 
 ```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
+bun run format
 ```
 
-### Remote Caching
+---
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## Working in the monorepo
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+- Prefer shared UI in `packages/ui` when a control is reusable across apps.
+- Keep app-specific flow logic in `apps/customer/src/sections/…`.
+- Design tokens (colors, radii, shadows, fonts) belong in `packages/tailwind-config` — apps import `@repo/tailwind-config` from their CSS entry.
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+Filter Turborepo tasks with `--filter=<package-name>` (e.g. `customer`, `@repo/ui`).
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+---
 
-```sh
-cd my-turborepo
-turbo login
-```
+## Support (product)
 
-Without global `turbo`, use your package manager:
+C.N Connect support is available Mon–Sat · 9:00–18:00 GMT via WhatsApp and phone (see `apps/customer/src/constants/support.ts`).
 
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
+---
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Status
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Active product build. The customer homepage and transfer request flow are in place; payment verification and backend integration are the next layers on the same architecture.
