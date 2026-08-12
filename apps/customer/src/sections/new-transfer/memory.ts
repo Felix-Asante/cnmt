@@ -19,7 +19,7 @@ export type SavedRecipient = {
   bankAccountNumber?: string;
   senderCountryCode: string;
   recipientCountryCode: string;
-  sendCurrency: "GBP" | "EUR" | "MAD";
+  sendCurrency: string;
 };
 
 function canUseStorage() {
@@ -42,10 +42,12 @@ function writeJson<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
-function recipientKey(recipient: Pick<
-  SavedRecipient,
-  "phone" | "bankAccountNumber" | "recipientCountryCode" | "name"
->) {
+function recipientKey(
+  recipient: Pick<
+    SavedRecipient,
+    "phone" | "bankAccountNumber" | "recipientCountryCode" | "name"
+  >,
+) {
   const identity =
     recipient.phone ||
     recipient.bankAccountNumber ||

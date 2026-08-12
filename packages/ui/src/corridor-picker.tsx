@@ -13,10 +13,9 @@ import { ArrowDown, Check, Search } from "lucide-react";
 import { cn } from "./utils";
 
 export type CorridorOption = {
-  code: string;
+  id: number;
   name: string;
   flag: string;
-  meta?: string;
 };
 
 type SlotProps = {
@@ -53,7 +52,7 @@ function CountrySlot({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState<MenuPosition | null>(null);
-  const selected = options.find((option) => option.code === value);
+  const selected = options.find((option) => option.id === Number(value));
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -61,17 +60,18 @@ function CountrySlot({
       ? options.filter(
           (option) =>
             option.name.toLowerCase().includes(normalized) ||
-            option.code.toLowerCase().includes(normalized) ||
-            option.meta?.toLowerCase().includes(normalized),
+            String(option.id).toLowerCase().includes(normalized),
         )
       : options;
 
     if (!recentCodes.length || normalized) return matched;
 
     const recent = recentCodes
-      .map((code) => matched.find((option) => option.code === code))
+      .map((id) => matched.find((option) => option.id === Number(id)))
       .filter(Boolean) as CorridorOption[];
-    const rest = matched.filter((option) => !recentCodes.includes(option.code));
+    const rest = matched.filter(
+      (option) => !recentCodes.includes(String(option.id)),
+    );
     return [...recent, ...rest];
   }, [options, query, recentCodes]);
 
@@ -151,15 +151,15 @@ function CountrySlot({
                 </li>
               ) : (
                 filtered.map((option) => {
-                  const isSelected = option.code === value;
+                  const isSelected = option.id === Number(value);
                   return (
-                    <li key={option.code}>
+                    <li key={option.id}>
                       <button
                         type="button"
                         role="option"
                         aria-selected={isSelected}
                         onClick={() => {
-                          onChange(option.code);
+                          onChange(String(option.id));
                           setOpen(false);
                           setQuery("");
                         }}
@@ -174,9 +174,6 @@ function CountrySlot({
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium text-foreground">
                             {option.name}
-                          </span>
-                          <span className="block truncate text-xs text-muted">
-                            {option.meta ?? option.code}
                           </span>
                         </span>
                         {isSelected ? (
@@ -224,11 +221,6 @@ function CountrySlot({
               <span className="mt-0.5 block truncate text-[15px] font-semibold text-navy">
                 {selected.name}
               </span>
-              {selected.meta ? (
-                <span className="mt-0.5 block truncate text-xs text-muted">
-                  {selected.meta}
-                </span>
-              ) : null}
             </>
           ) : (
             <span className="mt-0.5 block text-[15px] text-subtle">

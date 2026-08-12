@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -12,6 +12,7 @@ import {
   FULFILLMENT_STEPS,
   REQUEST_STEPS,
   STATIC_QUOTE,
+  calculateFee,
   createReferenceNumber,
   getRecipientCountry,
   getSenderCountry,
@@ -30,6 +31,7 @@ import { RecipientStep } from "./steps/recipient-step";
 import { SuccessStep } from "./steps/success-step";
 import { TransferStep } from "./steps/transfer-step";
 import { UploadStep } from "./steps/upload-step";
+import type { TransferOptions } from "@repo/types";
 
 const stepMotion = {
   initial: { opacity: 0, y: 6 },
@@ -38,25 +40,47 @@ const stepMotion = {
   transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const },
 };
 
-export default function NewTransfer() {
+type NewTransferProps = {
+  transferOptions: TransferOptions;
+};
+
+export default function NewTransfer({ transferOptions }: NewTransferProps) {
   const [step, setStep] = useState(0);
   const [reference, setReference] = useState(() => createReferenceNumber());
   const [submitting, setSubmitting] = useState(false);
 
+  const firstSenderCountry = transferOptions.sources[0];
+
   const form = useForm<TransferFormValues>({
     resolver: zodResolver(transferRequestSchema),
-    defaultValues: defaultTransferValues,
+    defaultValues: {
+      ...defaultTransferValues,
+      senderCountryCode: firstSenderCountry.id?.toString(),
+    },
     mode: "onTouched",
     reValidateMode: "onChange",
   });
 
-  const values = form.watch();
-  const sender = getSenderCountry(values.senderCountryCode);
-  const recipient = getRecipientCountry(values.recipientCountryCode);
+  const values = useWatch({ control: form.control });
+  const sender = getSenderCountry(
+    values.senderCountryCode ?? "",
+    transferOptions.sources,
+  );
+  const recipient = getRecipientCountry(
+    values.recipientCountryCode ?? "",
+    transferOptions.destinations,
+  );
+  const fee = calculateFee(
+    Number(values.sendAmount ?? 0),
+    recipient?.fee_type ?? "fixed",
+    Number(recipient?.fee ?? 0),
+  );
   const quote = getTransferQuote(
-    values.sendAmount,
-    values.sendCurrency,
-    recipient?.receiveCurrency ?? "GHS",
+    values.sendAmount ?? "",
+    values.sendCurrency ?? "",
+    recipient?.currency_code ?? "GHS",
+    Number(recipient?.default_exchange_rate ?? 1),
+    fee,
   );
 
   const inRequestPhase = step <= 1;
@@ -75,12 +99,16 @@ export default function NewTransfer() {
       : Math.max(step - 3, 0);
 
   const summaryItems = useMemo(() => {
+    const account = values.network || values.bank;
+    const methods = [...(sender?.banks ?? []), ...(recipient?.banks ?? [])];
+    const channelName = methods.find(
+      (method) => method.id?.toString() === account,
+    )?.name;
     const payoutDetail =
       values.receivingMethod === "mobile_money"
-        ? values.network || "Mobile money"
-        : [values.bank, values.bankAccountNumber]
-            .filter(Boolean)
-            .join(" · ") || "Bank transfer";
+        ? channelName || "Mobile money"
+        : [channelName, values.bankAccountNumber].filter(Boolean).join(" · ") ||
+          "Bank transfer";
 
     return [
       {
@@ -93,7 +121,7 @@ export default function NewTransfer() {
       },
       {
         label: "Recipient",
-        value: values.recipientName.trim() || "—",
+        value: values.recipientName?.trim() || "—",
       },
       {
         label: "Payout",
@@ -101,8 +129,12 @@ export default function NewTransfer() {
       },
       { label: "You send", value: quote.sendLabel, emphasis: true },
       { label: "Recipient gets", value: quote.receiveLabel, emphasis: true },
-      { label: "Fee", value: quote.feeLabel },
-      { label: "Rate", value: quote.rateLabel },
+      {
+        label: "Fee",
+        value: `${sender?.currency_symbol} ${fee.toFixed(2)}`,
+        emphasis: false,
+      },
+      { label: "Rate", value: recipient?.default_exchange_rate ?? "" },
     ];
   }, [quote, recipient, sender, values]);
 
@@ -181,7 +213,7 @@ export default function NewTransfer() {
 
   return (
     <main className="min-h-full bg-[#f7f8fa]">
-      <div className="mx-auto w-full max-w-[1080px] px-4 py-8 sm:px-6 md:py-12">
+      <div className="mx-auto w-full max-w-270 px-4 py-8 sm:px-6 md:py-12">
         {!isSubmittedScreen && !isCompleteScreen ? (
           <div className="mb-10">
             <Stepper steps={stepperSteps} currentStep={stepperIndex} />
@@ -204,8 +236,15 @@ export default function NewTransfer() {
                 exit={stepMotion.exit}
                 transition={stepMotion.transition}
               >
-                {step === 0 ? <TransferStep form={form} /> : null}
-                {step === 1 ? <RecipientStep form={form} /> : null}
+                {step === 0 ? (
+                  <TransferStep form={form} transferOptions={transferOptions} />
+                ) : null}
+                {step === 1 ? (
+                  <RecipientStep
+                    form={form}
+                    transferOptions={transferOptions}
+                  />
+                ) : null}
                 {step === 2 ? (
                   <SuccessStep
                     variant="submitted"

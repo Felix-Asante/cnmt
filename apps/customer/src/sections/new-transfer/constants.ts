@@ -1,3 +1,7 @@
+import type {
+  TransferDestinationCountry,
+  TransferSourceCountry,
+} from "@repo/types";
 export type ReceivingMethod = "mobile_money" | "bank";
 
 export type SendCurrency = "GBP" | "EUR" | "MAD";
@@ -166,16 +170,25 @@ export const STATIC_QUOTE = {
   referencePrefix: "CN",
 } as const;
 
-export function getSenderCountry(code: string) {
-  return SENDER_COUNTRIES.find((country) => country.code === code);
+export function getSenderCountry(
+  code: string,
+  sources: TransferSourceCountry[],
+) {
+  return sources.find((country) => country.id === Number(code));
 }
 
-export function getRecipientCountry(code: string) {
-  return RECIPIENT_COUNTRIES.find((country) => country.code === code);
+export function getRecipientCountry(
+  code: string,
+  destinations: TransferDestinationCountry[],
+) {
+  return destinations.find((country) => country.id === Number(code));
 }
 
-export function getCountry(code: string) {
-  return getRecipientCountry(code);
+export function getCountry(
+  code: string,
+  destinations: TransferDestinationCountry[],
+) {
+  return getRecipientCountry(code, destinations);
 }
 
 function formatMoney(amount: number, currency: string) {
@@ -191,8 +204,6 @@ function formatMoney(amount: number, currency: string) {
 }
 
 export type TransferQuote = {
-  rate: number;
-  rateLabel: string;
   fee: number;
   feeLabel: string;
   receiveAmount: number;
@@ -205,26 +216,24 @@ export function getTransferQuote(
   sendAmount: string,
   sendCurrency: string,
   receiveCurrency: string,
+  rate: number,
+  fee: number,
 ): TransferQuote {
-  const rateKey = `${sendCurrency}-${receiveCurrency}`;
-  const rate = STATIC_RATES[rateKey] ?? 1;
-  const fee = STATIC_FEES[sendCurrency] ?? 2.99;
   const amount = Number(sendAmount);
-  const hasAmount = Boolean(sendAmount) && Number.isFinite(amount) && amount > 0;
-  const receiveAmount = hasAmount ? amount * rate : 0;
+  const hasAmount =
+    Boolean(sendAmount) && Number.isFinite(amount) && amount > 0;
+  const receiveAmount = hasAmount ? Math.max(amount * rate - fee, 0) : 0;
 
   return {
-    rate,
-    rateLabel: `1 ${sendCurrency} = ${rate.toLocaleString("en-GB", {
-      maximumFractionDigits: 3,
-    })} ${receiveCurrency}`,
     fee,
     feeLabel: formatMoney(fee, sendCurrency),
     receiveAmount,
     receiveLabel: hasAmount
       ? formatMoney(receiveAmount, receiveCurrency)
       : `— ${receiveCurrency}`,
-    sendLabel: hasAmount ? formatMoney(amount, sendCurrency) : `— ${sendCurrency}`,
+    sendLabel: hasAmount
+      ? formatMoney(amount, sendCurrency)
+      : `— ${sendCurrency}`,
     hasAmount,
   };
 }
@@ -233,4 +242,15 @@ export function createReferenceNumber() {
   const stamp = Date.now().toString(36).toUpperCase().slice(-6);
   const random = Math.random().toString(36).toUpperCase().slice(2, 6);
   return `${STATIC_QUOTE.referencePrefix}-${stamp}${random}`;
+}
+
+export function calculateFee(
+  amount: number,
+  feeType: "fixed" | "percentage",
+  fee: number,
+) {
+  if (feeType === "fixed") {
+    return fee;
+  }
+  return Math.floor((amount * fee) / 100) ?? 0;
 }

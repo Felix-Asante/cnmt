@@ -27,7 +27,7 @@ export const transferRequestSchema = z
       .refine((value) => Number(value) <= 25000, {
         message: "Maximum single transfer is 25,000.",
       }),
-    sendCurrency: z.enum(["GBP", "EUR", "MAD"]),
+    sendCurrency: z.string(),
     senderWhatsApp: phoneSchema,
     recipientName: z
       .string()
@@ -39,11 +39,11 @@ export const transferRequestSchema = z
     network: z.string().optional(),
     bank: z.string().optional(),
     bankAccountName: z.string().trim().max(80, "Account name is too long."),
-    bankAccountNumber: z
+    bankAccountNumber: z.string().trim().max(34, "Account number is too long."),
+    note: z
       .string()
-      .trim()
-      .max(34, "Account number is too long."),
-    note: z.string().max(160, "Note must be 160 characters or fewer.").optional(),
+      .max(160, "Note must be 160 characters or fewer.")
+      .optional(),
     proofFile: z.custom<File | null>(
       (value) => value === null || value instanceof File,
     ),
@@ -134,12 +134,7 @@ export const defaultTransferValues: TransferFormValues = {
 
 /** Step indices: 0 Transfer · 1 Recipient · 2 Submitted · 3 Pay · 4 Proof · 5 Done */
 export const stepFieldMap = [
-  [
-    "senderCountryCode",
-    "recipientCountryCode",
-    "sendAmount",
-    "sendCurrency",
-  ],
+  ["senderCountryCode", "recipientCountryCode", "sendAmount", "sendCurrency"],
   [
     "senderWhatsApp",
     "recipientName",
