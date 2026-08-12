@@ -156,7 +156,6 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
         });
         return;
       }
-      console.log({ ...form.getValues(), reference, proofUploaded: true });
       setStep(5);
       return;
     }

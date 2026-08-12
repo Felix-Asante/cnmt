@@ -191,15 +191,16 @@ export function getCountry(
   return getRecipientCountry(code, destinations);
 }
 
-function formatMoney(amount: number, currency: string) {
+export function formatMoney(amount: number, currency: string) {
+  const code = currency.trim().toUpperCase();
   try {
     return new Intl.NumberFormat("en-GB", {
       style: "currency",
-      currency,
+      currency: code,
       maximumFractionDigits: 2,
     }).format(amount);
   } catch {
-    return `${amount.toFixed(2)} ${currency}`;
+    return `${amount.toFixed(2)} ${code || currency}`;
   }
 }
 
