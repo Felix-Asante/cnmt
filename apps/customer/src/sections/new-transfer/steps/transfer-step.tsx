@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useFormState, useWatch, type UseFormReturn } from "react-hook-form";
+import { useWatch, type UseFormReturn } from "react-hook-form";
 import { AmountInput } from "@repo/ui/amount-input";
 import { CorridorPicker } from "@repo/ui/corridor-picker";
 import {
-  RECIPIENT_COUNTRIES,
-  SENDER_COUNTRIES,
   calculateFee,
   getRecipientCountry,
   getSenderCountry,

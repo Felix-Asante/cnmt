@@ -7,5 +7,6 @@ const createEndpoint = (endpoint: string) => {
 export const API_ENDPOINTS = {
   transfers: {
     getTransferOptions: () => createEndpoint("transfers/options"),
+    create: () => createEndpoint("transfers"),
   },
 };

@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@repo/ui/button";
 import { Stepper } from "@repo/ui/stepper";
+import { toast } from "@repo/ui/toast";
 import { TransferSummary } from "@repo/ui/transfer-summary";
 import {
   FULFILLMENT_STEPS,
@@ -32,6 +33,7 @@ import { SuccessStep } from "./steps/success-step";
 import { TransferStep } from "./steps/transfer-step";
 import { UploadStep } from "./steps/upload-step";
 import type { TransferOptions } from "@repo/types";
+import { createTransfer } from "./api/server";
 
 const stepMotion = {
   initial: { opacity: 0, y: 6 },
@@ -46,8 +48,10 @@ type NewTransferProps = {
 
 export default function NewTransfer({ transferOptions }: NewTransferProps) {
   const [step, setStep] = useState(0);
-  const [reference, setReference] = useState(() => createReferenceNumber());
-  const [submitting, setSubmitting] = useState(false);
+  const [reference, setReference] = useState("");
+
+  const [submitting, startTransition] = useTransition();
+  const idempotencyKeyRef = useRef<string | null>(null);
 
   const firstSenderCountry = transferOptions.sources[0];
 
@@ -172,29 +176,45 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
     const valid = await form.trigger();
     if (!valid) return;
 
-    setSubmitting(true);
     const data = form.getValues();
-    console.log({ ...data, reference, status: "request_submitted" });
 
-    rememberCorridor({
-      senderCountryCode: data.senderCountryCode,
-      recipientCountryCode: data.recipientCountryCode,
-    });
-    rememberRecipient({
-      name: data.recipientName,
-      phone: data.recipientPhone,
-      receivingMethod: data.receivingMethod,
-      network: data.network,
-      bank: data.bank,
-      bankAccountName: data.bankAccountName,
-      bankAccountNumber: data.bankAccountNumber,
-      senderCountryCode: data.senderCountryCode,
-      recipientCountryCode: data.recipientCountryCode,
-      sendCurrency: data.sendCurrency,
-    });
+    startTransition(async () => {
+      try {
+        idempotencyKeyRef.current ??= crypto.randomUUID();
+        const response = await createTransfer(data, idempotencyKeyRef.current);
+        if (!response) {
+          toast.error("We couldn’t submit this transfer", {
+            description: "Check the details and try again.",
+          });
+          return;
+        }
+        idempotencyKeyRef.current = null;
 
-    setSubmitting(false);
-    setStep(2);
+        rememberCorridor({
+          senderCountryCode: data.senderCountryCode,
+          recipientCountryCode: data.recipientCountryCode,
+        });
+        rememberRecipient({
+          name: data.recipientName,
+          phone: data.recipientPhone,
+          receivingMethod: data.receivingMethod,
+          network: data.network,
+          bank: data.bank,
+          bankAccountName: data.bankAccountName,
+          bankAccountNumber: data.bankAccountNumber,
+          senderCountryCode: data.senderCountryCode,
+          recipientCountryCode: data.recipientCountryCode,
+          sendCurrency: data.sendCurrency,
+        });
+        setReference(response.reference);
+        setStep(2);
+      } catch (error) {
+        console.error("Error submitting request:", error);
+        toast.error("We couldn’t submit this transfer", {
+          description: "Something went wrong. Please try again.",
+        });
+      }
+    });
   }
 
   function goBack() {
@@ -206,8 +226,9 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
   }
 
   function handleCreateAnother() {
+    idempotencyKeyRef.current = null;
     form.reset(defaultTransferValues);
-    setReference(createReferenceNumber());
+    setReference("");
     setStep(0);
   }
 
