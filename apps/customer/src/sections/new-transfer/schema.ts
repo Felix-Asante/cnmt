@@ -1,4 +1,11 @@
 import { z } from "zod";
+import { isUuid } from "@/utils/id";
+import {
+  PAYMENT_PROOF_UPLOAD,
+  createFileValidator,
+} from "@repo/utils/file";
+
+const validateProofFile = createFileValidator(PAYMENT_PROOF_UPLOAD);
 
 const receivingMethodSchema = z.enum(["mobile_money", "bank"]);
 
@@ -21,11 +28,9 @@ export const transferRequestSchema = z
     sendAmount: z
       .string()
       .min(1, "Enter how much you want to send.")
+      .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount.")
       .refine((value) => Number(value) > 0, {
         message: "Amount must be greater than zero.",
-      })
-      .refine((value) => Number(value) <= 25000, {
-        message: "Maximum single transfer is 25,000.",
       }),
     sendCurrency: z.string(),
     senderWhatsApp: phoneSchema,
@@ -61,7 +66,7 @@ export const transferRequestSchema = z
         });
       }
 
-      if (!data.network) {
+      if (!data.network || !isUuid(data.network)) {
         ctx.addIssue({
           code: "custom",
           path: ["network"],
@@ -72,7 +77,7 @@ export const transferRequestSchema = z
     }
 
     // Bank channel — no recipient phone
-    if (!data.bank) {
+    if (!data.bank || !isUuid(data.bank)) {
       ctx.addIssue({
         code: "custom",
         path: ["bank"],
@@ -94,7 +99,7 @@ export const transferRequestSchema = z
         path: ["bankAccountNumber"],
         message: "Enter a valid account number.",
       });
-    } else if (!/^[A-Za-z0-9-]+$/.test(data.bankAccountNumber)) {
+    } else if (!/^[A-Za-z0-9]+$/.test(data.bankAccountNumber)) {
       ctx.addIssue({
         code: "custom",
         path: ["bankAccountNumber"],
@@ -106,25 +111,27 @@ export const transferRequestSchema = z
 export const proofSchema = z.object({
   proofFile: z
     .custom<File | null>((value) => value === null || value instanceof File)
-    .refine((value) => value instanceof File, {
-      message: "Upload a payment proof to continue.",
+    .superRefine((value, ctx) => {
+      const message = validateProofFile(value);
+      if (message) {
+        ctx.addIssue({ code: "custom", message });
+      }
     }),
 });
 
-export const transferFormSchema = transferRequestSchema;
-
 export type TransferFormValues = z.input<typeof transferRequestSchema>;
+export type TransferRequestValues = Omit<TransferFormValues, "proofFile">;
 
 export const defaultTransferValues: TransferFormValues = {
-  senderCountryCode: "GB",
-  recipientCountryCode: "GH",
+  senderCountryCode: "",
+  recipientCountryCode: "",
   sendAmount: "",
   sendCurrency: "GBP",
   senderWhatsApp: "",
   recipientName: "",
   recipientPhone: "",
   receivingMethod: "mobile_money",
-  network: "MTN MoMo",
+  network: "",
   bank: "",
   bankAccountName: "",
   bankAccountNumber: "",

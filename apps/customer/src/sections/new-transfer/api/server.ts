@@ -4,8 +4,17 @@ import { request } from "@/utils/request";
 import { API_ENDPOINTS } from "@/constants/endpoints";
 import type { TransferOptions } from "@repo/types";
 import { getTransferOptionsTag } from "@/utils/cache";
-import { transferRequestSchema, type TransferFormValues } from "../schema";
-import z from "zod";
+import {
+  transferRequestSchema,
+  type TransferRequestValues,
+} from "../schema";
+import {
+  isAllowedMimeType,
+  normalizeMimeType,
+  PAYMENT_PROOF_UPLOAD,
+} from "@repo/utils/file";
+import { isE164, toE164 } from "@/utils/phone";
+import { isUuid } from "@/utils/id";
 import { cleanDeep } from "@/utils/clean-deep";
 
 type CreateTransferResponse = {
@@ -27,7 +36,7 @@ export const getTransferOptions = async () => {
       method: "GET",
       next: {
         tags: [getTransferOptionsTag()],
-        revalidate: 60 * 3, // 3min
+        revalidate: 60 * 3,
       },
       cache: "force-cache",
     });
@@ -39,118 +48,126 @@ export const getTransferOptions = async () => {
 };
 
 export const createTransfer = async (
-  transferData: TransferFormValues,
+  transferData: TransferRequestValues,
   idempotencyKey: string,
 ) => {
   try {
-    const res = z.safeParse(transferRequestSchema, transferData);
-    if (!res.success) {
-      console.error("Invalid transfer data:", res.error);
+    if (!isUuid(idempotencyKey)) {
+      throw new Error("Invalid idempotency key");
+    }
+
+    const parsed = transferRequestSchema
+      .omit({ proofFile: true })
+      .safeParse(transferData);
+    if (!parsed.success) {
       throw new Error("Invalid transfer data");
     }
 
-    const payload = {
-      source_country_id: Number(transferData.senderCountryCode),
-      destination_country_id: Number(transferData.recipientCountryCode),
-      amount_sent: transferData.sendAmount,
-      sender_phone: transferData.senderWhatsApp,
-      recipient: {
-        recipient_name: transferData.recipientName,
-        receiving_method: transferData.receivingMethod?.toUpperCase(),
-        bank_id: transferData.bank,
-        account_number: transferData.bankAccountNumber,
-        receiving_network_id: transferData.network,
-        recipient_phone: transferData.recipientPhone,
-      },
-      notes: transferData.note,
-    };
-    const cleanPayload = cleanDeep(payload);
+    const data = parsed.data;
+    const sourceCountryId = Number(data.senderCountryCode);
+    const destinationCountryId = Number(data.recipientCountryCode);
+    if (
+      !Number.isInteger(sourceCountryId) ||
+      sourceCountryId <= 0 ||
+      !Number.isInteger(destinationCountryId) ||
+      destinationCountryId <= 0
+    ) {
+      throw new Error("Invalid transfer data");
+    }
 
-    const response = await request<CreateTransferResponse>({
+    const senderPhone = toE164(data.senderWhatsApp);
+    if (!isE164(senderPhone)) {
+      throw new Error("Invalid transfer data");
+    }
+
+    const isBank = data.receivingMethod === "bank";
+    const recipientPhone = data.recipientPhone
+      ? toE164(data.recipientPhone)
+      : "";
+
+    if (isBank) {
+      if (!data.bank || !isUuid(data.bank)) {
+        throw new Error("Invalid transfer data");
+      }
+    } else {
+      if (!data.network || !isUuid(data.network)) {
+        throw new Error("Invalid transfer data");
+      }
+      if (!isE164(recipientPhone)) {
+        throw new Error("Invalid transfer data");
+      }
+    }
+
+    const payload = {
+      source_country_id: sourceCountryId,
+      destination_country_id: destinationCountryId,
+      amount_sent: data.sendAmount,
+      sender_phone: senderPhone,
+      recipient: {
+        recipient_name: isBank
+          ? data.bankAccountName.trim()
+          : data.recipientName.trim(),
+        receiving_method: isBank ? "BANK" : "MOBILE_MONEY",
+        bank_id: isBank ? data.bank : undefined,
+        account_number: isBank ? data.bankAccountNumber : undefined,
+        receiving_network_id: isBank ? undefined : data.network,
+        recipient_phone: isBank ? undefined : recipientPhone,
+      },
+      notes: data.note || undefined,
+    };
+
+    return await request<CreateTransferResponse>({
       endpoint: API_ENDPOINTS.transfers.create(),
       method: "POST",
-      body: cleanPayload,
+      body: cleanDeep(payload),
       headers: {
         "Idempotency-Key": idempotencyKey,
       },
     });
-    return response;
   } catch (error) {
     console.error("Error creating transfer:", error);
     return null;
   }
 };
 
-const createUploadPaymentProofSignedUrl = async (
+export const createUploadPaymentProofSignedUrl = async (
   reference: string,
   contentType: string,
 ) => {
   try {
-    const response = await request<CreateUploadPaymentProofSignedUrlResponse>({
+    const type = normalizeMimeType(contentType);
+    if (!reference.trim() || !isAllowedMimeType(type, PAYMENT_PROOF_UPLOAD.accept)) {
+      throw new Error("Invalid proof upload request");
+    }
+
+    return await request<CreateUploadPaymentProofSignedUrlResponse>({
       endpoint: API_ENDPOINTS.transfers.createUploadPaymentProofSignedUrl(),
       method: "POST",
-      body: { reference, content_type: contentType },
+      body: { reference: reference.trim(), content_type: type },
     });
-    return response;
   } catch (error) {
     console.error("Error creating upload payment proof signed url:", error);
     return null;
   }
 };
 
-const confirmPaymentProofUploaded = async (reference: string, key: string) => {
+export const confirmPaymentProofUploaded = async (
+  reference: string,
+  key: string,
+) => {
   try {
-    const response = await request({
+    if (!reference.trim() || !key.trim()) {
+      throw new Error("Invalid proof confirmation");
+    }
+
+    await request({
       endpoint: API_ENDPOINTS.transfers.confirmPaymentProofUploaded(),
       method: "PATCH",
-      body: { reference, key },
+      body: { reference: reference.trim(), key },
     });
-    console.log({ confirm_response: JSON.stringify(response, null, 2) });
     return true;
   } catch (error) {
     console.error("Error confirming payment proof uploaded:", error);
     return false;
-  }
-};
-
-export const uploadPaymentProof = async (
-  proofFile: File,
-  reference: string,
-  contentType: string,
-) => {
-  try {
-    if (!proofFile || !reference) {
-      throw new Error("Proof file and reference are required");
-    }
-    const response = await createUploadPaymentProofSignedUrl(
-      reference,
-      contentType,
-    );
-    if (!response) {
-      throw new Error("Failed to upload proof");
-    }
-    console.log({ signed_response: JSON.stringify(response, null, 2) });
-    const { signed_url, key, content_type } = response;
-    const uploadResponse = await fetch(signed_url, {
-      method: "PUT",
-      body: proofFile,
-      headers: {
-        "Content-Type": content_type,
-      },
-    });
-    console.log({ upload_response: JSON.stringify(uploadResponse, null, 2) });
-    if (!uploadResponse.ok) {
-      throw new Error("Failed to upload proof");
-    }
-
-    const confirmResponse = await confirmPaymentProofUploaded(reference, key);
-
-    if (!confirmResponse) {
-      throw new Error("Failed to upload proof");
-    }
-    return true;
-  } catch (error) {
-    console.error("Error uploading proof:", error);
-    return null;
   }
 };

@@ -7,7 +7,7 @@ export type Country = {
 };
 
 export type CountryPaymentChannel = {
-  id: number;
+  id: string;
   name: string;
 };
 

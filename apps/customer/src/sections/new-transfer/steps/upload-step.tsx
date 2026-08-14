@@ -3,14 +3,16 @@
 import type { UseFormReturn } from "react-hook-form";
 import { InformationBanner } from "@repo/ui/information-banner";
 import { UploadArea } from "@repo/ui/upload-area";
+import { PAYMENT_PROOF_UPLOAD } from "@repo/utils/file";
 import type { TransferFormValues } from "../schema";
 import { useWatch } from "react-hook-form";
 
 type UploadStepProps = {
   form: UseFormReturn<TransferFormValues>;
+  disabled?: boolean;
 };
 
-export function UploadStep({ form }: UploadStepProps) {
+export function UploadStep({ form, disabled = false }: UploadStepProps) {
   const file = useWatch({ control: form.control, name: "proofFile" });
   const error = form.formState.errors.proofFile?.message;
 
@@ -32,8 +34,12 @@ export function UploadStep({ form }: UploadStepProps) {
 
       <UploadArea
         value={file instanceof File ? file : null}
+        disabled={disabled}
+        rules={PAYMENT_PROOF_UPLOAD}
+        dropLabel="Drop payment proof here"
+        previewAlt="Payment proof preview"
         onChange={(next) =>
-          form.setValue("proofFile", next as File, {
+          form.setValue("proofFile", next, {
             shouldValidate: true,
             shouldDirty: true,
           })

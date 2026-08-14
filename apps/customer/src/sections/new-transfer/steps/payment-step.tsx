@@ -3,7 +3,8 @@
 import type { UseFormReturn } from "react-hook-form";
 import { InformationBanner } from "@repo/ui/information-banner";
 import { PaymentCard } from "@repo/ui/payment-card";
-import { STATIC_QUOTE, formatMoney } from "../constants";
+import { STATIC_QUOTE } from "../constants";
+import { formatMoney } from "@repo/utils/money";
 import type { TransferFormValues } from "../schema";
 
 type PaymentStepProps = {

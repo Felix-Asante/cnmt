@@ -14,7 +14,10 @@ import {
   SelectValue,
 } from "@repo/ui/select";
 import { cn } from "@/lib/utils";
-import { getCountry } from "../constants";
+import {
+  getRecipientCountry,
+} from "../constants";
+import { itemId, itemName } from "@repo/utils/lookup";
 import { getSavedRecipients, type SavedRecipient } from "../memory";
 import type { TransferFormValues } from "../schema";
 import type { TransferOptions } from "@repo/types";
@@ -65,7 +68,7 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
     control: form.control,
     name: "recipientCountryCode",
   });
-  const country = getCountry(recipientCode, transferOptions.destinations);
+  const country = getRecipientCountry(recipientCode, transferOptions.destinations);
   const method = useWatch({ control: form.control, name: "receivingMethod" });
   const network = useWatch({ control: form.control, name: "network" });
   const bank = useWatch({ control: form.control, name: "bank" });
@@ -81,17 +84,38 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
   }, []);
 
   useEffect(() => {
-    if (country) {
-      const methods = [];
-      if (country.mobile_networks.length > 0) {
-        methods.push("mobile_money");
-      }
-      if (country.banks.length > 0) {
-        methods.push("bank");
-      }
-      setPaymentChannels(methods);
+    if (!country) return;
+
+    const methods: Array<"mobile_money" | "bank"> = [];
+    if (country.mobile_networks.length > 0) methods.push("mobile_money");
+    if (country.banks.length > 0) methods.push("bank");
+    setPaymentChannels(methods);
+
+    const nextMethod =
+      method === "mobile_money" && !methods.includes("mobile_money")
+        ? methods[0]
+        : method === "bank" && !methods.includes("bank")
+          ? methods[0]
+          : method;
+
+    if (nextMethod && nextMethod !== method) {
+      form.setValue("receivingMethod", nextMethod, { shouldDirty: true });
+      return;
     }
-  }, [country]);
+
+    if (nextMethod === "mobile_money") {
+      const ids = country.mobile_networks.map((item) => item.id);
+      if (ids[0] && !ids.includes(network ?? "")) {
+        form.setValue("network", ids[0]);
+      }
+      return;
+    }
+
+    const ids = country.banks.map((item) => item.id);
+    if (ids[0] && !ids.includes(bank ?? "")) {
+      form.setValue("bank", ids[0]);
+    }
+  }, [bank, country, form, method, network]);
 
   function applySaved(recipient: SavedRecipient) {
     form.setValue("senderCountryCode", recipient.senderCountryCode, {
@@ -143,7 +167,7 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
     });
 
     if (next === "mobile_money") {
-      form.setValue("network", country?.mobile_networks[0]?.name ?? "", {
+      form.setValue("network", itemId(country?.mobile_networks[0]), {
         shouldDirty: true,
         shouldValidate: true,
       });
@@ -156,7 +180,7 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
     form.setValue("network", "", { shouldDirty: true });
     form.setValue("recipientPhone", "", { shouldDirty: true });
     form.clearErrors("recipientPhone");
-    form.setValue("bank", country?.banks[0]?.name ?? "", {
+    form.setValue("bank", itemId(country?.banks[0]), {
       shouldDirty: true,
       shouldValidate: true,
     });
@@ -204,7 +228,7 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
                   <span className="block truncate text-xs text-muted">
                     {recipient.receivingMethod === "bank"
                       ? [
-                          recipient.bank,
+                          itemName(country.banks, recipient.bank),
                           recipient.bankAccountNumber
                             ? `••••${recipient.bankAccountNumber.slice(-4)}`
                             : null,
@@ -213,7 +237,10 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
                           .join(" · ")
                       : [
                           recipient.phone,
-                          recipient.network ? recipient.network : null,
+                          itemName(
+                            country.mobile_networks,
+                            recipient.network,
+                          ) || null,
                         ]
                           .filter(Boolean)
                           .join(" · ")}
@@ -321,7 +348,6 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
                     shouldDirty: true,
                   })
                 }
-                defaultValue={country.mobile_networks[0]?.id?.toString()}
               >
                 <SelectTrigger
                   id="network"
@@ -331,7 +357,7 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {country.mobile_networks.map((item) => (
-                    <SelectItem key={item.id} value={item.id?.toString()}>
+                    <SelectItem key={item.id} value={item.id}>
                       {item.name}
                     </SelectItem>
                   ))}
@@ -370,7 +396,6 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
                     shouldDirty: true,
                   })
                 }
-                defaultValue={country.banks[0]?.id?.toString()}
               >
                 <SelectTrigger
                   id="bank"
@@ -380,7 +405,7 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {country.banks.map((item) => (
-                    <SelectItem key={item.id} value={item.id?.toString()}>
+                    <SelectItem key={item.id} value={item.id}>
                       {item.name}
                     </SelectItem>
                   ))}

@@ -2,6 +2,13 @@
 
 import * as React from "react";
 import { FileText, ImageIcon, Trash2, Upload } from "lucide-react";
+import {
+  type FileUploadRules,
+  fileHelperText,
+  formatAccept,
+  validateFile,
+} from "@repo/utils/file";
+import { formatBytes } from "@repo/utils/format-bytes";
 import { cn } from "./utils";
 import { Button } from "./button";
 
@@ -9,32 +16,59 @@ type UploadAreaProps = {
   id?: string;
   value: File | null;
   onChange: (file: File | null) => void;
+  rules?: FileUploadRules;
   accept?: string;
+  maxSizeBytes?: number;
   error?: string;
   helperText?: string;
+  dropLabel?: string;
+  browseLabel?: string;
+  previewAlt?: string;
+  disabled?: boolean;
   className?: string;
 };
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+function resolveRules({
+  rules,
+  accept,
+  maxSizeBytes,
+}: Pick<UploadAreaProps, "rules" | "accept" | "maxSizeBytes">): FileUploadRules {
+  if (rules) return rules;
+  return {
+    accept: (accept ?? "image/png,image/jpeg,application/pdf")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean),
+    maxSizeBytes: maxSizeBytes ?? 10 * 1024 * 1024,
+  };
 }
 
 export function UploadArea({
-  id = "payment-proof",
+  id = "file-upload",
   value,
   onChange,
-  accept = "image/png,image/jpeg,application/pdf",
+  rules,
+  accept,
+  maxSizeBytes,
   error,
-  helperText = "PNG, JPG or PDF up to 10MB",
+  helperText,
+  dropLabel = "Drop file here",
+  browseLabel = "browse files",
+  previewAlt = "File preview",
+  disabled = false,
   className,
 }: UploadAreaProps) {
+  const resolvedRules = resolveRules({ rules, accept, maxSizeBytes });
+  const resolvedAccept = accept ?? formatAccept(resolvedRules.accept);
+  const resolvedHelper = helperText ?? fileHelperText(resolvedRules);
+
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = React.useState(false);
+  const [localError, setLocalError] = React.useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
-  const errorId = error ? `${id}-error` : undefined;
-  const helperId = helperText ? `${id}-helper` : undefined;
+  const displayError = error ?? localError ?? undefined;
+  const errorId = displayError ? `${id}-error` : undefined;
+  const helperId = resolvedHelper ? `${id}-helper` : undefined;
 
   React.useEffect(() => {
     if (!value || !value.type.startsWith("image/")) {
@@ -47,7 +81,13 @@ export function UploadArea({
   }, [value]);
 
   function assignFile(file: File | undefined) {
-    if (!file) return;
+    if (!file || disabled) return;
+    const message = validateFile(file, resolvedRules);
+    if (message) {
+      setLocalError(message);
+      return;
+    }
+    setLocalError(null);
     onChange(file);
   }
 
@@ -57,10 +97,11 @@ export function UploadArea({
         ref={inputRef}
         id={id}
         type="file"
-        accept={accept}
+        accept={resolvedAccept}
+        disabled={disabled}
         className="sr-only"
         onChange={(event) => assignFile(event.target.files?.[0])}
-        aria-invalid={Boolean(error) || undefined}
+        aria-invalid={Boolean(displayError) || undefined}
         aria-describedby={
           [helperId, errorId].filter(Boolean).join(" ") || undefined
         }
@@ -69,9 +110,13 @@ export function UploadArea({
       {!value ? (
         <div
           role="button"
-          tabIndex={0}
-          onClick={() => inputRef.current?.click()}
+          tabIndex={disabled ? -1 : 0}
+          aria-disabled={disabled || undefined}
+          onClick={() => {
+            if (!disabled) inputRef.current?.click();
+          }}
           onKeyDown={(event) => {
+            if (disabled) return;
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
               inputRef.current?.click();
@@ -79,11 +124,11 @@ export function UploadArea({
           }}
           onDragEnter={(event) => {
             event.preventDefault();
-            setDragging(true);
+            if (!disabled) setDragging(true);
           }}
           onDragOver={(event) => {
             event.preventDefault();
-            setDragging(true);
+            if (!disabled) setDragging(true);
           }}
           onDragLeave={(event) => {
             event.preventDefault();
@@ -92,38 +137,37 @@ export function UploadArea({
           onDrop={(event) => {
             event.preventDefault();
             setDragging(false);
-            assignFile(event.dataTransfer.files?.[0]);
+            if (!disabled) assignFile(event.dataTransfer.files?.[0]);
           }}
           className={cn(
-            "flex cursor-pointer flex-col items-center justify-center border border-dashed px-6 py-14 text-center transition-colors duration-150",
+            "flex flex-col items-center justify-center border border-dashed px-6 py-14 text-center transition-colors duration-150",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/15",
-            dragging
-              ? "border-navy bg-navy-soft/40"
-              : error
-                ? "border-danger bg-brand-soft/20"
-                : "border-border-strong bg-surface hover:border-navy/40 hover:bg-background",
+            disabled
+              ? "cursor-not-allowed border-border bg-surface opacity-60"
+              : "cursor-pointer border-border-strong bg-surface hover:border-navy/40 hover:bg-background",
+            dragging && !disabled && "border-navy bg-navy-soft/40",
+            displayError &&
+              !disabled &&
+              "border-danger bg-brand-soft/20",
           )}
         >
           <Upload className="size-5 text-navy" aria-hidden />
-          <p className="mt-4 text-sm font-medium text-foreground">
-            Drop payment proof here
-          </p>
+          <p className="mt-4 text-sm font-medium text-foreground">{dropLabel}</p>
           <p className="mt-1 text-sm text-muted">
-            or <span className="font-medium text-navy">browse files</span>
+            or <span className="font-medium text-navy">{browseLabel}</span>
           </p>
-          {helperText ? (
+          {resolvedHelper ? (
             <p id={helperId} className="mt-3 text-xs text-subtle">
-              {helperText}
+              {resolvedHelper}
             </p>
           ) : null}
         </div>
       ) : (
         <div className="overflow-hidden border border-border bg-background">
           {previewUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={previewUrl}
-              alt="Payment proof preview"
+              alt={previewAlt}
               className="h-48 w-full object-cover"
             />
           ) : (
@@ -153,6 +197,7 @@ export function UploadArea({
                 type="button"
                 variant="outline"
                 size="sm"
+                disabled={disabled}
                 onClick={() => inputRef.current?.click()}
               >
                 Replace
@@ -164,8 +209,10 @@ export function UploadArea({
                 aria-label="Remove file"
                 onClick={() => {
                   onChange(null);
+                  setLocalError(null);
                   if (inputRef.current) inputRef.current.value = "";
                 }}
+                disabled={disabled}
               >
                 <Trash2 className="size-4 text-muted" />
               </Button>
@@ -174,9 +221,9 @@ export function UploadArea({
         </div>
       )}
 
-      {error ? (
+      {displayError ? (
         <p id={errorId} role="alert" className="text-sm font-medium text-brand">
-          {error}
+          {displayError}
         </p>
       ) : null}
     </div>

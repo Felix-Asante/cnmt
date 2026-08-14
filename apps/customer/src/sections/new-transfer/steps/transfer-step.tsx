@@ -6,10 +6,13 @@ import { AmountInput } from "@repo/ui/amount-input";
 import { CorridorPicker } from "@repo/ui/corridor-picker";
 import {
   calculateFee,
+  firstDestinationForSource,
   getRecipientCountry,
   getSenderCountry,
   getTransferQuote,
 } from "../constants";
+import { itemId } from "@repo/utils/lookup";
+import { formatMoney } from "@repo/utils/money";
 import { getRecentCorridors, type RecentCorridor } from "../memory";
 import type { TransferFormValues } from "../schema";
 import type { TransferOptions } from "@repo/types";
@@ -103,17 +106,22 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
       form.setValue(
         "network",
         method === "mobile_money"
-          ? (recipientCountry.mobile_networks[0]?.name ?? "")
+          ? itemId(recipientCountry.mobile_networks[0])
           : "",
         { shouldDirty: true },
       );
       form.setValue(
         "bank",
-        method === "bank" ? (recipientCountry.banks[0]?.name ?? "") : "",
+        method === "bank" ? itemId(recipientCountry.banks[0]) : "",
         { shouldDirty: true },
       );
     }
   }
+
+  const minAmount = Number(recipient?.min_transfer_amount);
+  const maxAmount = Number(recipient?.max_transfer_amount);
+  const hasLimits =
+    Number.isFinite(minAmount) && Number.isFinite(maxAmount) && maxAmount > 0;
 
   return (
     <div className="space-y-10">
@@ -155,9 +163,9 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
                     : "border-border text-muted hover:border-border-strong hover:text-foreground"
                 }`}
               >
-                {from.flag} {from.id}
+                {from.flag} {from.iso_code}
                 <span className="opacity-50">→</span>
-                {to.flag} {to.id}
+                {to.flag} {to.iso_code}
               </button>
             );
           })}
@@ -177,7 +185,16 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
           })),
           onChange: (code) => {
             const currentRecipient = form.getValues("recipientCountryCode");
-            applyCorridor(code, currentRecipient || "GH");
+            const destinations = transferOptions.destinations.filter(
+              (country) => country.source_country_id.toString() === code,
+            );
+            const nextRecipient = destinations.some(
+              (country) => country.id.toString() === currentRecipient,
+            )
+              ? currentRecipient
+              : (firstDestinationForSource(code, destinations)?.id.toString() ??
+                "");
+            applyCorridor(code, nextRecipient);
           },
           error: errors.senderCountryCode?.message,
         }}
@@ -193,7 +210,7 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
           })),
           onChange: (code) => {
             const currentSender = form.getValues("senderCountryCode");
-            applyCorridor(currentSender || "GB", code);
+            applyCorridor(currentSender, code);
           },
           error: errors.recipientCountryCode?.message,
         }}
@@ -212,9 +229,11 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
         helperText={
           quote.hasAmount
             ? `Recipient receives ${quote.receiveLabel}`
-            : recipient
-              ? `Recipient receives in ${recipient.currency_code}`
-              : undefined
+            : hasLimits
+              ? `Send ${formatMoney(minAmount, currency)} – ${formatMoney(maxAmount, currency)}`
+              : recipient
+                ? `Recipient receives in ${recipient.currency_code}`
+                : undefined
         }
       />
     </div>

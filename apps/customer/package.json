@@ -11,6 +11,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
     "@repo/types": "*",
+    "@repo/utils": "*",
     "@repo/ui": "*",
     "@tanstack/react-query": "^5.101.4",
     "class-variance-authority": "^0.7.1",
