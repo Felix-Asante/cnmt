@@ -14,6 +14,12 @@ type CreateTransferResponse = {
   expires_in: number;
 };
 
+type CreateUploadPaymentProofSignedUrlResponse = {
+  signed_url: string;
+  key: string;
+  content_type: string;
+};
+
 export const getTransferOptions = async () => {
   try {
     const response = await request<TransferOptions>({
@@ -71,6 +77,80 @@ export const createTransfer = async (
     return response;
   } catch (error) {
     console.error("Error creating transfer:", error);
+    return null;
+  }
+};
+
+const createUploadPaymentProofSignedUrl = async (
+  reference: string,
+  contentType: string,
+) => {
+  try {
+    const response = await request<CreateUploadPaymentProofSignedUrlResponse>({
+      endpoint: API_ENDPOINTS.transfers.createUploadPaymentProofSignedUrl(),
+      method: "POST",
+      body: { reference, content_type: contentType },
+    });
+    return response;
+  } catch (error) {
+    console.error("Error creating upload payment proof signed url:", error);
+    return null;
+  }
+};
+
+const confirmPaymentProofUploaded = async (reference: string, key: string) => {
+  try {
+    const response = await request({
+      endpoint: API_ENDPOINTS.transfers.confirmPaymentProofUploaded(),
+      method: "PATCH",
+      body: { reference, key },
+    });
+    console.log({ confirm_response: JSON.stringify(response, null, 2) });
+    return true;
+  } catch (error) {
+    console.error("Error confirming payment proof uploaded:", error);
+    return false;
+  }
+};
+
+export const uploadPaymentProof = async (
+  proofFile: File,
+  reference: string,
+  contentType: string,
+) => {
+  try {
+    if (!proofFile || !reference) {
+      throw new Error("Proof file and reference are required");
+    }
+    const response = await createUploadPaymentProofSignedUrl(
+      reference,
+      contentType,
+    );
+    if (!response) {
+      throw new Error("Failed to upload proof");
+    }
+    console.log({ signed_response: JSON.stringify(response, null, 2) });
+    const { signed_url, key, content_type } = response;
+    const uploadResponse = await fetch(signed_url, {
+      method: "PUT",
+      body: proofFile,
+      headers: {
+        "Content-Type": content_type,
+      },
+    });
+    console.log({ upload_response: JSON.stringify(uploadResponse, null, 2) });
+    if (!uploadResponse.ok) {
+      throw new Error("Failed to upload proof");
+    }
+
+    const confirmResponse = await confirmPaymentProofUploaded(reference, key);
+
+    if (!confirmResponse) {
+      throw new Error("Failed to upload proof");
+    }
+    return true;
+  } catch (error) {
+    console.error("Error uploading proof:", error);
     return null;
   }
 };

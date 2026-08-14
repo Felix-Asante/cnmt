@@ -36,7 +36,9 @@ export const request = async <T>({
     cache,
     next,
   });
-  const data = res?.json ? await res.json() : res;
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
 
   if (!res.ok) {
     throw data as Error;

@@ -8,5 +8,9 @@ export const API_ENDPOINTS = {
   transfers: {
     getTransferOptions: () => createEndpoint("transfers/options"),
     create: () => createEndpoint("transfers"),
+    createUploadPaymentProofSignedUrl: () =>
+      createEndpoint("transfers/payment-proof/upload-url"),
+    confirmPaymentProofUploaded: () =>
+      createEndpoint("transfers/payment-proof/confirm"),
   },
 };

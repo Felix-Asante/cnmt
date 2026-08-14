@@ -33,7 +33,7 @@ import { SuccessStep } from "./steps/success-step";
 import { TransferStep } from "./steps/transfer-step";
 import { UploadStep } from "./steps/upload-step";
 import type { TransferOptions } from "@repo/types";
-import { createTransfer } from "./api/server";
+import { createTransfer, uploadPaymentProof } from "./api/server";
 
 const stepMotion = {
   initial: { opacity: 0, y: 6 },
@@ -147,8 +147,9 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
     if (!fields) return;
 
     if (step === 4) {
+      const proofFile = form.getValues("proofFile");
       const proofValid = proofSchema.safeParse({
-        proofFile: form.getValues("proofFile"),
+        proofFile,
       });
       if (!proofValid.success) {
         form.setError("proofFile", {
@@ -156,7 +157,7 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
         });
         return;
       }
-      setStep(5);
+      await uploadProof(proofFile);
       return;
     }
 
@@ -169,6 +170,36 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
     }
 
     setStep((current) => current + 1);
+  }
+
+  async function uploadProof(proofFile: File | null) {
+    if (!proofFile) {
+      toast.error("No proof file provided", {
+        description: "Please select a proof file to upload.",
+      });
+      return;
+    }
+    startTransition(async () => {
+      try {
+        const response = await uploadPaymentProof(
+          proofFile,
+          reference,
+          proofFile.type,
+        );
+        if (!response) {
+          toast.error("We couldn’t upload the proof", {
+            description: "Check the details and try again.",
+          });
+          return;
+        }
+        setStep(5);
+      } catch (error) {
+        console.error("Error uploading proof:", error);
+        toast.error("We couldn’t upload the proof", {
+          description: "Check the details and try again.",
+        });
+      }
+    });
   }
 
   async function submitRequest() {
