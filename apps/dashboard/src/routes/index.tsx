@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({ component: Login });
 
-function Home() {
+function Login() {
   return (
     <main className="mx-auto flex min-h-full max-w-lg flex-col justify-center px-6 py-16">
       <p className="text-xs font-medium tracking-[0.16em] text-brand uppercase">

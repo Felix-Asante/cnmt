@@ -10,33 +10,71 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as privateDashboardIndexRouteImport } from './routes/(private)/dashboard/index'
+import { Route as privateDashboardTransfersRouteImport } from './routes/(private)/dashboard/transfers'
+import { Route as privateDashboardCountriesIndexRouteImport } from './routes/(private)/dashboard/countries/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const privateDashboardIndexRoute = privateDashboardIndexRouteImport.update({
+  id: '/(private)/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const privateDashboardTransfersRoute =
+  privateDashboardTransfersRouteImport.update({
+    id: '/(private)/dashboard/transfers',
+    path: '/dashboard/transfers',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const privateDashboardCountriesIndexRoute =
+  privateDashboardCountriesIndexRouteImport.update({
+    id: '/(private)/dashboard/countries/',
+    path: '/dashboard/countries/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard/transfers': typeof privateDashboardTransfersRoute
+  '/dashboard/': typeof privateDashboardIndexRoute
+  '/dashboard/countries/': typeof privateDashboardCountriesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard/transfers': typeof privateDashboardTransfersRoute
+  '/dashboard': typeof privateDashboardIndexRoute
+  '/dashboard/countries': typeof privateDashboardCountriesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/(private)/dashboard/transfers': typeof privateDashboardTransfersRoute
+  '/(private)/dashboard/': typeof privateDashboardIndexRoute
+  '/(private)/dashboard/countries/': typeof privateDashboardCountriesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/dashboard/transfers' | '/dashboard/' | '/dashboard/countries/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/dashboard/transfers' | '/dashboard' | '/dashboard/countries'
+  id:
+    | '__root__'
+    | '/'
+    | '/(private)/dashboard/transfers'
+    | '/(private)/dashboard/'
+    | '/(private)/dashboard/countries/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  privateDashboardTransfersRoute: typeof privateDashboardTransfersRoute
+  privateDashboardIndexRoute: typeof privateDashboardIndexRoute
+  privateDashboardCountriesIndexRoute: typeof privateDashboardCountriesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +86,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(private)/dashboard/': {
+      id: '/(private)/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof privateDashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(private)/dashboard/transfers': {
+      id: '/(private)/dashboard/transfers'
+      path: '/dashboard/transfers'
+      fullPath: '/dashboard/transfers'
+      preLoaderRoute: typeof privateDashboardTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(private)/dashboard/countries/': {
+      id: '/(private)/dashboard/countries/'
+      path: '/dashboard/countries'
+      fullPath: '/dashboard/countries/'
+      preLoaderRoute: typeof privateDashboardCountriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  privateDashboardTransfersRoute: privateDashboardTransfersRoute,
+  privateDashboardIndexRoute: privateDashboardIndexRoute,
+  privateDashboardCountriesIndexRoute: privateDashboardCountriesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
