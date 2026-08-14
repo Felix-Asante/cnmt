@@ -5,7 +5,7 @@ import { API_ENDPOINTS } from "@/constants/endpoints";
 import type { TransferOptions } from "@repo/types";
 import { getTransferOptionsTag } from "@/utils/cache";
 import {
-  transferRequestSchema,
+  transferRequestPayloadSchema,
   type TransferRequestValues,
 } from "../schema";
 import {
@@ -56,9 +56,7 @@ export const createTransfer = async (
       throw new Error("Invalid idempotency key");
     }
 
-    const parsed = transferRequestSchema
-      .omit({ proofFile: true })
-      .safeParse(transferData);
+    const parsed = transferRequestPayloadSchema.safeParse(transferData);
     if (!parsed.success) {
       throw new Error("Invalid transfer data");
     }

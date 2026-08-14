@@ -245,6 +245,7 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
         headers: { "Content-Type": signed.content_type },
         credentials: "omit",
       });
+
       if (!uploaded.ok) {
         toast.error("We couldn’t upload the proof", {
           description: "Check the file and try again.",
@@ -252,7 +253,10 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
         return;
       }
 
-      const confirmed = await confirmPaymentProofUploaded(reference, signed.key);
+      const confirmed = await confirmPaymentProofUploaded(
+        reference,
+        signed.key,
+      );
       if (!confirmed) {
         toast.error("We couldn’t confirm the proof", {
           description: "The file uploaded, but confirmation failed. Try again.",

@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { isUuid } from "@/utils/id";
-import {
-  PAYMENT_PROOF_UPLOAD,
-  createFileValidator,
-} from "@repo/utils/file";
+import { PAYMENT_PROOF_UPLOAD, createFileValidator } from "@repo/utils/file";
 
 const validateProofFile = createFileValidator(PAYMENT_PROOF_UPLOAD);
 
@@ -16,8 +13,7 @@ const phoneSchema = z
   .max(20, "Phone number is too long.")
   .regex(/^[+0-9\s()-]+$/, "Use digits and standard phone characters only.");
 
-/** Validates the request itself — payment proof is deferred. */
-export const transferRequestSchema = z
+export const transferRequestPayloadSchema = z
   .object({
     senderCountryCode: z
       .string()
@@ -49,9 +45,6 @@ export const transferRequestSchema = z
       .string()
       .max(160, "Note must be 160 characters or fewer.")
       .optional(),
-    proofFile: z.custom<File | null>(
-      (value) => value === null || value instanceof File,
-    ),
   })
   .superRefine((data, ctx) => {
     if (data.receivingMethod === "mobile_money") {
@@ -108,6 +101,12 @@ export const transferRequestSchema = z
     }
   });
 
+export const transferRequestSchema = transferRequestPayloadSchema.safeExtend({
+  proofFile: z.custom<File | null>(
+    (value) => value === null || value instanceof File,
+  ),
+});
+
 export const proofSchema = z.object({
   proofFile: z
     .custom<File | null>((value) => value === null || value instanceof File)
@@ -120,7 +119,9 @@ export const proofSchema = z.object({
 });
 
 export type TransferFormValues = z.input<typeof transferRequestSchema>;
-export type TransferRequestValues = Omit<TransferFormValues, "proofFile">;
+export type TransferRequestValues = z.input<
+  typeof transferRequestPayloadSchema
+>;
 
 export const defaultTransferValues: TransferFormValues = {
   senderCountryCode: "",
