@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@import "@repo/tailwind-config";
+
+:root {
+  --font-display-family: "Barlow Condensed";
+  --font-sans-family: "Schibsted Grotesk";
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
