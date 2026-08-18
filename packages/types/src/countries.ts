@@ -6,6 +6,19 @@ export type Country = {
   currency_symbol: string;
 };
 
+export type AdminCountry = {
+  id: number;
+  name: string;
+  iso_code: string;
+  flag: string;
+  is_active: boolean;
+  currency_name: string;
+  currency_code: string;
+  currency_symbol: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type CountryPaymentChannel = {
   id: string;
   name: string;
