@@ -6,7 +6,7 @@ export function useCloseTransferSheet() {
   const navigate = useNavigate();
 
   return useCallback(() => {
-    void navigate({
+    navigate({
       to: "/dashboard/transfers",
       search: (prev) => prev,
     });
