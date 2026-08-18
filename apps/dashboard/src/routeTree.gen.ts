@@ -18,8 +18,10 @@ import { Route as privateDashboardPaymentAccountsRouteImport } from './routes/(p
 import { Route as privateDashboardRatesRouteImport } from './routes/(private)/dashboard/rates'
 import { Route as privateDashboardRoutesRouteImport } from './routes/(private)/dashboard/routes'
 import { Route as privateDashboardSettingsRouteImport } from './routes/(private)/dashboard/settings'
-import { Route as privateDashboardTransfersRouteImport } from './routes/(private)/dashboard/transfers'
+import { Route as privateDashboardTransfersRouteRouteImport } from './routes/(private)/dashboard/transfers/route'
 import { Route as privateDashboardCountriesIndexRouteImport } from './routes/(private)/dashboard/countries/index'
+import { Route as privateDashboardTransfersIndexRouteImport } from './routes/(private)/dashboard/transfers/index'
+import { Route as privateDashboardTransfersReferenceRouteImport } from './routes/(private)/dashboard/transfers/$reference'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -69,8 +71,8 @@ const privateDashboardSettingsRoute =
     path: '/settings',
     getParentRoute: () => privateDashboardRouteRoute,
   } as any)
-const privateDashboardTransfersRoute =
-  privateDashboardTransfersRouteImport.update({
+const privateDashboardTransfersRouteRoute =
+  privateDashboardTransfersRouteRouteImport.update({
     id: '/transfers',
     path: '/transfers',
     getParentRoute: () => privateDashboardRouteRoute,
@@ -81,19 +83,33 @@ const privateDashboardCountriesIndexRoute =
     path: '/countries/',
     getParentRoute: () => privateDashboardRouteRoute,
   } as any)
+const privateDashboardTransfersIndexRoute =
+  privateDashboardTransfersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => privateDashboardTransfersRouteRoute,
+  } as any)
+const privateDashboardTransfersReferenceRoute =
+  privateDashboardTransfersReferenceRouteImport.update({
+    id: '/$reference',
+    path: '/$reference',
+    getParentRoute: () => privateDashboardTransfersRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof privateDashboardRouteRouteWithChildren
+  '/dashboard/transfers': typeof privateDashboardTransfersRouteRouteWithChildren
   '/dashboard/banks': typeof privateDashboardBanksRoute
   '/dashboard/networks': typeof privateDashboardNetworksRoute
   '/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRoute
   '/dashboard/rates': typeof privateDashboardRatesRoute
   '/dashboard/routes': typeof privateDashboardRoutesRoute
   '/dashboard/settings': typeof privateDashboardSettingsRoute
-  '/dashboard/transfers': typeof privateDashboardTransfersRoute
   '/dashboard/': typeof privateDashboardIndexRoute
+  '/dashboard/transfers/$reference': typeof privateDashboardTransfersReferenceRoute
   '/dashboard/countries/': typeof privateDashboardCountriesIndexRoute
+  '/dashboard/transfers/': typeof privateDashboardTransfersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,38 +119,43 @@ export interface FileRoutesByTo {
   '/dashboard/rates': typeof privateDashboardRatesRoute
   '/dashboard/routes': typeof privateDashboardRoutesRoute
   '/dashboard/settings': typeof privateDashboardSettingsRoute
-  '/dashboard/transfers': typeof privateDashboardTransfersRoute
   '/dashboard': typeof privateDashboardIndexRoute
+  '/dashboard/transfers/$reference': typeof privateDashboardTransfersReferenceRoute
   '/dashboard/countries': typeof privateDashboardCountriesIndexRoute
+  '/dashboard/transfers': typeof privateDashboardTransfersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(private)/dashboard': typeof privateDashboardRouteRouteWithChildren
+  '/(private)/dashboard/transfers': typeof privateDashboardTransfersRouteRouteWithChildren
   '/(private)/dashboard/banks': typeof privateDashboardBanksRoute
   '/(private)/dashboard/networks': typeof privateDashboardNetworksRoute
   '/(private)/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRoute
   '/(private)/dashboard/rates': typeof privateDashboardRatesRoute
   '/(private)/dashboard/routes': typeof privateDashboardRoutesRoute
   '/(private)/dashboard/settings': typeof privateDashboardSettingsRoute
-  '/(private)/dashboard/transfers': typeof privateDashboardTransfersRoute
   '/(private)/dashboard/': typeof privateDashboardIndexRoute
+  '/(private)/dashboard/transfers/$reference': typeof privateDashboardTransfersReferenceRoute
   '/(private)/dashboard/countries/': typeof privateDashboardCountriesIndexRoute
+  '/(private)/dashboard/transfers/': typeof privateDashboardTransfersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/dashboard/transfers'
     | '/dashboard/banks'
     | '/dashboard/networks'
     | '/dashboard/payment-accounts'
     | '/dashboard/rates'
     | '/dashboard/routes'
     | '/dashboard/settings'
-    | '/dashboard/transfers'
     | '/dashboard/'
+    | '/dashboard/transfers/$reference'
     | '/dashboard/countries/'
+    | '/dashboard/transfers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,22 +165,25 @@ export interface FileRouteTypes {
     | '/dashboard/rates'
     | '/dashboard/routes'
     | '/dashboard/settings'
-    | '/dashboard/transfers'
     | '/dashboard'
+    | '/dashboard/transfers/$reference'
     | '/dashboard/countries'
+    | '/dashboard/transfers'
   id:
     | '__root__'
     | '/'
     | '/(private)/dashboard'
+    | '/(private)/dashboard/transfers'
     | '/(private)/dashboard/banks'
     | '/(private)/dashboard/networks'
     | '/(private)/dashboard/payment-accounts'
     | '/(private)/dashboard/rates'
     | '/(private)/dashboard/routes'
     | '/(private)/dashboard/settings'
-    | '/(private)/dashboard/transfers'
     | '/(private)/dashboard/'
+    | '/(private)/dashboard/transfers/$reference'
     | '/(private)/dashboard/countries/'
+    | '/(private)/dashboard/transfers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -236,7 +260,7 @@ declare module '@tanstack/react-router' {
       id: '/(private)/dashboard/transfers'
       path: '/transfers'
       fullPath: '/dashboard/transfers'
-      preLoaderRoute: typeof privateDashboardTransfersRouteImport
+      preLoaderRoute: typeof privateDashboardTransfersRouteRouteImport
       parentRoute: typeof privateDashboardRouteRoute
     }
     '/(private)/dashboard/countries/': {
@@ -246,29 +270,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof privateDashboardCountriesIndexRouteImport
       parentRoute: typeof privateDashboardRouteRoute
     }
+    '/(private)/dashboard/transfers/': {
+      id: '/(private)/dashboard/transfers/'
+      path: '/'
+      fullPath: '/dashboard/transfers/'
+      preLoaderRoute: typeof privateDashboardTransfersIndexRouteImport
+      parentRoute: typeof privateDashboardTransfersRouteRoute
+    }
+    '/(private)/dashboard/transfers/$reference': {
+      id: '/(private)/dashboard/transfers/$reference'
+      path: '/$reference'
+      fullPath: '/dashboard/transfers/$reference'
+      preLoaderRoute: typeof privateDashboardTransfersReferenceRouteImport
+      parentRoute: typeof privateDashboardTransfersRouteRoute
+    }
   }
 }
 
+interface privateDashboardTransfersRouteRouteChildren {
+  privateDashboardTransfersReferenceRoute: typeof privateDashboardTransfersReferenceRoute
+  privateDashboardTransfersIndexRoute: typeof privateDashboardTransfersIndexRoute
+}
+
+const privateDashboardTransfersRouteRouteChildren: privateDashboardTransfersRouteRouteChildren =
+  {
+    privateDashboardTransfersReferenceRoute:
+      privateDashboardTransfersReferenceRoute,
+    privateDashboardTransfersIndexRoute: privateDashboardTransfersIndexRoute,
+  }
+
+const privateDashboardTransfersRouteRouteWithChildren =
+  privateDashboardTransfersRouteRoute._addFileChildren(
+    privateDashboardTransfersRouteRouteChildren,
+  )
+
 interface privateDashboardRouteRouteChildren {
+  privateDashboardTransfersRouteRoute: typeof privateDashboardTransfersRouteRouteWithChildren
   privateDashboardBanksRoute: typeof privateDashboardBanksRoute
   privateDashboardNetworksRoute: typeof privateDashboardNetworksRoute
   privateDashboardPaymentAccountsRoute: typeof privateDashboardPaymentAccountsRoute
   privateDashboardRatesRoute: typeof privateDashboardRatesRoute
   privateDashboardRoutesRoute: typeof privateDashboardRoutesRoute
   privateDashboardSettingsRoute: typeof privateDashboardSettingsRoute
-  privateDashboardTransfersRoute: typeof privateDashboardTransfersRoute
   privateDashboardIndexRoute: typeof privateDashboardIndexRoute
   privateDashboardCountriesIndexRoute: typeof privateDashboardCountriesIndexRoute
 }
 
 const privateDashboardRouteRouteChildren: privateDashboardRouteRouteChildren = {
+  privateDashboardTransfersRouteRoute:
+    privateDashboardTransfersRouteRouteWithChildren,
   privateDashboardBanksRoute: privateDashboardBanksRoute,
   privateDashboardNetworksRoute: privateDashboardNetworksRoute,
   privateDashboardPaymentAccountsRoute: privateDashboardPaymentAccountsRoute,
   privateDashboardRatesRoute: privateDashboardRatesRoute,
   privateDashboardRoutesRoute: privateDashboardRoutesRoute,
   privateDashboardSettingsRoute: privateDashboardSettingsRoute,
-  privateDashboardTransfersRoute: privateDashboardTransfersRoute,
   privateDashboardIndexRoute: privateDashboardIndexRoute,
   privateDashboardCountriesIndexRoute: privateDashboardCountriesIndexRoute,
 }

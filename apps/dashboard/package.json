@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
+    "@repo/types": "*",
     "@repo/ui": "*",
+    "@repo/utils": "*",
     "@tanstack/react-router": "^1.132.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.43.0",
