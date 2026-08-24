@@ -22,10 +22,13 @@ export function CountryCreate({ countries }: { countries: AdminCountry[] }) {
   function handleCreate(values: CreateCountryValues) {
     startTransition(async () => {
       try {
-        await createCountry(toCreateCountryPayload(values));
+        const created = await createCountry(toCreateCountryPayload(values));
         toast.success("Country created.");
         await router.invalidate();
-        goBack();
+        void navigate({
+          to: "/dashboard/countries/$id",
+          params: { id: String(created.id) },
+        });
       } catch (error) {
         toast.error(getErrorMessage(error));
       }

@@ -36,6 +36,31 @@ export type CreateCountryPayload = {
   payment_channels: CreatePaymentChannelPayload[];
 };
 
+export type UpdateCountryPayload = {
+  name: string;
+  iso_code: string;
+  flag: string;
+  currency_name: string;
+  currency_code: string;
+  currency_symbol: string;
+};
+
+export type UpdatePaymentChannelPayload = CreatePaymentChannelPayload;
+
+export type AdminPaymentChannel = {
+  id: string;
+  name: string;
+  channel_type: PaymentChannelType;
+  country_id: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AdminCountryDetail = AdminCountry & {
+  payment_channels: AdminPaymentChannel[];
+};
+
 export type CountryPaymentChannel = {
   id: string;
   name: string;

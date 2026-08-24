@@ -21,6 +21,7 @@ import { Route as privateDashboardRoutesRouteRouteImport } from './routes/(priva
 import { Route as privateDashboardSettingsRouteImport } from './routes/(private)/dashboard/settings'
 import { Route as privateDashboardTransfersRouteRouteImport } from './routes/(private)/dashboard/transfers/route'
 import { Route as privateDashboardCountriesIndexRouteImport } from './routes/(private)/dashboard/countries/index'
+import { Route as privateDashboardCountriesIdRouteImport } from './routes/(private)/dashboard/countries/$id'
 import { Route as privateDashboardCountriesNewRouteImport } from './routes/(private)/dashboard/countries/new'
 import { Route as privateDashboardRoutesIndexRouteImport } from './routes/(private)/dashboard/routes/index'
 import { Route as privateDashboardRoutesIdRouteImport } from './routes/(private)/dashboard/routes/$id'
@@ -95,6 +96,12 @@ const privateDashboardCountriesIndexRoute =
     path: '/',
     getParentRoute: () => privateDashboardCountriesRouteRoute,
   } as any)
+const privateDashboardCountriesIdRoute =
+  privateDashboardCountriesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => privateDashboardCountriesRouteRoute,
+  } as any)
 const privateDashboardCountriesNewRoute =
   privateDashboardCountriesNewRouteImport.update({
     id: '/new',
@@ -144,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/rates': typeof privateDashboardRatesRoute
   '/dashboard/settings': typeof privateDashboardSettingsRoute
   '/dashboard/': typeof privateDashboardIndexRoute
+  '/dashboard/countries/$id': typeof privateDashboardCountriesIdRoute
   '/dashboard/countries/new': typeof privateDashboardCountriesNewRoute
   '/dashboard/routes/$id': typeof privateDashboardRoutesIdRoute
   '/dashboard/routes/new': typeof privateDashboardRoutesNewRoute
@@ -160,6 +168,7 @@ export interface FileRoutesByTo {
   '/dashboard/rates': typeof privateDashboardRatesRoute
   '/dashboard/settings': typeof privateDashboardSettingsRoute
   '/dashboard': typeof privateDashboardIndexRoute
+  '/dashboard/countries/$id': typeof privateDashboardCountriesIdRoute
   '/dashboard/countries/new': typeof privateDashboardCountriesNewRoute
   '/dashboard/routes/$id': typeof privateDashboardRoutesIdRoute
   '/dashboard/routes/new': typeof privateDashboardRoutesNewRoute
@@ -181,6 +190,7 @@ export interface FileRoutesById {
   '/(private)/dashboard/rates': typeof privateDashboardRatesRoute
   '/(private)/dashboard/settings': typeof privateDashboardSettingsRoute
   '/(private)/dashboard/': typeof privateDashboardIndexRoute
+  '/(private)/dashboard/countries/$id': typeof privateDashboardCountriesIdRoute
   '/(private)/dashboard/countries/new': typeof privateDashboardCountriesNewRoute
   '/(private)/dashboard/routes/$id': typeof privateDashboardRoutesIdRoute
   '/(private)/dashboard/routes/new': typeof privateDashboardRoutesNewRoute
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/dashboard/rates'
     | '/dashboard/settings'
     | '/dashboard/'
+    | '/dashboard/countries/$id'
     | '/dashboard/countries/new'
     | '/dashboard/routes/$id'
     | '/dashboard/routes/new'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/dashboard/rates'
     | '/dashboard/settings'
     | '/dashboard'
+    | '/dashboard/countries/$id'
     | '/dashboard/countries/new'
     | '/dashboard/routes/$id'
     | '/dashboard/routes/new'
@@ -239,6 +251,7 @@ export interface FileRouteTypes {
     | '/(private)/dashboard/rates'
     | '/(private)/dashboard/settings'
     | '/(private)/dashboard/'
+    | '/(private)/dashboard/countries/$id'
     | '/(private)/dashboard/countries/new'
     | '/(private)/dashboard/routes/$id'
     | '/(private)/dashboard/routes/new'
@@ -339,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof privateDashboardCountriesIndexRouteImport
       parentRoute: typeof privateDashboardCountriesRouteRoute
     }
+    '/(private)/dashboard/countries/$id': {
+      id: '/(private)/dashboard/countries/$id'
+      path: '/$id'
+      fullPath: '/dashboard/countries/$id'
+      preLoaderRoute: typeof privateDashboardCountriesIdRouteImport
+      parentRoute: typeof privateDashboardCountriesRouteRoute
+    }
     '/(private)/dashboard/countries/new': {
       id: '/(private)/dashboard/countries/new'
       path: '/new'
@@ -385,12 +405,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface privateDashboardCountriesRouteRouteChildren {
+  privateDashboardCountriesIdRoute: typeof privateDashboardCountriesIdRoute
   privateDashboardCountriesNewRoute: typeof privateDashboardCountriesNewRoute
   privateDashboardCountriesIndexRoute: typeof privateDashboardCountriesIndexRoute
 }
 
 const privateDashboardCountriesRouteRouteChildren: privateDashboardCountriesRouteRouteChildren =
   {
+    privateDashboardCountriesIdRoute: privateDashboardCountriesIdRoute,
     privateDashboardCountriesNewRoute: privateDashboardCountriesNewRoute,
     privateDashboardCountriesIndexRoute: privateDashboardCountriesIndexRoute,
   }

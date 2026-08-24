@@ -22,6 +22,13 @@ export const API_ENDPOINTS = {
   countries: {
     list: () => createEndpoint("admin/countries"),
     create: () => createEndpoint("admin/countries"),
+    get: (id: string | number) => createEndpoint(`admin/countries/${id}`),
+    update: (id: string | number) => createEndpoint(`admin/countries/${id}`),
+    remove: (id: string | number) => createEndpoint(`admin/countries/${id}`),
+  },
+  paymentChannels: {
+    update: (id: string) => createEndpoint(`admin/payment-channels/${id}`),
+    remove: (id: string) => createEndpoint(`admin/payment-channels/${id}`),
   },
   routes: {
     list: (params?: {
