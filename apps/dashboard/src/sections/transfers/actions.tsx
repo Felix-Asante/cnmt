@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "@tanstack/react-router";
 import type { Transfer } from "@repo/types";
 import { Button } from "@repo/ui/button";
@@ -18,42 +18,40 @@ type DialogKind = "reject" | "cancel" | "complete";
 
 export function TransferWorkflow({ transfer }: { transfer: Transfer }) {
   const router = useRouter();
-  const [pending, setPending] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const [dialog, setDialog] = useState<DialogKind | null>(null);
   const workflow = workflowForStatus(transfer.status);
-  const busy = pending !== null;
 
-  async function run(
+  function run(
     name: string,
     task: () => Promise<unknown>,
     success: string,
   ) {
-    if (pending) return;
-    setPending(name);
-    try {
-      await task();
-      toast.success(success);
-      setDialog(null);
-      await router.invalidate();
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setPending(null);
-    }
+    if (isPending) return;
+    setPendingAction(name);
+    startTransition(async () => {
+      try {
+        await task();
+        toast.success(success);
+        setDialog(null);
+        await router.invalidate();
+      } catch (error) {
+        toast.error(getErrorMessage(error));
+      } finally {
+        setPendingAction(null);
+      }
+    });
   }
 
   function onNext() {
     if (!workflow.next) return;
     if (workflow.next.key === "verify") {
-      void run("verify", () => verifyPayment(transfer.id), "Payment verified.");
+      run("verify", () => verifyPayment(transfer.id), "Payment verified.");
       return;
     }
     if (workflow.next.key === "process") {
-      void run(
-        "process",
-        () => processTransfer(transfer.id),
-        "Payout started.",
-      );
+      run("process", () => processTransfer(transfer.id), "Payout started.");
       return;
     }
     setDialog("complete");
@@ -67,8 +65,8 @@ export function TransferWorkflow({ transfer }: { transfer: Transfer }) {
         <Button
           type="button"
           className="w-full"
-          loading={pending === workflow.next.key}
-          disabled={busy}
+          loading={pendingAction === workflow.next.key}
+          disabled={isPending}
           onClick={onNext}
         >
           {workflow.next.label}
@@ -82,7 +80,7 @@ export function TransferWorkflow({ transfer }: { transfer: Transfer }) {
               type="button"
               size="sm"
               variant="outline"
-              disabled={busy}
+              disabled={isPending}
               onClick={() => setDialog("reject")}
             >
               Reject payment
@@ -93,7 +91,7 @@ export function TransferWorkflow({ transfer }: { transfer: Transfer }) {
               type="button"
               size="sm"
               variant="ghost"
-              disabled={busy}
+              disabled={isPending}
               onClick={() => setDialog("cancel")}
             >
               Cancel transfer
@@ -107,10 +105,10 @@ export function TransferWorkflow({ transfer }: { transfer: Transfer }) {
           title="Mark as paid"
           description="Confirm that the recipient has received the funds. This cannot be undone."
           confirmLabel="Mark as paid"
-          pending={pending === "complete"}
+          pending={pendingAction === "complete"}
           onClose={() => setDialog(null)}
           onConfirm={() =>
-            void run(
+            run(
               "complete",
               () => completeTransfer(transfer.id),
               "Transfer completed.",
@@ -125,10 +123,10 @@ export function TransferWorkflow({ transfer }: { transfer: Transfer }) {
           description="The transfer goes back to pending payment so the sender can pay again."
           confirmLabel="Reject payment"
           requireReason
-          pending={pending === "reject"}
+          pending={pendingAction === "reject"}
           onClose={() => setDialog(null)}
           onConfirm={(reason) =>
-            void run(
+            run(
               "reject",
               () => rejectPayment(transfer.id, reason ?? ""),
               "Payment rejected.",
@@ -143,10 +141,10 @@ export function TransferWorkflow({ transfer }: { transfer: Transfer }) {
           description="The transfer will stop here and cannot continue."
           confirmLabel="Cancel transfer"
           requireReason
-          pending={pending === "cancel"}
+          pending={pendingAction === "cancel"}
           onClose={() => setDialog(null)}
           onConfirm={(reason) =>
-            void run(
+            run(
               "cancel",
               () => cancelTransfer(transfer.id, reason ?? ""),
               "Transfer cancelled.",

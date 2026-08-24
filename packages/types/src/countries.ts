@@ -19,6 +19,23 @@ export type AdminCountry = {
   updated_at: string;
 };
 
+export type PaymentChannelType = "BANK" | "MOBILE_MONEY";
+
+export type CreatePaymentChannelPayload = {
+  name: string;
+  channel_type: PaymentChannelType;
+};
+
+export type CreateCountryPayload = {
+  name: string;
+  iso_code: string;
+  flag: string;
+  currency_name: string;
+  currency_code: string;
+  currency_symbol: string;
+  payment_channels: CreatePaymentChannelPayload[];
+};
+
 export type CountryPaymentChannel = {
   id: string;
   name: string;

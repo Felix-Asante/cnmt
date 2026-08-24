@@ -1,9 +1,10 @@
-import { useState } from "react";
-import type { ErrorComponentProps } from "@tanstack/react-router";
+import { useDeferredValue, useState } from "react";
+import { Link, type ErrorComponentProps } from "@tanstack/react-router";
 import type { AdminCountry } from "@repo/types";
 import { Button } from "@repo/ui/button";
 import { Input } from "@repo/ui/input";
 import { DashboardPage } from "@/components/dashboard-page";
+import { cn } from "@/lib/utils";
 import { getErrorMessage } from "@/utils/request";
 import { CountryTable } from "./table";
 
@@ -21,13 +22,20 @@ function filterCountries(countries: AdminCountry[], query: string) {
 
 export function CountriesList({ countries }: { countries: AdminCountry[] }) {
   const [query, setQuery] = useState("");
-  const filtered = filterCountries(countries, query);
-  const hasSearch = query.trim().length > 0;
+  const deferredQuery = useDeferredValue(query);
+  const filtered = filterCountries(countries, deferredQuery);
+  const hasSearch = deferredQuery.trim().length > 0;
+  const isStale = query !== deferredQuery;
 
   return (
     <DashboardPage
       title="Countries"
       description={`${countries.length} supported ${countries.length === 1 ? "country" : "countries"}.`}
+      actions={
+        <Button size="sm" asChild>
+          <Link to="/dashboard/countries/new">Add country</Link>
+        </Button>
+      }
     >
       {countries.length > 0 ? (
         <Input
@@ -39,13 +47,25 @@ export function CountriesList({ countries }: { countries: AdminCountry[] }) {
         />
       ) : null}
 
-      <div className="border border-border bg-background">
+      <div
+        className={cn(
+          "border border-border bg-background transition-opacity duration-150",
+          isStale && "opacity-60",
+        )}
+      >
         {filtered.length === 0 ? (
-          <p className="px-4 py-16 text-center text-sm text-muted">
-            {hasSearch
-              ? "No countries match your search."
-              : "No countries available."}
-          </p>
+          <div className="px-4 py-16 text-center">
+            <p className="text-sm text-muted">
+              {hasSearch
+                ? "No countries match your search."
+                : "No countries available."}
+            </p>
+            {!hasSearch ? (
+              <Button size="sm" className="mt-4" asChild>
+                <Link to="/dashboard/countries/new">Add country</Link>
+              </Button>
+            ) : null}
+          </div>
         ) : (
           <CountryTable countries={filtered} />
         )}

@@ -1,16 +1,15 @@
-import { useCallback, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Sheet } from "@/components/sheet";
 
 export function useCloseRouteSheet() {
   const navigate = useNavigate();
-
-  return useCallback(() => {
+  return () => {
     void navigate({
       to: "/dashboard/routes",
       search: (prev) => prev,
     });
-  }, [navigate]);
+  };
 }
 
 export function RouteSheet({

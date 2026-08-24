@@ -21,6 +21,7 @@ function toQuery(params: Record<string, string | number | undefined>) {
 export const API_ENDPOINTS = {
   countries: {
     list: () => createEndpoint("admin/countries"),
+    create: () => createEndpoint("admin/countries"),
   },
   routes: {
     list: (params?: {

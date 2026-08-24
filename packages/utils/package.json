@@ -12,5 +12,8 @@
   "devDependencies": {
     "@repo/typescript-config": "*",
     "typescript": "5.9.2"
+  },
+  "dependencies": {
+    "world-countries": "^5.1.0"
   }
 }

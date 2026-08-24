@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useId, useRef, useState } from "react";
 import { Button } from "@repo/ui/button";
 import { Field } from "@repo/ui/field";
 import { Textarea } from "@repo/ui/textarea";
@@ -28,6 +28,9 @@ export function ConfirmDialog({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string>();
+  const onEscape = useEffectEvent(() => {
+    if (!pending) onClose();
+  });
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -37,11 +40,11 @@ export function ConfirmDialog({
     function onKeyDown(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       event.stopImmediatePropagation();
-      if (!pending) onClose();
+      onEscape();
     }
     document.addEventListener("keydown", onKeyDown, true);
     return () => document.removeEventListener("keydown", onKeyDown, true);
-  }, [onClose, pending]);
+  }, []);
 
   function submit() {
     const trimmed = reason.trim();

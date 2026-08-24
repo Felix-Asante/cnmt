@@ -1,20 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { listCountries } from "@/sections/countries/api";
-import {
-  CountriesError,
-  CountriesList,
-  CountriesPending,
-} from "@/sections/countries/list";
+import { createFileRoute, getRouteApi } from "@tanstack/react-router";
+import { CountriesList } from "@/sections/countries/list";
+
+const parentRoute = getRouteApi("/(private)/dashboard/countries");
 
 export const Route = createFileRoute("/(private)/dashboard/countries/")({
-  loader: () => listCountries(),
   component: Page,
-  pendingComponent: CountriesPending,
-  errorComponent: CountriesError,
-  pendingMs: 0,
 });
 
 function Page() {
-  const countries = Route.useLoaderData();
+  const countries = parentRoute.useLoaderData();
   return <CountriesList countries={countries} />;
 }

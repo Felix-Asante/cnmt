@@ -2,11 +2,8 @@ import {
   ArrowLeftRight,
   Building2,
   Globe,
-  Landmark,
   LayoutDashboard,
-  Percent,
   Settings,
-  Smartphone,
   Waypoints,
   type LucideIcon,
 } from "lucide-react";

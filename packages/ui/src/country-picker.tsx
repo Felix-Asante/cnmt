@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useId, useRef, useState } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { cn } from "./utils";
 
@@ -22,6 +22,30 @@ type CountryPickerProps = {
   recentCodes?: string[];
 };
 
+function filterOptions(
+  options: PickerOption[],
+  query: string,
+  recentCodes: string[],
+) {
+  const normalized = query.trim().toLowerCase();
+  const matched = normalized
+    ? options.filter(
+        (option) =>
+          option.name.toLowerCase().includes(normalized) ||
+          option.code.toLowerCase().includes(normalized) ||
+          option.meta?.toLowerCase().includes(normalized),
+      )
+    : options;
+
+  if (!recentCodes.length || normalized) return matched;
+
+  const recent = recentCodes
+    .map((code) => matched.find((option) => option.code === code))
+    .filter((option): option is PickerOption => Boolean(option));
+  const rest = matched.filter((option) => !recentCodes.includes(option.code));
+  return [...recent, ...rest];
+}
+
 export function CountryPicker({
   id,
   label,
@@ -36,27 +60,10 @@ export function CountryPicker({
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+  const filtered = filterOptions(options, deferredQuery, recentCodes);
   const selected = options.find((option) => option.code === value);
-
-  const filtered = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    const matched = normalized
-      ? options.filter(
-          (option) =>
-            option.name.toLowerCase().includes(normalized) ||
-            option.code.toLowerCase().includes(normalized) ||
-            option.meta?.toLowerCase().includes(normalized),
-        )
-      : options;
-
-    if (!recentCodes.length || normalized) return matched;
-
-    const recent = recentCodes
-      .map((code) => matched.find((option) => option.code === code))
-      .filter(Boolean) as PickerOption[];
-    const rest = matched.filter((option) => !recentCodes.includes(option.code));
-    return [...recent, ...rest];
-  }, [options, query, recentCodes]);
+  const isStale = query !== deferredQuery;
 
   useEffect(() => {
     function onPointerDown(event: MouseEvent) {
@@ -134,7 +141,12 @@ export function CountryPicker({
               aria-label={placeholder}
             />
           </div>
-          <ul className="max-h-56 overflow-y-auto py-1">
+          <ul
+            className={cn(
+              "max-h-56 overflow-y-auto py-1 transition-opacity duration-150",
+              isStale && "opacity-60",
+            )}
+          >
             {filtered.length === 0 ? (
               <li className="px-3 py-6 text-center text-sm text-muted">
                 No countries found

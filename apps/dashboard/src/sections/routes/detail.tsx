@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "@tanstack/react-router";
 import type { AdminCountry, TransferRoute } from "@repo/types";
 import { Badge } from "@repo/ui/badge";
@@ -32,46 +32,56 @@ export function RouteDetail({
   const router = useRouter();
   const close = useCloseRouteSheet();
   const [editing, setEditing] = useState(false);
-  const [pending, setPending] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const countryMap = new Map(countries.map((country) => [country.id, country]));
   const source = countryMap.get(route.source_country_id);
   const destination = countryMap.get(route.destination_country_id);
 
-  async function run(name: string, task: () => Promise<unknown>, success: string) {
-    if (pending) return;
-    setPending(name);
-    try {
-      await task();
-      toast.success(success);
-      setConfirmDelete(false);
-      setEditing(false);
-      await router.invalidate();
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setPending(null);
-    }
+  function run(name: string, task: () => Promise<unknown>, success: string) {
+    if (isPending) return;
+    setPendingAction(name);
+    startTransition(async () => {
+      try {
+        await task();
+        toast.success(success);
+        setConfirmDelete(false);
+        setEditing(false);
+        await router.invalidate();
+      } catch (error) {
+        toast.error(getErrorMessage(error));
+      } finally {
+        setPendingAction(null);
+      }
+    });
   }
 
-  async function onSave(values: RouteFormValues) {
-    await run("save", () => updateRoute(route.id, toUpdatePayload(values)), "Route updated.");
+  function onSave(values: RouteFormValues) {
+    run(
+      "save",
+      () => updateRoute(route.id, toUpdatePayload(values)),
+      "Route updated.",
+    );
   }
 
-  async function onDelete() {
-    if (pending) return;
-    setPending("delete");
-    try {
-      await deleteRoute(route.id);
-      toast.success("Route removed.");
-      setConfirmDelete(false);
-      await router.invalidate();
-      close();
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-      setPending(null);
-    }
+  function onDelete() {
+    if (isPending) return;
+    setPendingAction("delete");
+    startTransition(async () => {
+      try {
+        await deleteRoute(route.id);
+        toast.success("Route removed.");
+        setConfirmDelete(false);
+        await router.invalidate();
+        close();
+      } catch (error) {
+        toast.error(getErrorMessage(error));
+      } finally {
+        setPendingAction(null);
+      }
+    });
   }
 
   return (
@@ -96,7 +106,7 @@ export function RouteDetail({
           <RouteForm
             countries={countries}
             lockCountries
-            pending={pending === "save"}
+            pending={pendingAction === "save"}
             submitLabel="Save changes"
             defaultValues={{
               source_country_id: String(route.source_country_id),
@@ -107,7 +117,7 @@ export function RouteDetail({
               min_transfer_amount: String(route.min_transfer_amount),
               max_transfer_amount: String(route.max_transfer_amount),
             }}
-            onSubmit={(values) => void onSave(values)}
+            onSubmit={onSave}
             onCancel={() => setEditing(false)}
           />
         </div>
@@ -162,7 +172,7 @@ export function RouteDetail({
             <Button
               type="button"
               size="sm"
-              disabled={pending !== null}
+              disabled={isPending}
               onClick={() => setEditing(true)}
             >
               Edit pricing
@@ -171,10 +181,10 @@ export function RouteDetail({
               type="button"
               size="sm"
               variant="outline"
-              loading={pending === "toggle"}
-              disabled={pending !== null}
+              loading={pendingAction === "toggle"}
+              disabled={isPending}
               onClick={() =>
-                void run(
+                run(
                   "toggle",
                   () => toggleRouteActive(route.id),
                   route.is_active ? "Route deactivated." : "Route activated.",
@@ -187,7 +197,7 @@ export function RouteDetail({
               type="button"
               size="sm"
               variant="ghost"
-              disabled={pending !== null}
+              disabled={isPending}
               onClick={() => setConfirmDelete(true)}
             >
               Delete
@@ -201,9 +211,9 @@ export function RouteDetail({
           title="Delete route"
           description="This corridor will no longer be available for new transfers. Existing transfers are not changed."
           confirmLabel="Delete route"
-          pending={pending === "delete"}
+          pending={pendingAction === "delete"}
           onClose={() => setConfirmDelete(false)}
-          onConfirm={() => void onDelete()}
+          onConfirm={onDelete}
         />
       ) : null}
     </RouteSheet>
@@ -213,8 +223,21 @@ export function RouteDetail({
 export function RouteCreate({ countries }: { countries: AdminCountry[] }) {
   const router = useRouter();
   const close = useCloseRouteSheet();
-  const [pending, setPending] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const activeCountries = countries.filter((country) => country.is_active);
+
+  function handleCreate(values: RouteFormValues) {
+    startTransition(async () => {
+      try {
+        await createRoute(toCreatePayload(values));
+        toast.success("Route created.");
+        await router.invalidate();
+        close();
+      } catch (error) {
+        toast.error(getErrorMessage(error));
+      }
+    });
+  }
 
   return (
     <RouteSheet
@@ -224,22 +247,10 @@ export function RouteCreate({ countries }: { countries: AdminCountry[] }) {
       <div className="px-5 py-5">
         <RouteForm
           countries={activeCountries}
-          pending={pending}
+          pending={isPending}
           submitLabel="Create route"
           onCancel={close}
-          onSubmit={async (values) => {
-            setPending(true);
-            try {
-              await createRoute(toCreatePayload(values));
-              toast.success("Route created.");
-              await router.invalidate();
-              close();
-            } catch (error) {
-              toast.error(getErrorMessage(error));
-            } finally {
-              setPending(false);
-            }
-          }}
+          onSubmit={handleCreate}
         />
       </div>
     </RouteSheet>
