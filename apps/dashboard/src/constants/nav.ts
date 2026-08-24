@@ -44,13 +44,13 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: "/dashboard/routes", label: "Routes", icon: Waypoints },
       { to: "/dashboard/countries", label: "Countries", icon: Globe },
-      { to: "/dashboard/banks", label: "Banks", icon: Landmark },
-      {
-        to: "/dashboard/networks",
-        label: "Mobile networks",
-        icon: Smartphone,
-      },
-      { to: "/dashboard/rates", label: "Exchange rates", icon: Percent },
+      // { to: "/dashboard/banks", label: "Banks", icon: Landmark },
+      // {
+      //   to: "/dashboard/networks",
+      //   label: "Mobile networks",
+      //   icon: Smartphone,
+      // },
+      // { to: "/dashboard/rates", label: "Exchange rates", icon: Percent },
       {
         to: "/dashboard/payment-accounts",
         label: "Payment accounts",

@@ -22,6 +22,18 @@ export const API_ENDPOINTS = {
   countries: {
     list: () => createEndpoint("admin/countries"),
   },
+  routes: {
+    list: (params?: {
+      source_country_id?: number;
+      dest_country_id?: number;
+      is_active?: string;
+    }) => createEndpoint(`admin/routes${toQuery(params ?? {})}`),
+    create: () => createEndpoint("admin/routes"),
+    update: (id: string) => createEndpoint(`admin/routes/${id}`),
+    remove: (id: string) => createEndpoint(`admin/routes/${id}`),
+    toggleActive: (id: string) =>
+      createEndpoint(`admin/routes/${id}/toggle-active`),
+  },
   transfers: {
     list: (params: {
       page?: number;

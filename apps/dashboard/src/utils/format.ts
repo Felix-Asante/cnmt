@@ -38,6 +38,20 @@ export function formatDateTime(value: string) {
   }).format(date);
 }
 
+export function formatFee(
+  fee: string | number,
+  feeType: string,
+  currencyCode?: string,
+  currencySymbol?: string,
+) {
+  if (feeType === "percentage") {
+    const amount = parseAmount(fee);
+    if (!Number.isFinite(amount)) return "—";
+    return `${amount}%`;
+  }
+  return formatAmount(fee, currencyCode, currencySymbol);
+}
+
 export function formatExchangeRate(
   rate: string | number,
   sourceCode?: string,

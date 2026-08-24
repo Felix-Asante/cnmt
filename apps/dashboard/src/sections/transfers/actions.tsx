@@ -11,7 +11,7 @@ import {
   rejectPayment,
   verifyPayment,
 } from "./api";
-import { ConfirmDialog } from "./confirm-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { workflowForStatus } from "./constants";
 
 type DialogKind = "reject" | "cancel" | "complete";

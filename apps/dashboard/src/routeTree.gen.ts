@@ -16,10 +16,13 @@ import { Route as privateDashboardBanksRouteImport } from './routes/(private)/da
 import { Route as privateDashboardNetworksRouteImport } from './routes/(private)/dashboard/networks'
 import { Route as privateDashboardPaymentAccountsRouteImport } from './routes/(private)/dashboard/payment-accounts'
 import { Route as privateDashboardRatesRouteImport } from './routes/(private)/dashboard/rates'
-import { Route as privateDashboardRoutesRouteImport } from './routes/(private)/dashboard/routes'
+import { Route as privateDashboardRoutesRouteRouteImport } from './routes/(private)/dashboard/routes/route'
 import { Route as privateDashboardSettingsRouteImport } from './routes/(private)/dashboard/settings'
 import { Route as privateDashboardTransfersRouteRouteImport } from './routes/(private)/dashboard/transfers/route'
 import { Route as privateDashboardCountriesIndexRouteImport } from './routes/(private)/dashboard/countries/index'
+import { Route as privateDashboardRoutesIndexRouteImport } from './routes/(private)/dashboard/routes/index'
+import { Route as privateDashboardRoutesIdRouteImport } from './routes/(private)/dashboard/routes/$id'
+import { Route as privateDashboardRoutesNewRouteImport } from './routes/(private)/dashboard/routes/new'
 import { Route as privateDashboardTransfersIndexRouteImport } from './routes/(private)/dashboard/transfers/index'
 import { Route as privateDashboardTransfersReferenceRouteImport } from './routes/(private)/dashboard/transfers/$reference'
 
@@ -60,11 +63,12 @@ const privateDashboardRatesRoute = privateDashboardRatesRouteImport.update({
   path: '/rates',
   getParentRoute: () => privateDashboardRouteRoute,
 } as any)
-const privateDashboardRoutesRoute = privateDashboardRoutesRouteImport.update({
-  id: '/routes',
-  path: '/routes',
-  getParentRoute: () => privateDashboardRouteRoute,
-} as any)
+const privateDashboardRoutesRouteRoute =
+  privateDashboardRoutesRouteRouteImport.update({
+    id: '/routes',
+    path: '/routes',
+    getParentRoute: () => privateDashboardRouteRoute,
+  } as any)
 const privateDashboardSettingsRoute =
   privateDashboardSettingsRouteImport.update({
     id: '/settings',
@@ -83,6 +87,24 @@ const privateDashboardCountriesIndexRoute =
     path: '/countries/',
     getParentRoute: () => privateDashboardRouteRoute,
   } as any)
+const privateDashboardRoutesIndexRoute =
+  privateDashboardRoutesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => privateDashboardRoutesRouteRoute,
+  } as any)
+const privateDashboardRoutesIdRoute =
+  privateDashboardRoutesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => privateDashboardRoutesRouteRoute,
+  } as any)
+const privateDashboardRoutesNewRoute =
+  privateDashboardRoutesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => privateDashboardRoutesRouteRoute,
+  } as any)
 const privateDashboardTransfersIndexRoute =
   privateDashboardTransfersIndexRouteImport.update({
     id: '/',
@@ -99,16 +121,19 @@ const privateDashboardTransfersReferenceRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof privateDashboardRouteRouteWithChildren
+  '/dashboard/routes': typeof privateDashboardRoutesRouteRouteWithChildren
   '/dashboard/transfers': typeof privateDashboardTransfersRouteRouteWithChildren
   '/dashboard/banks': typeof privateDashboardBanksRoute
   '/dashboard/networks': typeof privateDashboardNetworksRoute
   '/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRoute
   '/dashboard/rates': typeof privateDashboardRatesRoute
-  '/dashboard/routes': typeof privateDashboardRoutesRoute
   '/dashboard/settings': typeof privateDashboardSettingsRoute
   '/dashboard/': typeof privateDashboardIndexRoute
+  '/dashboard/routes/$id': typeof privateDashboardRoutesIdRoute
+  '/dashboard/routes/new': typeof privateDashboardRoutesNewRoute
   '/dashboard/transfers/$reference': typeof privateDashboardTransfersReferenceRoute
   '/dashboard/countries/': typeof privateDashboardCountriesIndexRoute
+  '/dashboard/routes/': typeof privateDashboardRoutesIndexRoute
   '/dashboard/transfers/': typeof privateDashboardTransfersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -117,27 +142,32 @@ export interface FileRoutesByTo {
   '/dashboard/networks': typeof privateDashboardNetworksRoute
   '/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRoute
   '/dashboard/rates': typeof privateDashboardRatesRoute
-  '/dashboard/routes': typeof privateDashboardRoutesRoute
   '/dashboard/settings': typeof privateDashboardSettingsRoute
   '/dashboard': typeof privateDashboardIndexRoute
+  '/dashboard/routes/$id': typeof privateDashboardRoutesIdRoute
+  '/dashboard/routes/new': typeof privateDashboardRoutesNewRoute
   '/dashboard/transfers/$reference': typeof privateDashboardTransfersReferenceRoute
   '/dashboard/countries': typeof privateDashboardCountriesIndexRoute
+  '/dashboard/routes': typeof privateDashboardRoutesIndexRoute
   '/dashboard/transfers': typeof privateDashboardTransfersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(private)/dashboard': typeof privateDashboardRouteRouteWithChildren
+  '/(private)/dashboard/routes': typeof privateDashboardRoutesRouteRouteWithChildren
   '/(private)/dashboard/transfers': typeof privateDashboardTransfersRouteRouteWithChildren
   '/(private)/dashboard/banks': typeof privateDashboardBanksRoute
   '/(private)/dashboard/networks': typeof privateDashboardNetworksRoute
   '/(private)/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRoute
   '/(private)/dashboard/rates': typeof privateDashboardRatesRoute
-  '/(private)/dashboard/routes': typeof privateDashboardRoutesRoute
   '/(private)/dashboard/settings': typeof privateDashboardSettingsRoute
   '/(private)/dashboard/': typeof privateDashboardIndexRoute
+  '/(private)/dashboard/routes/$id': typeof privateDashboardRoutesIdRoute
+  '/(private)/dashboard/routes/new': typeof privateDashboardRoutesNewRoute
   '/(private)/dashboard/transfers/$reference': typeof privateDashboardTransfersReferenceRoute
   '/(private)/dashboard/countries/': typeof privateDashboardCountriesIndexRoute
+  '/(private)/dashboard/routes/': typeof privateDashboardRoutesIndexRoute
   '/(private)/dashboard/transfers/': typeof privateDashboardTransfersIndexRoute
 }
 export interface FileRouteTypes {
@@ -145,16 +175,19 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/dashboard/routes'
     | '/dashboard/transfers'
     | '/dashboard/banks'
     | '/dashboard/networks'
     | '/dashboard/payment-accounts'
     | '/dashboard/rates'
-    | '/dashboard/routes'
     | '/dashboard/settings'
     | '/dashboard/'
+    | '/dashboard/routes/$id'
+    | '/dashboard/routes/new'
     | '/dashboard/transfers/$reference'
     | '/dashboard/countries/'
+    | '/dashboard/routes/'
     | '/dashboard/transfers/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -163,26 +196,31 @@ export interface FileRouteTypes {
     | '/dashboard/networks'
     | '/dashboard/payment-accounts'
     | '/dashboard/rates'
-    | '/dashboard/routes'
     | '/dashboard/settings'
     | '/dashboard'
+    | '/dashboard/routes/$id'
+    | '/dashboard/routes/new'
     | '/dashboard/transfers/$reference'
     | '/dashboard/countries'
+    | '/dashboard/routes'
     | '/dashboard/transfers'
   id:
     | '__root__'
     | '/'
     | '/(private)/dashboard'
+    | '/(private)/dashboard/routes'
     | '/(private)/dashboard/transfers'
     | '/(private)/dashboard/banks'
     | '/(private)/dashboard/networks'
     | '/(private)/dashboard/payment-accounts'
     | '/(private)/dashboard/rates'
-    | '/(private)/dashboard/routes'
     | '/(private)/dashboard/settings'
     | '/(private)/dashboard/'
+    | '/(private)/dashboard/routes/$id'
+    | '/(private)/dashboard/routes/new'
     | '/(private)/dashboard/transfers/$reference'
     | '/(private)/dashboard/countries/'
+    | '/(private)/dashboard/routes/'
     | '/(private)/dashboard/transfers/'
   fileRoutesById: FileRoutesById
 }
@@ -246,7 +284,7 @@ declare module '@tanstack/react-router' {
       id: '/(private)/dashboard/routes'
       path: '/routes'
       fullPath: '/dashboard/routes'
-      preLoaderRoute: typeof privateDashboardRoutesRouteImport
+      preLoaderRoute: typeof privateDashboardRoutesRouteRouteImport
       parentRoute: typeof privateDashboardRouteRoute
     }
     '/(private)/dashboard/settings': {
@@ -270,6 +308,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof privateDashboardCountriesIndexRouteImport
       parentRoute: typeof privateDashboardRouteRoute
     }
+    '/(private)/dashboard/routes/': {
+      id: '/(private)/dashboard/routes/'
+      path: '/'
+      fullPath: '/dashboard/routes/'
+      preLoaderRoute: typeof privateDashboardRoutesIndexRouteImport
+      parentRoute: typeof privateDashboardRoutesRouteRoute
+    }
+    '/(private)/dashboard/routes/$id': {
+      id: '/(private)/dashboard/routes/$id'
+      path: '/$id'
+      fullPath: '/dashboard/routes/$id'
+      preLoaderRoute: typeof privateDashboardRoutesIdRouteImport
+      parentRoute: typeof privateDashboardRoutesRouteRoute
+    }
+    '/(private)/dashboard/routes/new': {
+      id: '/(private)/dashboard/routes/new'
+      path: '/new'
+      fullPath: '/dashboard/routes/new'
+      preLoaderRoute: typeof privateDashboardRoutesNewRouteImport
+      parentRoute: typeof privateDashboardRoutesRouteRoute
+    }
     '/(private)/dashboard/transfers/': {
       id: '/(private)/dashboard/transfers/'
       path: '/'
@@ -286,6 +345,24 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface privateDashboardRoutesRouteRouteChildren {
+  privateDashboardRoutesIdRoute: typeof privateDashboardRoutesIdRoute
+  privateDashboardRoutesNewRoute: typeof privateDashboardRoutesNewRoute
+  privateDashboardRoutesIndexRoute: typeof privateDashboardRoutesIndexRoute
+}
+
+const privateDashboardRoutesRouteRouteChildren: privateDashboardRoutesRouteRouteChildren =
+  {
+    privateDashboardRoutesIdRoute: privateDashboardRoutesIdRoute,
+    privateDashboardRoutesNewRoute: privateDashboardRoutesNewRoute,
+    privateDashboardRoutesIndexRoute: privateDashboardRoutesIndexRoute,
+  }
+
+const privateDashboardRoutesRouteRouteWithChildren =
+  privateDashboardRoutesRouteRoute._addFileChildren(
+    privateDashboardRoutesRouteRouteChildren,
+  )
 
 interface privateDashboardTransfersRouteRouteChildren {
   privateDashboardTransfersReferenceRoute: typeof privateDashboardTransfersReferenceRoute
@@ -305,25 +382,26 @@ const privateDashboardTransfersRouteRouteWithChildren =
   )
 
 interface privateDashboardRouteRouteChildren {
+  privateDashboardRoutesRouteRoute: typeof privateDashboardRoutesRouteRouteWithChildren
   privateDashboardTransfersRouteRoute: typeof privateDashboardTransfersRouteRouteWithChildren
   privateDashboardBanksRoute: typeof privateDashboardBanksRoute
   privateDashboardNetworksRoute: typeof privateDashboardNetworksRoute
   privateDashboardPaymentAccountsRoute: typeof privateDashboardPaymentAccountsRoute
   privateDashboardRatesRoute: typeof privateDashboardRatesRoute
-  privateDashboardRoutesRoute: typeof privateDashboardRoutesRoute
   privateDashboardSettingsRoute: typeof privateDashboardSettingsRoute
   privateDashboardIndexRoute: typeof privateDashboardIndexRoute
   privateDashboardCountriesIndexRoute: typeof privateDashboardCountriesIndexRoute
 }
 
 const privateDashboardRouteRouteChildren: privateDashboardRouteRouteChildren = {
+  privateDashboardRoutesRouteRoute:
+    privateDashboardRoutesRouteRouteWithChildren,
   privateDashboardTransfersRouteRoute:
     privateDashboardTransfersRouteRouteWithChildren,
   privateDashboardBanksRoute: privateDashboardBanksRoute,
   privateDashboardNetworksRoute: privateDashboardNetworksRoute,
   privateDashboardPaymentAccountsRoute: privateDashboardPaymentAccountsRoute,
   privateDashboardRatesRoute: privateDashboardRatesRoute,
-  privateDashboardRoutesRoute: privateDashboardRoutesRoute,
   privateDashboardSettingsRoute: privateDashboardSettingsRoute,
   privateDashboardIndexRoute: privateDashboardIndexRoute,
   privateDashboardCountriesIndexRoute: privateDashboardCountriesIndexRoute,
