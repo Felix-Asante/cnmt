@@ -48,18 +48,18 @@ export const NAV_GROUPS: NavGroup[] = [
       //   icon: Smartphone,
       // },
       // { to: "/dashboard/rates", label: "Exchange rates", icon: Percent },
-      {
-        to: "/dashboard/payment-accounts",
-        label: "Payment accounts",
-        icon: Building2,
-      },
+      // {
+      //   to: "/dashboard/payment-accounts",
+      //   label: "Payment accounts",
+      //   icon: Building2,
+      // },
     ],
   },
-  {
-    id: "system",
-    label: "System",
-    items: [{ to: "/dashboard/settings", label: "Settings", icon: Settings }],
-  },
+  // {
+  //   id: "system",
+  //   label: "System",
+  //   items: [{ to: "/dashboard/settings", label: "Settings", icon: Settings }],
+  // },
 ];
 
 export function allNavItems() {

@@ -3,6 +3,7 @@ import type {
   AdminCountryDetail,
   AdminPaymentChannel,
   CreateCountryPayload,
+  CreatePaymentChannelPayload,
   UpdateCountryPayload,
   UpdatePaymentChannelPayload,
 } from "@repo/types";
@@ -51,6 +52,17 @@ export function updatePaymentChannel(
   return request<AdminPaymentChannel>({
     endpoint: API_ENDPOINTS.paymentChannels.update(id),
     method: "PATCH",
+    body,
+  });
+}
+
+export function createPaymentChannel(
+  countryId: string | number,
+  body: CreatePaymentChannelPayload,
+) {
+  return request<AdminPaymentChannel>({
+    endpoint: API_ENDPOINTS.countries.createPaymentChannel(countryId),
+    method: "POST",
     body,
   });
 }

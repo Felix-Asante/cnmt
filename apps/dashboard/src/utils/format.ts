@@ -38,6 +38,35 @@ export function formatDateTime(value: string) {
   }).format(date);
 }
 
+export function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+export function formatRelativeTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  const diffMs = date.getTime() - Date.now();
+  const absSeconds = Math.round(Math.abs(diffMs) / 1000);
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  if (absSeconds < 60) return rtf.format(Math.round(diffMs / 1000), "second");
+  const absMinutes = Math.round(absSeconds / 60);
+  if (absMinutes < 60) return rtf.format(Math.round(diffMs / 60000), "minute");
+  const absHours = Math.round(absMinutes / 60);
+  if (absHours < 24) return rtf.format(Math.round(diffMs / 3600000), "hour");
+  const absDays = Math.round(absHours / 24);
+  if (absDays < 30) return rtf.format(Math.round(diffMs / 86400000), "day");
+  return formatDateTime(value);
+}
+
 export function formatFee(
   fee: string | number,
   feeType: string,

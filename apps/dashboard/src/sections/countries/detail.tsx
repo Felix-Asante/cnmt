@@ -156,6 +156,7 @@ export function CountryDetail({
         </section>
 
         <CountryChannels
+          countryId={country.id}
           channels={country.payment_channels}
           onChanged={refresh}
         />

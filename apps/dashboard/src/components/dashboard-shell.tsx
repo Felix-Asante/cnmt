@@ -1,4 +1,13 @@
-import { useEffect, useId, useMemo, useRef, useState, type RefObject } from "react";
+import {
+  NAV_GROUPS,
+  allNavItems,
+  isNavActive,
+  navItemForPath,
+  type NavItem,
+} from "@/constants/nav";
+import { cn } from "@/lib/utils";
+import { Button } from "@repo/ui/button";
+import { Input } from "@repo/ui/input";
 import {
   Link,
   Outlet,
@@ -6,7 +15,6 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import {
-  Bell,
   ChevronsLeft,
   ChevronsRight,
   LogOut,
@@ -15,16 +23,14 @@ import {
   Settings,
   X,
 } from "lucide-react";
-import { Button } from "@repo/ui/button";
-import { Input } from "@repo/ui/input";
-import { cn } from "@/lib/utils";
 import {
-  NAV_GROUPS,
-  allNavItems,
-  isNavActive,
-  navItemForPath,
-  type NavItem,
-} from "@/constants/nav";
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 
 export function DashboardShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -58,7 +64,7 @@ export function DashboardShell() {
       <aside
         className={cn(
           "hidden h-dvh shrink-0 flex-col border-r border-border bg-background lg:flex",
-          collapsed ? "w-[72px]" : "w-60",
+          collapsed ? "w-18" : "w-60",
         )}
       >
         <Sidebar
@@ -316,48 +322,9 @@ function Header({
         >
           <Search className="size-4" aria-hidden />
         </button>
-        <Notifications />
         <UserMenu />
       </div>
     </header>
-  );
-}
-
-function Notifications() {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useDismiss(open, () => setOpen(false), rootRef);
-
-  return (
-    <div ref={rootRef} className="relative">
-      <button
-        type="button"
-        aria-label="Notifications"
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-        className={cn(
-          "flex size-9 cursor-pointer items-center justify-center transition-colors duration-150",
-          open ? "bg-surface text-navy" : "text-muted hover:bg-surface hover:text-navy",
-        )}
-      >
-        <Bell className="size-4" aria-hidden />
-      </button>
-      {open ? (
-        <div
-          role="dialog"
-          aria-label="Notifications"
-          className="absolute top-[calc(100%+8px)] right-0 z-30 w-[min(20rem,calc(100vw-2rem))] border border-border bg-background"
-        >
-          <div className="border-b border-border px-4 py-3">
-            <p className="text-sm font-medium text-navy">Notifications</p>
-          </div>
-          <p className="px-4 py-6 text-sm leading-relaxed text-muted">
-            No notifications yet.
-          </p>
-        </div>
-      ) : null}
-    </div>
   );
 }
 
@@ -379,7 +346,9 @@ function UserMenu() {
         onClick={() => setOpen((value) => !value)}
         className={cn(
           "flex size-9 cursor-pointer items-center justify-center text-xs font-semibold transition-colors duration-150",
-          open ? "bg-navy text-white" : "bg-navy-soft text-navy hover:bg-navy hover:text-white",
+          open
+            ? "bg-navy text-white"
+            : "bg-navy-soft text-navy hover:bg-navy hover:text-white",
         )}
       >
         CN

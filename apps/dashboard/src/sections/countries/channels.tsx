@@ -1,7 +1,7 @@
 import { useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import type { AdminPaymentChannel } from "@repo/types";
 import { Badge } from "@repo/ui/badge";
 import { Button } from "@repo/ui/button";
@@ -17,22 +17,30 @@ import {
 import { toast } from "@repo/ui/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { getErrorMessage } from "@/utils/request";
-import { deletePaymentChannel, updatePaymentChannel } from "./api";
+import {
+  createPaymentChannel,
+  deletePaymentChannel,
+  updatePaymentChannel,
+} from "./api";
 import {
   channelTypeLabel,
+  toCreatePaymentChannelPayload,
   toUpdatePaymentChannelPayload,
   updatePaymentChannelSchema,
   type UpdatePaymentChannelValues,
 } from "./schema";
 
 export function CountryChannels({
+  countryId,
   channels,
   onChanged,
 }: {
+  countryId: number;
   channels: AdminPaymentChannel[];
   onChanged: () => Promise<void>;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState<AdminPaymentChannel | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -45,6 +53,7 @@ export function CountryChannels({
         await task();
         toast.success(success);
         setEditingId(null);
+        setAdding(false);
         setDeleting(null);
         await onChanged();
       } catch (error) {
@@ -57,26 +66,78 @@ export function CountryChannels({
 
   return (
     <section className="space-y-3">
-      <div>
-        <h2 className="text-sm font-semibold text-navy">Payment channels</h2>
-        <p className="mt-1 text-sm text-muted">
-          Edit or remove existing banks and mobile money networks. New channels
-          can only be added when creating a country.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold text-navy">Payment channels</h2>
+          <p className="mt-1 text-sm text-muted">
+            Banks and mobile money networks available for this country.
+          </p>
+        </div>
+        {!adding ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={isPending}
+            onClick={() => {
+              setEditingId(null);
+              setAdding(true);
+            }}
+          >
+            <Plus className="size-4" aria-hidden />
+            Add channel
+          </Button>
+        ) : null}
       </div>
 
-      {channels.length === 0 ? (
+      {adding ? (
+        <div className="border border-border p-4">
+          <p className="mb-3 text-sm font-medium text-navy">New channel</p>
+          <ChannelForm
+            pending={pendingAction === "create"}
+            submitLabel="Add channel"
+            onCancel={() => setAdding(false)}
+            onSubmit={(values) =>
+              run(
+                "create",
+                () =>
+                  createPaymentChannel(
+                    countryId,
+                    toCreatePaymentChannelPayload(values),
+                  ),
+                "Payment channel added.",
+              )
+            }
+          />
+        </div>
+      ) : null}
+
+      {channels.length === 0 && !adding ? (
         <div className="border border-border px-4 py-10 text-center">
           <p className="text-sm text-muted">No payment channels yet.</p>
+          <Button
+            type="button"
+            size="sm"
+            className="mt-4"
+            disabled={isPending}
+            onClick={() => setAdding(true)}
+          >
+            <Plus className="size-4" aria-hidden />
+            Add channel
+          </Button>
         </div>
-      ) : (
+      ) : channels.length > 0 ? (
         <ul className="divide-y divide-border border border-border">
           {channels.map((channel) => (
             <li key={channel.id} className="p-4">
               {editingId === channel.id ? (
-                <ChannelEditForm
-                  channel={channel}
+                <ChannelForm
+                  defaultValues={{
+                    name: channel.name,
+                    channel_type: channel.channel_type,
+                  }}
                   pending={pendingAction === `edit:${channel.id}`}
+                  submitLabel="Save"
                   onCancel={() => setEditingId(null)}
                   onSubmit={(values) =>
                     run(
@@ -111,8 +172,11 @@ export function CountryChannels({
                       size="icon"
                       variant="ghost"
                       aria-label={`Edit ${channel.name}`}
-                      disabled={isPending}
-                      onClick={() => setEditingId(channel.id)}
+                      disabled={isPending || adding}
+                      onClick={() => {
+                        setAdding(false);
+                        setEditingId(channel.id);
+                      }}
                     >
                       <Pencil className="size-4" aria-hidden />
                     </Button>
@@ -121,7 +185,7 @@ export function CountryChannels({
                       size="icon"
                       variant="ghost"
                       aria-label={`Delete ${channel.name}`}
-                      disabled={isPending}
+                      disabled={isPending || adding}
                       onClick={() => setDeleting(channel)}
                     >
                       <Trash2 className="size-4" aria-hidden />
@@ -132,7 +196,7 @@ export function CountryChannels({
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
 
       {deleting ? (
         <ConfirmDialog
@@ -154,26 +218,29 @@ export function CountryChannels({
   );
 }
 
-function ChannelEditForm({
-  channel,
+function ChannelForm({
+  defaultValues,
   pending,
+  submitLabel,
   onSubmit,
   onCancel,
 }: {
-  channel: AdminPaymentChannel;
+  defaultValues?: UpdatePaymentChannelValues;
   pending: boolean;
+  submitLabel: string;
   onSubmit: (values: UpdatePaymentChannelValues) => void;
   onCancel: () => void;
 }) {
   const form = useForm<UpdatePaymentChannelValues>({
     resolver: zodResolver(updatePaymentChannelSchema),
-    defaultValues: {
-      name: channel.name,
-      channel_type: channel.channel_type,
+    defaultValues: defaultValues ?? {
+      name: "",
+      channel_type: "MOBILE_MONEY",
     },
     mode: "onTouched",
   });
   const errors = form.formState.errors;
+  const formId = defaultValues ? "edit" : "create";
 
   return (
     <form
@@ -183,13 +250,14 @@ function ChannelEditForm({
     >
       <Field
         label="Channel name"
-        htmlFor={`channel-${channel.id}-name`}
+        htmlFor={`channel-${formId}-name`}
         required
         error={errors.name?.message}
       >
         <Input
           {...form.register("name")}
-          id={`channel-${channel.id}-name`}
+          id={`channel-${formId}-name`}
+          placeholder="e.g. MTN, Ecobank"
           autoComplete="off"
         />
       </Field>
@@ -200,12 +268,12 @@ function ChannelEditForm({
         render={({ field }) => (
           <Field
             label="Type"
-            htmlFor={`channel-${channel.id}-type`}
+            htmlFor={`channel-${formId}-type`}
             required
             error={errors.channel_type?.message}
           >
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={`channel-${channel.id}-type`}>
+              <SelectTrigger id={`channel-${formId}-type`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -228,7 +296,7 @@ function ChannelEditForm({
           Cancel
         </Button>
         <Button type="submit" size="sm" loading={pending}>
-          Save
+          {submitLabel}
         </Button>
       </div>
     </form>

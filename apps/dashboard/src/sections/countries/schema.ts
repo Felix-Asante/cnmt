@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { CountryCatalogEntry } from "@repo/utils/countries";
 import type {
   CreateCountryPayload,
+  CreatePaymentChannelPayload,
   PaymentChannelType,
   UpdateCountryPayload,
   UpdatePaymentChannelPayload,
@@ -136,6 +137,12 @@ export function toUpdatePaymentChannelPayload(
     name: values.name.trim(),
     channel_type: values.channel_type as PaymentChannelType,
   };
+}
+
+export function toCreatePaymentChannelPayload(
+  values: UpdatePaymentChannelValues,
+): CreatePaymentChannelPayload {
+  return toUpdatePaymentChannelPayload(values);
 }
 
 export const CREATE_COUNTRY_STEPS = [

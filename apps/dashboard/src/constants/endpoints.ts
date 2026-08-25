@@ -19,12 +19,18 @@ function toQuery(params: Record<string, string | number | undefined>) {
 }
 
 export const API_ENDPOINTS = {
+  dashboard: {
+    get: (params?: { from?: string; to?: string }) =>
+      createEndpoint(`admin/dashboard${toQuery(params ?? {})}`),
+  },
   countries: {
     list: () => createEndpoint("admin/countries"),
     create: () => createEndpoint("admin/countries"),
     get: (id: string | number) => createEndpoint(`admin/countries/${id}`),
     update: (id: string | number) => createEndpoint(`admin/countries/${id}`),
     remove: (id: string | number) => createEndpoint(`admin/countries/${id}`),
+    createPaymentChannel: (id: string | number) =>
+      createEndpoint(`admin/countries/${id}/payment-channels`),
   },
   paymentChannels: {
     update: (id: string) => createEndpoint(`admin/payment-channels/${id}`),
