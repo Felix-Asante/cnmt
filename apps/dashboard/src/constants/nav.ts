@@ -1,9 +1,7 @@
 import {
   ArrowLeftRight,
-  Building2,
   Globe,
   LayoutDashboard,
-  Settings,
   Waypoints,
   type LucideIcon,
 } from "lucide-react";
