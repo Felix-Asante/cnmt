@@ -8,6 +8,7 @@ import { Field } from "@repo/ui/field";
 import { Input } from "@repo/ui/input";
 import { LoginPanel } from "./panel";
 import { defaultLoginValues, loginSchema, type LoginValues } from "./schema";
+import { useNavigate } from "@tanstack/react-router";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -22,10 +23,13 @@ export default function LoginPage() {
     reValidateMode: "onChange",
   });
 
+  const navigate = useNavigate();
+
   const errors = form.formState.errors;
 
   function onSubmit(values: LoginValues) {
     void values;
+    navigate({ to: "/dashboard" });
   }
 
   return (
