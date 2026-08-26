@@ -36,9 +36,7 @@ export const getTransferOptions = async () => {
       method: "GET",
       next: {
         tags: [getTransferOptionsTag()],
-        revalidate: 60 * 3,
       },
-      cache: "force-cache",
     });
     return response;
   } catch (error) {
@@ -134,7 +132,10 @@ export const createUploadPaymentProofSignedUrl = async (
 ) => {
   try {
     const type = normalizeMimeType(contentType);
-    if (!reference.trim() || !isAllowedMimeType(type, PAYMENT_PROOF_UPLOAD.accept)) {
+    if (
+      !reference.trim() ||
+      !isAllowedMimeType(type, PAYMENT_PROOF_UPLOAD.accept)
+    ) {
       throw new Error("Invalid proof upload request");
     }
 
