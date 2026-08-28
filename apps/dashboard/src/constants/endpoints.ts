@@ -19,6 +19,10 @@ function toQuery(params: Record<string, string | number | undefined>) {
 }
 
 export const API_ENDPOINTS = {
+  auth: {
+    login: () => createEndpoint("auth/login"),
+    me: () => createEndpoint("auth/me"),
+  },
   dashboard: {
     get: (params?: { from?: string; to?: string }) =>
       createEndpoint(`admin/dashboard${toQuery(params ?? {})}`),

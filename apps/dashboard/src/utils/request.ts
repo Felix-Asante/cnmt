@@ -1,3 +1,5 @@
+import { clearAuth, getAccessToken } from "@/utils/auth";
+
 export class ApiError extends Error {
   readonly status: number;
 
@@ -44,10 +46,12 @@ export async function request<T>({
   body,
   headers,
 }: RequestOptions): Promise<T> {
+  const token = getAccessToken();
   const res = await fetch(endpoint, {
     method,
     headers: {
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
     body: body === undefined ? undefined : JSON.stringify(body),
@@ -57,6 +61,9 @@ export async function request<T>({
   const data = text ? JSON.parse(text) : null;
 
   if (!res.ok) {
+    if (res.status === 401) {
+      clearAuth();
+    }
     throw new ApiError(readErrorMessage(data, res.status), res.status);
   }
 

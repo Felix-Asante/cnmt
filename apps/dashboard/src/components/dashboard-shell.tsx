@@ -31,6 +31,7 @@ import {
   useState,
   type RefObject,
 } from "react";
+import { clearAuth, getAuthUser } from "@/utils/auth";
 
 export function DashboardShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -330,6 +331,7 @@ function Header({
 
 function UserMenu() {
   const navigate = useNavigate();
+  const user = getAuthUser();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
@@ -361,7 +363,7 @@ function UserMenu() {
           className="absolute top-[calc(100%+8px)] right-0 z-30 w-48 border border-border bg-background py-1"
         >
           <p className="px-3 py-2 text-[11px] font-medium tracking-[0.12em] text-subtle uppercase">
-            Admin
+            {user?.email ?? "Admin"}
           </p>
           <Link
             to="/dashboard/settings"
@@ -377,7 +379,8 @@ function UserMenu() {
             role="menuitem"
             onClick={() => {
               setOpen(false);
-              void navigate({ to: "/" });
+              clearAuth();
+              navigate({ to: "/" });
             }}
             className="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-surface"
           >

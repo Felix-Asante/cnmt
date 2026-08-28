@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, useReducedMotion } from "framer-motion";
@@ -6,9 +6,13 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@repo/ui/button";
 import { Field } from "@repo/ui/field";
 import { Input } from "@repo/ui/input";
+import { toast } from "@repo/ui/toast";
 import { LoginPanel } from "./panel";
 import { defaultLoginValues, loginSchema, type LoginValues } from "./schema";
 import { useNavigate } from "@tanstack/react-router";
+import { setAuth } from "@/utils/auth";
+import { getErrorMessage } from "@/utils/request";
+import { login } from "./api";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -24,12 +28,20 @@ export default function LoginPage() {
   });
 
   const navigate = useNavigate();
+  const [isPending, startTransition] = useTransition();
 
   const errors = form.formState.errors;
 
   function onSubmit(values: LoginValues) {
-    void values;
-    navigate({ to: "/dashboard" });
+    startTransition(async () => {
+      try {
+        const response = await login(values);
+        setAuth(response.access_token, response.user);
+        void navigate({ to: "/dashboard" });
+      } catch {
+        toast.error("Invalid credentials.Please try again.");
+      }
+    });
   }
 
   return (
@@ -120,8 +132,13 @@ export default function LoginPage() {
             </div>
 
             <div className="flex flex-col gap-3 pt-2">
-              <Button type="submit" size="lg" className="w-full">
-                Sign in
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={isPending}
+              >
+                {isPending ? "Signing in…" : "Sign in"}
               </Button>
               <button
                 type="button"
