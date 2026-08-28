@@ -53,20 +53,28 @@ export function HomeHero() {
           </motion.p>
 
           <motion.div
-            className="mt-8 flex flex-wrap items-center gap-3"
+            className="mt-8 flex flex-col items-start gap-4"
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.2, ease }}
           >
-            <Button asChild size="lg" className="min-w-44 gap-2">
-              <Link href="/transfer">
-                Send money
-                <ArrowRight className="size-4" aria-hidden />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="min-w-36">
-              <a href="#how-it-works">How it works</a>
-            </Button>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <Button asChild size="lg" className="gap-2">
+                <Link href="/transfer">
+                  Send money
+                  <ArrowRight className="size-4" aria-hidden />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/track">Track transfer</Link>
+              </Button>
+            </div>
+            <a
+              href="#how-it-works"
+              className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-navy"
+            >
+              How it works
+            </a>
           </motion.div>
         </div>
 

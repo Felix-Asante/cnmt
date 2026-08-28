@@ -7,6 +7,8 @@ const createEndpoint = (endpoint: string) => {
 export const API_ENDPOINTS = {
   transfers: {
     getTransferOptions: () => createEndpoint("transfers/options"),
+    getByReference: (reference: string) =>
+      createEndpoint(`transfers/${encodeURIComponent(reference)}`),
     create: () => createEndpoint("transfers"),
     createUploadPaymentProofSignedUrl: () =>
       createEndpoint("transfers/payment-proof/upload-url"),

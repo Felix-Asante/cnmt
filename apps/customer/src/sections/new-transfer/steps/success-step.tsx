@@ -42,6 +42,11 @@ export function SuccessStep({
         <p className="mt-1 font-mono text-lg font-semibold tracking-wide text-navy">
           {reference}
         </p>
+        <Button asChild variant="ghost" size="sm" className="mt-3 h-8 px-0 text-brand">
+          <Link href={`/track?ref=${encodeURIComponent(reference)}`}>
+            Track this transfer
+          </Link>
+        </Button>
       </div>
 
       <div>

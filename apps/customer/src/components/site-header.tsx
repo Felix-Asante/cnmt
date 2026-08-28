@@ -16,6 +16,7 @@ import { SUPPORT } from "@/constants/support";
 
 function getContextLabel(pathname: string) {
   if (pathname.startsWith("/transfer")) return "New transfer";
+  if (pathname.startsWith("/track")) return "Track transfer";
   return null;
 }
 
@@ -93,6 +94,17 @@ export function SiteHeader() {
             )}
           >
             Send money
+          </Link>
+          <Link
+            href="/track"
+            className={cn(
+              "hidden px-3 py-2 text-sm font-medium no-underline transition-colors duration-150 sm:inline-flex",
+              pathname.startsWith("/track")
+                ? "text-brand"
+                : "text-navy hover:text-brand",
+            )}
+          >
+            Track transfer
           </Link>
 
           <div ref={rootRef} className="relative">
