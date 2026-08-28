@@ -11,7 +11,6 @@ import { LoginPanel } from "./panel";
 import { defaultLoginValues, loginSchema, type LoginValues } from "./schema";
 import { useNavigate } from "@tanstack/react-router";
 import { setAuth } from "@/utils/auth";
-import { getErrorMessage } from "@/utils/request";
 import { login } from "./api";
 
 const ease = [0.22, 1, 0.36, 1] as const;
