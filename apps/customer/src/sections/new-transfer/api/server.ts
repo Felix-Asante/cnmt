@@ -2,7 +2,7 @@
 import "server-only";
 import { request } from "@/utils/request";
 import { API_ENDPOINTS } from "@/constants/endpoints";
-import type { TransferOptions } from "@repo/types";
+import type { PaymentAccount, TransferOptions } from "@repo/types";
 import { getTransferOptionsTag } from "@/utils/cache";
 import {
   transferRequestPayloadSchema,
@@ -44,6 +44,24 @@ export const getTransferOptions = async () => {
     return { sources: [], destinations: [] };
   }
 };
+
+export async function getPaymentAccounts(countryId: string | number) {
+  const id = Number(countryId);
+  if (!Number.isInteger(id) || id <= 0) {
+    return [] as PaymentAccount[];
+  }
+
+  try {
+    return await request<PaymentAccount[]>({
+      endpoint: API_ENDPOINTS.paymentAccounts.listByCountry(id),
+      method: "GET",
+      cache: "no-store",
+    });
+  } catch (error) {
+    console.error("Error fetching payment accounts:", error);
+    return [] as PaymentAccount[];
+  }
+}
 
 export const createTransfer = async (
   transferData: TransferRequestValues,

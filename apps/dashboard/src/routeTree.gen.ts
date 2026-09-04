@@ -15,7 +15,7 @@ import { Route as privateDashboardIndexRouteImport } from './routes/(private)/da
 import { Route as privateDashboardBanksRouteImport } from './routes/(private)/dashboard/banks'
 import { Route as privateDashboardCountriesRouteRouteImport } from './routes/(private)/dashboard/countries/route'
 import { Route as privateDashboardNetworksRouteImport } from './routes/(private)/dashboard/networks'
-import { Route as privateDashboardPaymentAccountsRouteImport } from './routes/(private)/dashboard/payment-accounts'
+import { Route as privateDashboardPaymentAccountsRouteRouteImport } from './routes/(private)/dashboard/payment-accounts/route'
 import { Route as privateDashboardRatesRouteImport } from './routes/(private)/dashboard/rates'
 import { Route as privateDashboardRoutesRouteRouteImport } from './routes/(private)/dashboard/routes/route'
 import { Route as privateDashboardSettingsRouteImport } from './routes/(private)/dashboard/settings'
@@ -23,6 +23,9 @@ import { Route as privateDashboardTransfersRouteRouteImport } from './routes/(pr
 import { Route as privateDashboardCountriesIndexRouteImport } from './routes/(private)/dashboard/countries/index'
 import { Route as privateDashboardCountriesIdRouteImport } from './routes/(private)/dashboard/countries/$id'
 import { Route as privateDashboardCountriesNewRouteImport } from './routes/(private)/dashboard/countries/new'
+import { Route as privateDashboardPaymentAccountsIndexRouteImport } from './routes/(private)/dashboard/payment-accounts/index'
+import { Route as privateDashboardPaymentAccountsIdRouteImport } from './routes/(private)/dashboard/payment-accounts/$id'
+import { Route as privateDashboardPaymentAccountsNewRouteImport } from './routes/(private)/dashboard/payment-accounts/new'
 import { Route as privateDashboardRoutesIndexRouteImport } from './routes/(private)/dashboard/routes/index'
 import { Route as privateDashboardRoutesIdRouteImport } from './routes/(private)/dashboard/routes/$id'
 import { Route as privateDashboardRoutesNewRouteImport } from './routes/(private)/dashboard/routes/new'
@@ -61,8 +64,8 @@ const privateDashboardNetworksRoute =
     path: '/networks',
     getParentRoute: () => privateDashboardRouteRoute,
   } as any)
-const privateDashboardPaymentAccountsRoute =
-  privateDashboardPaymentAccountsRouteImport.update({
+const privateDashboardPaymentAccountsRouteRoute =
+  privateDashboardPaymentAccountsRouteRouteImport.update({
     id: '/payment-accounts',
     path: '/payment-accounts',
     getParentRoute: () => privateDashboardRouteRoute,
@@ -108,6 +111,24 @@ const privateDashboardCountriesNewRoute =
     path: '/new',
     getParentRoute: () => privateDashboardCountriesRouteRoute,
   } as any)
+const privateDashboardPaymentAccountsIndexRoute =
+  privateDashboardPaymentAccountsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => privateDashboardPaymentAccountsRouteRoute,
+  } as any)
+const privateDashboardPaymentAccountsIdRoute =
+  privateDashboardPaymentAccountsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => privateDashboardPaymentAccountsRouteRoute,
+  } as any)
+const privateDashboardPaymentAccountsNewRoute =
+  privateDashboardPaymentAccountsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => privateDashboardPaymentAccountsRouteRoute,
+  } as any)
 const privateDashboardRoutesIndexRoute =
   privateDashboardRoutesIndexRouteImport.update({
     id: '/',
@@ -143,20 +164,23 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof privateDashboardRouteRouteWithChildren
   '/dashboard/countries': typeof privateDashboardCountriesRouteRouteWithChildren
+  '/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRouteRouteWithChildren
   '/dashboard/routes': typeof privateDashboardRoutesRouteRouteWithChildren
   '/dashboard/transfers': typeof privateDashboardTransfersRouteRouteWithChildren
   '/dashboard/banks': typeof privateDashboardBanksRoute
   '/dashboard/networks': typeof privateDashboardNetworksRoute
-  '/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRoute
   '/dashboard/rates': typeof privateDashboardRatesRoute
   '/dashboard/settings': typeof privateDashboardSettingsRoute
   '/dashboard/': typeof privateDashboardIndexRoute
   '/dashboard/countries/$id': typeof privateDashboardCountriesIdRoute
   '/dashboard/countries/new': typeof privateDashboardCountriesNewRoute
+  '/dashboard/payment-accounts/$id': typeof privateDashboardPaymentAccountsIdRoute
+  '/dashboard/payment-accounts/new': typeof privateDashboardPaymentAccountsNewRoute
   '/dashboard/routes/$id': typeof privateDashboardRoutesIdRoute
   '/dashboard/routes/new': typeof privateDashboardRoutesNewRoute
   '/dashboard/transfers/$reference': typeof privateDashboardTransfersReferenceRoute
   '/dashboard/countries/': typeof privateDashboardCountriesIndexRoute
+  '/dashboard/payment-accounts/': typeof privateDashboardPaymentAccountsIndexRoute
   '/dashboard/routes/': typeof privateDashboardRoutesIndexRoute
   '/dashboard/transfers/': typeof privateDashboardTransfersIndexRoute
 }
@@ -164,16 +188,18 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard/banks': typeof privateDashboardBanksRoute
   '/dashboard/networks': typeof privateDashboardNetworksRoute
-  '/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRoute
   '/dashboard/rates': typeof privateDashboardRatesRoute
   '/dashboard/settings': typeof privateDashboardSettingsRoute
   '/dashboard': typeof privateDashboardIndexRoute
   '/dashboard/countries/$id': typeof privateDashboardCountriesIdRoute
   '/dashboard/countries/new': typeof privateDashboardCountriesNewRoute
+  '/dashboard/payment-accounts/$id': typeof privateDashboardPaymentAccountsIdRoute
+  '/dashboard/payment-accounts/new': typeof privateDashboardPaymentAccountsNewRoute
   '/dashboard/routes/$id': typeof privateDashboardRoutesIdRoute
   '/dashboard/routes/new': typeof privateDashboardRoutesNewRoute
   '/dashboard/transfers/$reference': typeof privateDashboardTransfersReferenceRoute
   '/dashboard/countries': typeof privateDashboardCountriesIndexRoute
+  '/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsIndexRoute
   '/dashboard/routes': typeof privateDashboardRoutesIndexRoute
   '/dashboard/transfers': typeof privateDashboardTransfersIndexRoute
 }
@@ -182,20 +208,23 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/(private)/dashboard': typeof privateDashboardRouteRouteWithChildren
   '/(private)/dashboard/countries': typeof privateDashboardCountriesRouteRouteWithChildren
+  '/(private)/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRouteRouteWithChildren
   '/(private)/dashboard/routes': typeof privateDashboardRoutesRouteRouteWithChildren
   '/(private)/dashboard/transfers': typeof privateDashboardTransfersRouteRouteWithChildren
   '/(private)/dashboard/banks': typeof privateDashboardBanksRoute
   '/(private)/dashboard/networks': typeof privateDashboardNetworksRoute
-  '/(private)/dashboard/payment-accounts': typeof privateDashboardPaymentAccountsRoute
   '/(private)/dashboard/rates': typeof privateDashboardRatesRoute
   '/(private)/dashboard/settings': typeof privateDashboardSettingsRoute
   '/(private)/dashboard/': typeof privateDashboardIndexRoute
   '/(private)/dashboard/countries/$id': typeof privateDashboardCountriesIdRoute
   '/(private)/dashboard/countries/new': typeof privateDashboardCountriesNewRoute
+  '/(private)/dashboard/payment-accounts/$id': typeof privateDashboardPaymentAccountsIdRoute
+  '/(private)/dashboard/payment-accounts/new': typeof privateDashboardPaymentAccountsNewRoute
   '/(private)/dashboard/routes/$id': typeof privateDashboardRoutesIdRoute
   '/(private)/dashboard/routes/new': typeof privateDashboardRoutesNewRoute
   '/(private)/dashboard/transfers/$reference': typeof privateDashboardTransfersReferenceRoute
   '/(private)/dashboard/countries/': typeof privateDashboardCountriesIndexRoute
+  '/(private)/dashboard/payment-accounts/': typeof privateDashboardPaymentAccountsIndexRoute
   '/(private)/dashboard/routes/': typeof privateDashboardRoutesIndexRoute
   '/(private)/dashboard/transfers/': typeof privateDashboardTransfersIndexRoute
 }
@@ -205,20 +234,23 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/dashboard/countries'
+    | '/dashboard/payment-accounts'
     | '/dashboard/routes'
     | '/dashboard/transfers'
     | '/dashboard/banks'
     | '/dashboard/networks'
-    | '/dashboard/payment-accounts'
     | '/dashboard/rates'
     | '/dashboard/settings'
     | '/dashboard/'
     | '/dashboard/countries/$id'
     | '/dashboard/countries/new'
+    | '/dashboard/payment-accounts/$id'
+    | '/dashboard/payment-accounts/new'
     | '/dashboard/routes/$id'
     | '/dashboard/routes/new'
     | '/dashboard/transfers/$reference'
     | '/dashboard/countries/'
+    | '/dashboard/payment-accounts/'
     | '/dashboard/routes/'
     | '/dashboard/transfers/'
   fileRoutesByTo: FileRoutesByTo
@@ -226,16 +258,18 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard/banks'
     | '/dashboard/networks'
-    | '/dashboard/payment-accounts'
     | '/dashboard/rates'
     | '/dashboard/settings'
     | '/dashboard'
     | '/dashboard/countries/$id'
     | '/dashboard/countries/new'
+    | '/dashboard/payment-accounts/$id'
+    | '/dashboard/payment-accounts/new'
     | '/dashboard/routes/$id'
     | '/dashboard/routes/new'
     | '/dashboard/transfers/$reference'
     | '/dashboard/countries'
+    | '/dashboard/payment-accounts'
     | '/dashboard/routes'
     | '/dashboard/transfers'
   id:
@@ -243,20 +277,23 @@ export interface FileRouteTypes {
     | '/'
     | '/(private)/dashboard'
     | '/(private)/dashboard/countries'
+    | '/(private)/dashboard/payment-accounts'
     | '/(private)/dashboard/routes'
     | '/(private)/dashboard/transfers'
     | '/(private)/dashboard/banks'
     | '/(private)/dashboard/networks'
-    | '/(private)/dashboard/payment-accounts'
     | '/(private)/dashboard/rates'
     | '/(private)/dashboard/settings'
     | '/(private)/dashboard/'
     | '/(private)/dashboard/countries/$id'
     | '/(private)/dashboard/countries/new'
+    | '/(private)/dashboard/payment-accounts/$id'
+    | '/(private)/dashboard/payment-accounts/new'
     | '/(private)/dashboard/routes/$id'
     | '/(private)/dashboard/routes/new'
     | '/(private)/dashboard/transfers/$reference'
     | '/(private)/dashboard/countries/'
+    | '/(private)/dashboard/payment-accounts/'
     | '/(private)/dashboard/routes/'
     | '/(private)/dashboard/transfers/'
   fileRoutesById: FileRoutesById
@@ -314,7 +351,7 @@ declare module '@tanstack/react-router' {
       id: '/(private)/dashboard/payment-accounts'
       path: '/payment-accounts'
       fullPath: '/dashboard/payment-accounts'
-      preLoaderRoute: typeof privateDashboardPaymentAccountsRouteImport
+      preLoaderRoute: typeof privateDashboardPaymentAccountsRouteRouteImport
       parentRoute: typeof privateDashboardRouteRoute
     }
     '/(private)/dashboard/rates': {
@@ -365,6 +402,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/countries/new'
       preLoaderRoute: typeof privateDashboardCountriesNewRouteImport
       parentRoute: typeof privateDashboardCountriesRouteRoute
+    }
+    '/(private)/dashboard/payment-accounts/': {
+      id: '/(private)/dashboard/payment-accounts/'
+      path: '/'
+      fullPath: '/dashboard/payment-accounts/'
+      preLoaderRoute: typeof privateDashboardPaymentAccountsIndexRouteImport
+      parentRoute: typeof privateDashboardPaymentAccountsRouteRoute
+    }
+    '/(private)/dashboard/payment-accounts/$id': {
+      id: '/(private)/dashboard/payment-accounts/$id'
+      path: '/$id'
+      fullPath: '/dashboard/payment-accounts/$id'
+      preLoaderRoute: typeof privateDashboardPaymentAccountsIdRouteImport
+      parentRoute: typeof privateDashboardPaymentAccountsRouteRoute
+    }
+    '/(private)/dashboard/payment-accounts/new': {
+      id: '/(private)/dashboard/payment-accounts/new'
+      path: '/new'
+      fullPath: '/dashboard/payment-accounts/new'
+      preLoaderRoute: typeof privateDashboardPaymentAccountsNewRouteImport
+      parentRoute: typeof privateDashboardPaymentAccountsRouteRoute
     }
     '/(private)/dashboard/routes/': {
       id: '/(private)/dashboard/routes/'
@@ -422,6 +480,27 @@ const privateDashboardCountriesRouteRouteWithChildren =
     privateDashboardCountriesRouteRouteChildren,
   )
 
+interface privateDashboardPaymentAccountsRouteRouteChildren {
+  privateDashboardPaymentAccountsIdRoute: typeof privateDashboardPaymentAccountsIdRoute
+  privateDashboardPaymentAccountsNewRoute: typeof privateDashboardPaymentAccountsNewRoute
+  privateDashboardPaymentAccountsIndexRoute: typeof privateDashboardPaymentAccountsIndexRoute
+}
+
+const privateDashboardPaymentAccountsRouteRouteChildren: privateDashboardPaymentAccountsRouteRouteChildren =
+  {
+    privateDashboardPaymentAccountsIdRoute:
+      privateDashboardPaymentAccountsIdRoute,
+    privateDashboardPaymentAccountsNewRoute:
+      privateDashboardPaymentAccountsNewRoute,
+    privateDashboardPaymentAccountsIndexRoute:
+      privateDashboardPaymentAccountsIndexRoute,
+  }
+
+const privateDashboardPaymentAccountsRouteRouteWithChildren =
+  privateDashboardPaymentAccountsRouteRoute._addFileChildren(
+    privateDashboardPaymentAccountsRouteRouteChildren,
+  )
+
 interface privateDashboardRoutesRouteRouteChildren {
   privateDashboardRoutesIdRoute: typeof privateDashboardRoutesIdRoute
   privateDashboardRoutesNewRoute: typeof privateDashboardRoutesNewRoute
@@ -459,11 +538,11 @@ const privateDashboardTransfersRouteRouteWithChildren =
 
 interface privateDashboardRouteRouteChildren {
   privateDashboardCountriesRouteRoute: typeof privateDashboardCountriesRouteRouteWithChildren
+  privateDashboardPaymentAccountsRouteRoute: typeof privateDashboardPaymentAccountsRouteRouteWithChildren
   privateDashboardRoutesRouteRoute: typeof privateDashboardRoutesRouteRouteWithChildren
   privateDashboardTransfersRouteRoute: typeof privateDashboardTransfersRouteRouteWithChildren
   privateDashboardBanksRoute: typeof privateDashboardBanksRoute
   privateDashboardNetworksRoute: typeof privateDashboardNetworksRoute
-  privateDashboardPaymentAccountsRoute: typeof privateDashboardPaymentAccountsRoute
   privateDashboardRatesRoute: typeof privateDashboardRatesRoute
   privateDashboardSettingsRoute: typeof privateDashboardSettingsRoute
   privateDashboardIndexRoute: typeof privateDashboardIndexRoute
@@ -472,13 +551,14 @@ interface privateDashboardRouteRouteChildren {
 const privateDashboardRouteRouteChildren: privateDashboardRouteRouteChildren = {
   privateDashboardCountriesRouteRoute:
     privateDashboardCountriesRouteRouteWithChildren,
+  privateDashboardPaymentAccountsRouteRoute:
+    privateDashboardPaymentAccountsRouteRouteWithChildren,
   privateDashboardRoutesRouteRoute:
     privateDashboardRoutesRouteRouteWithChildren,
   privateDashboardTransfersRouteRoute:
     privateDashboardTransfersRouteRouteWithChildren,
   privateDashboardBanksRoute: privateDashboardBanksRoute,
   privateDashboardNetworksRoute: privateDashboardNetworksRoute,
-  privateDashboardPaymentAccountsRoute: privateDashboardPaymentAccountsRoute,
   privateDashboardRatesRoute: privateDashboardRatesRoute,
   privateDashboardSettingsRoute: privateDashboardSettingsRoute,
   privateDashboardIndexRoute: privateDashboardIndexRoute,

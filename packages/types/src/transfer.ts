@@ -40,6 +40,15 @@ export type TransferRecipient = {
   account_number?: string;
 };
 
+export type TransferPaymentInstructions = {
+  payment_account_id?: string;
+  payment_method?: ReceivingMethod;
+  account_name?: string;
+  account_number?: string;
+  channel_name?: string;
+  currency_code?: string;
+};
+
 export type Transfer = {
   id: string;
   reference: string;
@@ -54,6 +63,7 @@ export type Transfer = {
   fee: string | number;
   sender_phone: string;
   payment_proof_key?: string;
+  payment_instructions?: TransferPaymentInstructions;
   recipient: TransferRecipient;
   notes?: string;
   expires_at: string;

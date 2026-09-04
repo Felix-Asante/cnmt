@@ -40,6 +40,23 @@ export const API_ENDPOINTS = {
     update: (id: string) => createEndpoint(`admin/payment-channels/${id}`),
     remove: (id: string) => createEndpoint(`admin/payment-channels/${id}`),
   },
+  paymentAccounts: {
+    list: (params?: {
+      country_id?: number;
+      payment_method?: string;
+      is_active?: string;
+      currency_code?: string;
+    }) => createEndpoint(`admin/payment-accounts${toQuery(params ?? {})}`),
+    listByCountry: (countryId: string | number) =>
+      createEndpoint(`countries/${countryId}/payment-accounts`),
+    create: () => createEndpoint("admin/payment-accounts"),
+    update: (id: string) => createEndpoint(`admin/payment-accounts/${id}`),
+    remove: (id: string) => createEndpoint(`admin/payment-accounts/${id}`),
+    activate: (id: string) =>
+      createEndpoint(`admin/payment-accounts/${id}/activate`),
+    deactivate: (id: string) =>
+      createEndpoint(`admin/payment-accounts/${id}/deactivate`),
+  },
   routes: {
     list: (params?: {
       source_country_id?: number;

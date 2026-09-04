@@ -21,10 +21,6 @@ export const FULFILLMENT_STEPS = [
 
 export const STATIC_QUOTE = {
   estimatedCompletion: "Within 30 minutes after payment verification",
-  paymentMethod: "Bank transfer",
-  accountName: "C.N International Money Transfer Ltd",
-  accountNumber: "40928471",
-  sortCode: "23-14-70",
 } as const;
 
 export function getSenderCountry(

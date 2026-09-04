@@ -5,6 +5,10 @@ const createEndpoint = (endpoint: string) => {
 };
 
 export const API_ENDPOINTS = {
+  paymentAccounts: {
+    listByCountry: (countryId: string | number) =>
+      createEndpoint(`countries/${countryId}/payment-accounts`),
+  },
   transfers: {
     getTransferOptions: () => createEndpoint("transfers/options"),
     getByReference: (reference: string) =>

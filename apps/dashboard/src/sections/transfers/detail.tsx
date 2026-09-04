@@ -25,6 +25,14 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
     transfer.recipient.receiving_method === "BANK"
       ? transfer.recipient.bank_name
       : transfer.recipient.network_name;
+  const payment = transfer.payment_instructions;
+  const hasPaymentInstructions = Boolean(
+    payment?.payment_method ||
+      payment?.channel_name ||
+      payment?.account_name ||
+      payment?.account_number ||
+      payment?.currency_code,
+  );
 
   return (
     <TransferSheet
@@ -127,6 +135,29 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
             <Row label="Phone" value={transfer.recipient.phone} />
           ) : null}
         </Section>
+
+        {hasPaymentInstructions && payment ? (
+          <Section title="Payment instructions">
+            {payment.payment_method ? (
+              <Row
+                label="Method"
+                value={receivingMethodLabel(payment.payment_method)}
+              />
+            ) : null}
+            {payment.channel_name ? (
+              <Row label="Channel" value={payment.channel_name} />
+            ) : null}
+            {payment.account_name ? (
+              <Row label="Account name" value={payment.account_name} />
+            ) : null}
+            {payment.account_number ? (
+              <Row label="Account number" value={payment.account_number} />
+            ) : null}
+            {payment.currency_code ? (
+              <Row label="Currency" value={payment.currency_code} />
+            ) : null}
+          </Section>
+        ) : null}
 
         {transfer.notes ? (
           <section>
