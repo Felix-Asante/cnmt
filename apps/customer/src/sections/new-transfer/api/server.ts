@@ -171,16 +171,21 @@ export const createUploadPaymentProofSignedUrl = async (
 export const confirmPaymentProofUploaded = async (
   reference: string,
   key: string,
+  paymentAccountId: string,
 ) => {
   try {
-    if (!reference.trim() || !key.trim()) {
+    if (!reference.trim() || !key.trim() || !isUuid(paymentAccountId)) {
       throw new Error("Invalid proof confirmation");
     }
 
     await request({
       endpoint: API_ENDPOINTS.transfers.confirmPaymentProofUploaded(),
       method: "PATCH",
-      body: { reference: reference.trim(), key },
+      body: {
+        reference: reference.trim(),
+        key,
+        payment_account_id: paymentAccountId,
+      },
     });
     return true;
   } catch (error) {

@@ -62,6 +62,7 @@ type PendingAction = "submit" | "upload" | null;
 export default function NewTransfer({ transferOptions }: NewTransferProps) {
   const [step, setStep] = useState(0);
   const [reference, setReference] = useState("");
+  const [paymentAccountId, setPaymentAccountId] = useState("");
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const idempotencyKeyRef = useRef<string | null>(null);
   const pendingActionRef = useRef<PendingAction>(null);
@@ -223,6 +224,12 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
       });
       return;
     }
+    if (!paymentAccountId) {
+      toast.error("Select a payment account", {
+        description: "Go back and choose the account you paid to.",
+      });
+      return;
+    }
 
     pendingActionRef.current = "upload";
     setPendingAction("upload");
@@ -256,6 +263,7 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
       const confirmed = await confirmPaymentProofUploaded(
         reference,
         signed.key,
+        paymentAccountId,
       );
       if (!confirmed) {
         toast.error("We couldn’t confirm the proof", {
@@ -346,6 +354,7 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
       sendCurrency: firstSenderCountry?.currency_code ?? "GBP",
     });
     setReference("");
+    setPaymentAccountId("");
     setStep(0);
   }
 
@@ -414,7 +423,12 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
                     />
                   ) : null}
                   {step === 3 ? (
-                    <PaymentStep form={form} reference={reference} />
+                    <PaymentStep
+                      form={form}
+                      reference={reference}
+                      selectedAccountId={paymentAccountId}
+                      onSelectAccount={setPaymentAccountId}
+                    />
                   ) : null}
                   {step === 4 ? (
                     <UploadStep form={form} disabled={busy} />
@@ -476,8 +490,17 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
                   <Button
                     type="button"
                     size="lg"
-                    onClick={() => setStep(4)}
-                    disabled={busy || !reference}
+                    onClick={() => {
+                      if (!paymentAccountId) {
+                        toast.error("Select a payment account", {
+                          description:
+                            "Choose the bank or mobile money account you will pay to.",
+                        });
+                        return;
+                      }
+                      setStep(4);
+                    }}
+                    disabled={busy || !reference || !paymentAccountId}
                   >
                     I’ve paid
                     <ArrowRight className="size-4" aria-hidden />

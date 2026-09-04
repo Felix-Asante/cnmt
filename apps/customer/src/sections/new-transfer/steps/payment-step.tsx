@@ -21,9 +21,16 @@ import type { TransferFormValues } from "../schema";
 type PaymentStepProps = {
   form: UseFormReturn<TransferFormValues>;
   reference: string;
+  selectedAccountId: string;
+  onSelectAccount: (accountId: string) => void;
 };
 
-export function PaymentStep({ form, reference }: PaymentStepProps) {
+export function PaymentStep({
+  form,
+  reference,
+  selectedAccountId,
+  onSelectAccount,
+}: PaymentStepProps) {
   const amount = form.watch("sendAmount");
   const currency = form.watch("sendCurrency");
   const countryId = form.watch("senderCountryCode");
@@ -32,7 +39,6 @@ export function PaymentStep({ form, reference }: PaymentStepProps) {
   const [selectedMethod, setSelectedMethod] = useState<ReceivingMethod | null>(
     null,
   );
-  const [selectedId, setSelectedId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -40,7 +46,7 @@ export function PaymentStep({ form, reference }: PaymentStepProps) {
     if (!countryId) {
       setGroups([]);
       setSelectedMethod(null);
-      setSelectedId("");
+      onSelectAccount("");
       setError("Select a source country before making payment.");
       return;
     }
@@ -52,10 +58,19 @@ export function PaymentStep({ form, reference }: PaymentStepProps) {
 
       setGroups(nextGroups);
 
-      const firstGroup = nextGroups[0];
-      const firstAccount = firstGroup?.accounts[0];
-      setSelectedMethod(firstGroup?.method ?? null);
-      setSelectedId(firstAccount?.id ?? "");
+      const preferred =
+        nextGroups
+          .flatMap((group) => group.accounts)
+          .find((account) => account.id === selectedAccountId) ??
+        nextGroups[0]?.accounts[0];
+
+      const preferredGroup =
+        nextGroups.find((group) =>
+          group.accounts.some((account) => account.id === preferred?.id),
+        ) ?? nextGroups[0];
+
+      setSelectedMethod(preferredGroup?.method ?? null);
+      onSelectAccount(preferred?.id ?? "");
 
       if (nextGroups.length === 0) {
         setError(
@@ -63,12 +78,14 @@ export function PaymentStep({ form, reference }: PaymentStepProps) {
         );
       }
     });
+    // Only reload when corridor/currency changes; selection sync is handled above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryId, currency]);
 
   const activeGroup =
     groups.find((group) => group.method === selectedMethod) ?? groups[0];
   const selected =
-    activeGroup?.accounts.find((account) => account.id === selectedId) ??
+    activeGroup?.accounts.find((account) => account.id === selectedAccountId) ??
     activeGroup?.accounts[0];
 
   const parsedAmount = Number(amount);
@@ -81,7 +98,7 @@ export function PaymentStep({ form, reference }: PaymentStepProps) {
     const group = groups.find((item) => item.method === method);
     if (!group) return;
     setSelectedMethod(method);
-    setSelectedId(group.accounts[0]?.id ?? "");
+    onSelectAccount(group.accounts[0]?.id ?? "");
   }
 
   return (
@@ -209,7 +226,7 @@ export function PaymentStep({ form, reference }: PaymentStepProps) {
                     key={account.id}
                     account={account}
                     selected={account.id === selected?.id}
-                    onSelect={() => setSelectedId(account.id)}
+                    onSelect={() => onSelectAccount(account.id)}
                   />
                 ))}
               </ul>

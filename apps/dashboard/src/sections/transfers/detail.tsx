@@ -28,10 +28,10 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
   const payment = transfer.payment_instructions;
   const hasPaymentInstructions = Boolean(
     payment?.payment_method ||
-      payment?.channel_name ||
-      payment?.account_name ||
-      payment?.account_number ||
-      payment?.currency_code,
+    payment?.channel_name ||
+    payment?.account_name ||
+    payment?.account_number ||
+    payment?.currency_code,
   );
 
   return (
@@ -137,7 +137,7 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
         </Section>
 
         {hasPaymentInstructions && payment ? (
-          <Section title="Payment instructions">
+          <Section title="Paid to">
             {payment.payment_method ? (
               <Row
                 label="Method"
@@ -234,13 +234,7 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
       <h3 className="text-[11px] font-medium tracking-[0.12em] text-subtle uppercase">
