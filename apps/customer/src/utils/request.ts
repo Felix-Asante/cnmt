@@ -18,9 +18,7 @@ export const request = async <T>({
   json = true,
 }: RequestProps): Promise<T> => {
   const requestBody = json ? JSON.stringify(body) : body;
-  if (process.env.NODE_ENV === "development") {
-    console.log("EP", endpoint);
-  }
+  console.log("EP", endpoint);
 
   const requestHeaders: any = {
     ...headers,

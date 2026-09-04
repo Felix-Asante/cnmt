@@ -30,10 +30,6 @@ type CreateUploadPaymentProofSignedUrlResponse = {
 
 export const getTransferOptions = async () => {
   try {
-    console.log(
-      "getTransferOptions",
-      API_ENDPOINTS.transfers.getTransferOptions(),
-    );
     const response = await request<TransferOptions>({
       endpoint: API_ENDPOINTS.transfers.getTransferOptions(),
       method: "GET",
