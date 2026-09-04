@@ -3,7 +3,6 @@ import "server-only";
 import { request } from "@/utils/request";
 import { API_ENDPOINTS } from "@/constants/endpoints";
 import type { PaymentAccount, TransferOptions } from "@repo/types";
-import { getTransferOptionsTag } from "@/utils/cache";
 import {
   transferRequestPayloadSchema,
   type TransferRequestValues,
@@ -31,12 +30,13 @@ type CreateUploadPaymentProofSignedUrlResponse = {
 
 export const getTransferOptions = async () => {
   try {
+    console.log(
+      "getTransferOptions",
+      API_ENDPOINTS.transfers.getTransferOptions(),
+    );
     const response = await request<TransferOptions>({
       endpoint: API_ENDPOINTS.transfers.getTransferOptions(),
       method: "GET",
-      next: {
-        tags: [getTransferOptionsTag()],
-      },
     });
     return response;
   } catch (error) {
