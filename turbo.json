@@ -5,6 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": ["API_URL", "VITE_API_URL"],
       "outputs": [
         ".next/**",
         "!.next/cache/**",

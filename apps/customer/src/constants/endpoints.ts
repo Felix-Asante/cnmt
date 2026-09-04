@@ -1,8 +1,14 @@
-const BASE_URL = process.env.API_URL;
+const BASE_URL = process.env.API_URL?.replace(/\/$/, "");
 
-const createEndpoint = (endpoint: string) => {
-  return `${BASE_URL}/${endpoint}`;
-};
+function createEndpoint(endpoint: string) {
+  if (!BASE_URL) {
+    throw new Error(
+      "API_URL is not set. Add it in Vercel → Project Settings → Environment Variables (e.g. https://api.example.com/api/v1).",
+    );
+  }
+
+  return `${BASE_URL}/${endpoint.replace(/^\//, "")}`;
+}
 
 export const API_ENDPOINTS = {
   paymentAccounts: {
