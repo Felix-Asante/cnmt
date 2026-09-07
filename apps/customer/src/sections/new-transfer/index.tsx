@@ -156,11 +156,6 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
       },
       { label: "You send", value: quote.sendLabel, emphasis: true },
       { label: "Recipient gets", value: quote.receiveLabel, emphasis: true },
-      {
-        label: "Fee",
-        value: `${sender?.currency_symbol} ${fee.toFixed(2)}`,
-        emphasis: false,
-      },
       { label: "Rate", value: recipient?.default_exchange_rate ?? "" },
     ];
   }, [quote, recipient, sender, values]);

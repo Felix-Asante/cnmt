@@ -75,7 +75,10 @@ export function SiteHeader() {
 
           {contextLabel ? (
             <>
-              <span className="hidden h-4 w-px bg-border sm:block" aria-hidden />
+              <span
+                className="hidden h-4 w-px bg-border sm:block"
+                aria-hidden
+              />
               <p className="hidden truncate text-sm text-muted sm:block">
                 {contextLabel}
               </p>
@@ -160,17 +163,17 @@ export function SiteHeader() {
                     external
                   />
                   <SupportLink
-                    href={SUPPORT.phoneHref}
-                    icon={Phone}
-                    label={SUPPORT.phoneDisplay}
-                    detail="Primary support line"
-                  />
-                  <SupportLink
                     href={SUPPORT.phoneSecondaryHref}
                     icon={Phone}
                     label={SUPPORT.phoneSecondaryDisplay}
-                    detail="Alternate support line"
+                    detail="Primary support line"
                   />
+                  {/* <SupportLink
+                    href={SUPPORT.phoneHref}
+                    icon={Phone}
+                    label={SUPPORT.phoneDisplay}
+                    detail="Alternate support line"
+                  /> */}
                   <SupportLink
                     href={SUPPORT.emailHref}
                     icon={Mail}

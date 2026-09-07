@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { useWatch, type UseFormReturn } from "react-hook-form";
+import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 import { Label } from "@repo/ui/label";
 import { Input } from "@repo/ui/input";
+import { PhoneInput } from "@repo/ui/phone-input";
 import { Field } from "@repo/ui/field";
 import {
   Select,
@@ -14,9 +15,7 @@ import {
   SelectValue,
 } from "@repo/ui/select";
 import { cn } from "@/lib/utils";
-import {
-  getRecipientCountry,
-} from "../constants";
+import { getRecipientCountry, getSenderCountry } from "../constants";
 import { itemId, itemName } from "@repo/utils/lookup";
 import { getSavedRecipients, type SavedRecipient } from "../memory";
 import type { TransferFormValues } from "../schema";
@@ -68,7 +67,15 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
     control: form.control,
     name: "recipientCountryCode",
   });
-  const country = getRecipientCountry(recipientCode, transferOptions.destinations);
+  const senderCode = useWatch({
+    control: form.control,
+    name: "senderCountryCode",
+  });
+  const country = getRecipientCountry(
+    recipientCode,
+    transferOptions.destinations,
+  );
+  const senderCountry = getSenderCountry(senderCode, transferOptions.sources);
   const method = useWatch({ control: form.control, name: "receivingMethod" });
   const network = useWatch({ control: form.control, name: "network" });
   const bank = useWatch({ control: form.control, name: "bank" });
@@ -263,11 +270,21 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
           description="We’ll use this to update you on the transfer."
           error={errors.senderWhatsApp?.message}
         >
-          <Input
-            {...form.register("senderWhatsApp")}
-            placeholder="+44 7700 900123"
-            inputMode="tel"
-            autoComplete="tel"
+          <Controller
+            control={form.control}
+            name="senderWhatsApp"
+            render={({ field }) => (
+              <PhoneInput
+                id="senderWhatsApp"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                defaultCountry={senderCountry?.iso_code ?? "MA"}
+                placeholder="537800000"
+                error={errors.senderWhatsApp?.message}
+                autoComplete="tel"
+              />
+            )}
           />
         </Field>
 
@@ -372,11 +389,21 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
               description="Must match the number registered on their wallet."
               error={errors.recipientPhone?.message}
             >
-              <Input
-                {...form.register("recipientPhone")}
-                placeholder="+233 24 000 0000"
-                inputMode="tel"
-                autoComplete="tel"
+              <Controller
+                control={form.control}
+                name="recipientPhone"
+                render={({ field }) => (
+                  <PhoneInput
+                    id="recipientPhone"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    defaultCountry={country?.iso_code ?? "GH"}
+                    placeholder="24 000 0000"
+                    error={errors.recipientPhone?.message}
+                    autoComplete="tel"
+                  />
+                )}
               />
             </Field>
           </>

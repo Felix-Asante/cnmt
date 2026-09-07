@@ -14,9 +14,9 @@ type AmountInputProps = {
   className?: string;
 };
 
-function sanitizeAmount(raw: string) {
+function sanitizeAmount(raw: string): string {
   const cleaned = raw.replace(/[^\d.]/g, "");
-  const [whole, ...fractionParts] = cleaned.split(".");
+  const [whole = "", ...fractionParts] = cleaned.split(".");
   if (fractionParts.length === 0) return whole;
   return `${whole}.${fractionParts.join("").slice(0, 2)}`;
 }

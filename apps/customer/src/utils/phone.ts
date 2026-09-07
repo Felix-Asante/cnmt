@@ -1,11 +1,9 @@
-export function toE164(phone: string) {
-  const trimmed = phone.trim();
-  if (!trimmed) return "";
-  const compact = trimmed.replace(/[^\d+]/g, "");
-  if (compact.startsWith("+")) return compact;
-  return `+${compact}`;
+export * from "@repo/utils/countries";
+
+import { normalizePhoneToE164, isE164 } from "@repo/utils/countries";
+
+export function toE164(phone: string, defaultCallingCode = "+212") {
+  return normalizePhoneToE164(phone, defaultCallingCode);
 }
 
-export function isE164(phone: string) {
-  return /^\+[1-9]\d{7,14}$/.test(phone);
-}
+export { isE164 };

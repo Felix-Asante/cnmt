@@ -84,14 +84,6 @@ export function TransferResult({ transfer }: TransferResultProps) {
       ),
     },
     {
-      label: "Fee",
-      value: formatAmount(
-        transfer.fee,
-        source.currency_code,
-        source.currency_symbol,
-      ),
-    },
-    {
       label: "Submitted",
       value: formatDateTime(transfer.created_at),
     },

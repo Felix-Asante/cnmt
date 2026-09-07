@@ -1,20 +1,20 @@
 "use server";
-import "server-only";
-import { request } from "@/utils/request";
 import { API_ENDPOINTS } from "@/constants/endpoints";
+import { cleanDeep } from "@/utils/clean-deep";
+import { isUuid } from "@/utils/id";
+import { validatePhoneNumber } from "@/utils/phone";
+import { request } from "@/utils/request";
 import type { PaymentAccount, TransferOptions } from "@repo/types";
-import {
-  transferRequestPayloadSchema,
-  type TransferRequestValues,
-} from "../schema";
 import {
   isAllowedMimeType,
   normalizeMimeType,
   PAYMENT_PROOF_UPLOAD,
 } from "@repo/utils/file";
-import { isE164, toE164 } from "@/utils/phone";
-import { isUuid } from "@/utils/id";
-import { cleanDeep } from "@/utils/clean-deep";
+import "server-only";
+import {
+  transferRequestPayloadSchema,
+  type TransferRequestValues,
+} from "../schema";
 
 type CreateTransferResponse = {
   transfer_id: string;
@@ -85,15 +85,17 @@ export const createTransfer = async (
       throw new Error("Invalid transfer data");
     }
 
-    const senderPhone = toE164(data.senderWhatsApp);
-    if (!isE164(senderPhone)) {
+    const senderRes = validatePhoneNumber(data.senderWhatsApp, {
+      required: true,
+      label: "sender phone",
+    });
+    if (!senderRes.isValid || !senderRes.normalized) {
       throw new Error("Invalid transfer data");
     }
+    const senderPhone = senderRes.normalized;
 
     const isBank = data.receivingMethod === "bank";
-    const recipientPhone = data.recipientPhone
-      ? toE164(data.recipientPhone)
-      : "";
+    let recipientPhone: string | undefined = undefined;
 
     if (isBank) {
       if (!data.bank || !isUuid(data.bank)) {
@@ -103,9 +105,15 @@ export const createTransfer = async (
       if (!data.network || !isUuid(data.network)) {
         throw new Error("Invalid transfer data");
       }
-      if (!isE164(recipientPhone)) {
+      const recipientRes = validatePhoneNumber(data.recipientPhone, {
+        required: true,
+        mobileOnly: true,
+        label: "recipient phone",
+      });
+      if (!recipientRes.isValid || !recipientRes.normalized) {
         throw new Error("Invalid transfer data");
       }
+      recipientPhone = recipientRes.normalized;
     }
 
     const payload = {

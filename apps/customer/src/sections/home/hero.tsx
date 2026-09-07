@@ -18,7 +18,7 @@ export function HomeHero() {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_0%_0%,rgb(253_232_233/0.85),transparent_52%),radial-gradient(ellipse_60%_50%_at_100%_0%,rgb(232_237_244/0.9),transparent_48%),linear-gradient(180deg,#ffffff_40%,#f7f8fa_100%)]"
       />
 
-      <div className="relative mx-auto grid w-full max-w-[1080px] items-center gap-10 px-4 py-14 sm:px-6 md:gap-12 md:py-20 lg:grid-cols-[1fr_1.05fr] lg:gap-8 lg:py-24">
+      <div className="relative mx-auto grid w-full max-w-270 items-center gap-10 px-4 py-14 sm:px-6 md:gap-12 md:py-20 lg:grid-cols-[1fr_1.05fr] lg:gap-8 lg:py-24">
         <div className="relative z-10 max-w-xl">
           <motion.p
             className="font-display text-xs font-bold tracking-[0.22em] text-brand uppercase"

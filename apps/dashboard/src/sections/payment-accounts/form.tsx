@@ -5,6 +5,7 @@ import type { AdminCountry, AdminPaymentChannel } from "@repo/types";
 import { Button } from "@repo/ui/button";
 import { Field } from "@repo/ui/field";
 import { Input } from "@repo/ui/input";
+import { PhoneInput } from "@repo/ui/phone-input";
 import {
   Select,
   SelectContent,
@@ -48,6 +49,7 @@ export function PaymentAccountForm({
 
   const errors = form.formState.errors;
   const countryId = useWatch({ control: form.control, name: "country_id" });
+  const selectedCountry = countries.find((c) => c.id === Number(countryId));
   const method = useWatch({ control: form.control, name: "payment_method" });
   const [channels, setChannels] = useState<AdminPaymentChannel[]>([]);
   const [loadingChannels, setLoadingChannels] = useState(false);
@@ -274,12 +276,20 @@ export function PaymentAccountForm({
           error={errors.phone_number?.message}
           description="E.164 format, e.g. +233551234567."
         >
-          <Input
-            id="phone_number"
-            inputMode="tel"
-            autoComplete="tel"
-            placeholder="+233551234567"
-            {...form.register("phone_number")}
+          <Controller
+            control={form.control}
+            name="phone_number"
+            render={({ field }) => (
+              <PhoneInput
+                id="phone_number"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                defaultCountry={selectedCountry?.iso_code ?? "GH"}
+                placeholder="551234567"
+                error={errors.phone_number?.message}
+              />
+            )}
           />
         </Field>
       )}

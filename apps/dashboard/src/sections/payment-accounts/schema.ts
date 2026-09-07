@@ -4,8 +4,7 @@ import type {
   ReceivingMethod,
   UpdatePaymentAccountPayload,
 } from "@repo/types";
-
-const e164 = /^\+[1-9]\d{1,14}$/;
+import { validatePhoneNumber } from "@repo/utils/countries";
 
 export const paymentAccountFormSchema = z
   .object({
@@ -44,17 +43,15 @@ export const paymentAccountFormSchema = z
     }
 
     if (values.payment_method === "MOBILE_MONEY") {
-      if (!values.phone_number?.trim()) {
+      const phoneRes = validatePhoneNumber(values.phone_number, {
+        required: true,
+        label: "phone number",
+      });
+      if (!phoneRes.isValid) {
         ctx.addIssue({
           code: "custom",
           path: ["phone_number"],
-          message: "Phone number is required for mobile money.",
-        });
-      } else if (!e164.test(values.phone_number.trim())) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["phone_number"],
-          message: "Use E.164 format, e.g. +447700900123.",
+          message: phoneRes.error ?? "Enter a valid phone number.",
         });
       }
       if (values.account_number?.trim()) {

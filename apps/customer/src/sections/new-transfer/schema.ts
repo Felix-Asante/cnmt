@@ -1,17 +1,27 @@
 import { z } from "zod";
 import { isUuid } from "@/utils/id";
 import { PAYMENT_PROOF_UPLOAD, createFileValidator } from "@repo/utils/file";
+import { validatePhoneNumber } from "@repo/utils/countries";
 
 const validateProofFile = createFileValidator(PAYMENT_PROOF_UPLOAD);
 
 const receivingMethodSchema = z.enum(["mobile_money", "bank"]);
 
-const phoneSchema = z
+const senderPhoneSchema = z
   .string()
   .trim()
-  .min(8, "Enter a valid phone number.")
-  .max(20, "Phone number is too long.")
-  .regex(/^[+0-9\s()-]+$/, "Use digits and standard phone characters only.");
+  .superRefine((val, ctx) => {
+    const res = validatePhoneNumber(val, {
+      required: true,
+      label: "WhatsApp number",
+    });
+    if (!res.isValid) {
+      ctx.addIssue({
+        code: "custom",
+        message: res.error ?? "Enter a valid phone number.",
+      });
+    }
+  });
 
 export const transferRequestPayloadSchema = z
   .object({
@@ -29,7 +39,7 @@ export const transferRequestPayloadSchema = z
         message: "Amount must be greater than zero.",
       }),
     sendCurrency: z.string(),
-    senderWhatsApp: phoneSchema,
+    senderWhatsApp: senderPhoneSchema,
     recipientName: z
       .string()
       .trim()
@@ -48,14 +58,17 @@ export const transferRequestPayloadSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.receivingMethod === "mobile_money") {
-      const phoneResult = phoneSchema.safeParse(data.recipientPhone);
-      if (!phoneResult.success) {
+      const phoneRes = validatePhoneNumber(data.recipientPhone, {
+        required: true,
+        mobileOnly: true,
+        label: "mobile money number",
+      });
+      if (!phoneRes.isValid) {
         ctx.addIssue({
           code: "custom",
           path: ["recipientPhone"],
           message:
-            phoneResult.error.issues[0]?.message ??
-            "Enter the mobile money number.",
+            phoneRes.error ?? "Enter the mobile money number.",
         });
       }
 
