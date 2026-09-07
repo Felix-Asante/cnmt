@@ -40,10 +40,15 @@ export function firstDestinationForSource(
 }
 
 export function getRecipientCountry(
-  code: string,
+  destinationCountryCode: string,
+  sourceCountryCode: string,
   destinations: TransferDestinationCountry[],
 ) {
-  return destinations.find((country) => country.id === Number(code));
+  return destinations.find(
+    (country) =>
+      country.id === Number(destinationCountryCode) &&
+      country.source_country_id === Number(sourceCountryCode),
+  );
 }
 
 export type TransferQuote = {

@@ -1,5 +1,6 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "@tanstack/react-router";
+import { ExternalLink } from "lucide-react";
 import type { Transfer } from "@repo/types";
 import { Button } from "@repo/ui/button";
 import { toast } from "@repo/ui/toast";
@@ -60,6 +61,25 @@ export function TransferWorkflow({ transfer }: { transfer: Transfer }) {
   return (
     <section className="space-y-3">
       <p className="text-sm leading-relaxed text-muted">{workflow.summary}</p>
+
+      {transfer.payment_proof_url ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full justify-center"
+          asChild
+        >
+          <a
+            href={transfer.payment_proof_url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink className="mr-1.5 size-3.5 shrink-0" aria-hidden="true" />
+            <span>View payment proof</span>
+          </a>
+        </Button>
+      ) : null}
 
       {workflow.next ? (
         <Button

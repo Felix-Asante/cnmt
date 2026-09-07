@@ -95,6 +95,7 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
   );
   const recipient = getRecipientCountry(
     values.recipientCountryCode ?? "",
+    values.senderCountryCode ?? "",
     transferOptions.destinations,
   );
   const fee = calculateFee(

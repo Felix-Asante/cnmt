@@ -73,6 +73,7 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
   });
   const country = getRecipientCountry(
     recipientCode,
+    senderCode,
     transferOptions.destinations,
   );
   const senderCountry = getSenderCountry(senderCode, transferOptions.sources);

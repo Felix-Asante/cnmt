@@ -43,6 +43,7 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
   const sender = getSenderCountry(senderCode, transferOptions.sources);
   const recipient = getRecipientCountry(
     recipientCode,
+    senderCode,
     transferOptions.destinations,
   );
   const currency = sender?.currency_code ?? sendCurrency;
@@ -80,6 +81,7 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
     const senderCountry = getSenderCountry(nextSender, transferOptions.sources);
     const recipientCountry = getRecipientCountry(
       nextRecipient,
+      nextSender,
       transferOptions.destinations,
     );
 
@@ -144,6 +146,7 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
             );
             const to = getRecipientCountry(
               item.recipientCountryCode,
+              item.senderCountryCode,
               transferOptions.destinations,
             );
             if (!from || !to) return null;

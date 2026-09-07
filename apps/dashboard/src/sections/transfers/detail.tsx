@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { ExternalLink } from "lucide-react";
 import type { Transfer } from "@repo/types";
 import { Button } from "@repo/ui/button";
 import { InformationBanner } from "@repo/ui/information-banner";
@@ -102,7 +103,23 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
           <Row label="Sender" value={transfer.sender_phone} />
           <Row
             label="Proof"
-            value={transfer.payment_proof_key ? "On file" : "Not uploaded"}
+            value={
+              transfer.payment_proof_url ? (
+                <a
+                  href={transfer.payment_proof_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 font-medium text-navy underline decoration-border-strong underline-offset-4 transition-colors hover:text-brand hover:decoration-brand"
+                >
+                  <span>View proof</span>
+                  <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" />
+                </a>
+              ) : transfer.payment_proof_key ? (
+                "On file"
+              ) : (
+                "Not uploaded"
+              )
+            }
           />
           {transfer.status === "PENDING_PAYMENT" && !expired ? (
             <Row label="Expires" value={formatDateTime(transfer.expires_at)} />
@@ -245,7 +262,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-4 border-b border-border px-3 py-2.5 last:border-b-0">
       <dt className="text-sm text-muted">{label}</dt>

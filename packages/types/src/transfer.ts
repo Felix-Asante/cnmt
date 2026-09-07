@@ -63,6 +63,7 @@ export type Transfer = {
   fee: string | number;
   sender_phone: string;
   payment_proof_key?: string;
+  payment_proof_url?: string;
   payment_instructions?: TransferPaymentInstructions;
   recipient: TransferRecipient;
   notes?: string;
