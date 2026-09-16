@@ -1,21 +1,26 @@
-import type { ReceivingMethod, TransferStatus } from "@repo/types";
+import {
+  TransferStatus,
+  type ReceivingMethod,
+  type Transfer,
+  type TransferStatus as TransferStatusValue,
+} from "@repo/types";
 
-export const TRANSFER_STATUS_LABELS: Record<TransferStatus, string> = {
-  PENDING_PAYMENT: "Pending payment",
-  PAYMENT_RECEIVED: "Payment received",
-  VERIFYING: "Verifying",
-  PROCESSING: "Processing",
-  COMPLETED: "Completed",
-  FAILED: "Failed",
-  CANCELLED: "Cancelled",
+export const TRANSFER_STATUS_LABELS: Record<TransferStatusValue, string> = {
+  [TransferStatus.PENDING_PAYMENT]: "Pending payment",
+  [TransferStatus.PAYMENT_RECEIVED]: "Payment received",
+  [TransferStatus.VERIFYING]: "Verifying",
+  [TransferStatus.PROCESSING]: "Processing",
+  [TransferStatus.COMPLETED]: "Completed",
+  [TransferStatus.FAILED]: "Failed",
+  [TransferStatus.CANCELLED]: "Cancelled",
 };
 
 export const TRANSFER_PIPELINE = [
-  "PENDING_PAYMENT",
-  "PAYMENT_RECEIVED",
-  "VERIFYING",
-  "PROCESSING",
-  "COMPLETED",
+  TransferStatus.PENDING_PAYMENT,
+  TransferStatus.PAYMENT_RECEIVED,
+  TransferStatus.VERIFYING,
+  TransferStatus.PROCESSING,
+  TransferStatus.COMPLETED,
 ] as const;
 
 export type TransferTimelineItem = {
@@ -52,76 +57,76 @@ const CURRENT_TIMELINE_STEP: Record<
   (typeof TRANSFER_PIPELINE)[number],
   number
 > = {
-  PENDING_PAYMENT: 1,
-  PAYMENT_RECEIVED: 2,
-  VERIFYING: 2,
-  PROCESSING: 3,
-  COMPLETED: 4,
+  [TransferStatus.PENDING_PAYMENT]: 1,
+  [TransferStatus.PAYMENT_RECEIVED]: 2,
+  [TransferStatus.VERIFYING]: 2,
+  [TransferStatus.PROCESSING]: 3,
+  [TransferStatus.COMPLETED]: 4,
 };
 
 export function isPipelineStatus(
-  status: TransferStatus,
+  status: TransferStatusValue,
 ): status is (typeof TRANSFER_PIPELINE)[number] {
   return (TRANSFER_PIPELINE as readonly string[]).includes(status);
 }
 
-export function transferStatusBadgeVariant(status: TransferStatus) {
+export function transferStatusBadgeVariant(status: TransferStatusValue) {
   switch (status) {
-    case "PENDING_PAYMENT":
+    case TransferStatus.PENDING_PAYMENT:
       return "gold" as const;
-    case "PAYMENT_RECEIVED":
-    case "VERIFYING":
-    case "PROCESSING":
+    case TransferStatus.PAYMENT_RECEIVED:
+    case TransferStatus.VERIFYING:
+    case TransferStatus.PROCESSING:
       return "navy" as const;
-    case "COMPLETED":
+    case TransferStatus.COMPLETED:
       return "success" as const;
-    case "FAILED":
+    case TransferStatus.FAILED:
       return "brand" as const;
-    case "CANCELLED":
+    case TransferStatus.CANCELLED:
       return "neutral" as const;
   }
 }
 
-export function transferStatusHeadline(status: TransferStatus) {
+export function transferStatusHeadline(status: TransferStatusValue) {
   switch (status) {
-    case "PENDING_PAYMENT":
+    case TransferStatus.PENDING_PAYMENT:
       return "Awaiting your payment";
-    case "PAYMENT_RECEIVED":
+    case TransferStatus.PAYMENT_RECEIVED:
       return "Payment received";
-    case "VERIFYING":
+    case TransferStatus.VERIFYING:
       return "Verifying your payment";
-    case "PROCESSING":
+    case TransferStatus.PROCESSING:
       return "Sending to recipient";
-    case "COMPLETED":
+    case TransferStatus.COMPLETED:
       return "Transfer complete";
-    case "FAILED":
+    case TransferStatus.FAILED:
       return "Transfer failed";
-    case "CANCELLED":
+    case TransferStatus.CANCELLED:
       return "Transfer cancelled";
   }
 }
 
-export function transferStatusDescription(status: TransferStatus) {
+export function transferStatusDescription(status: TransferStatusValue) {
   switch (status) {
-    case "PENDING_PAYMENT":
+    case TransferStatus.PENDING_PAYMENT:
       return "Send the payment using the details from your confirmation. Include your reference so we can match it quickly.";
-    case "PAYMENT_RECEIVED":
+    case TransferStatus.PAYMENT_RECEIVED:
       return "We’ve received your payment and will verify it before sending funds to the recipient.";
-    case "VERIFYING":
+    case TransferStatus.VERIFYING:
       return "Our team is confirming your payment. Most transfers move to payout within 30 minutes.";
-    case "PROCESSING":
+    case TransferStatus.PROCESSING:
       return "Your transfer is being paid out to the recipient now.";
-    case "COMPLETED":
+    case TransferStatus.COMPLETED:
       return "The recipient has received the funds. No further action is needed.";
-    case "FAILED":
+    case TransferStatus.FAILED:
       return "This transfer could not be completed. Contact support if you need help.";
-    case "CANCELLED":
+    case TransferStatus.CANCELLED:
       return "This transfer was cancelled and will not be processed.";
   }
 }
 
 export function transferTimelineItems(
-  status: TransferStatus,
+  status: TransferStatusValue,
 ): TransferTimelineItem[] {
   if (!isPipelineStatus(status)) {
     return [];
@@ -130,7 +135,8 @@ export function transferTimelineItems(
   const currentStep = CURRENT_TIMELINE_STEP[status];
 
   return TIMELINE_STEPS.map((step, index) => {
-    const complete = currentStep > index || status === "COMPLETED";
+    const complete =
+      currentStep > index || status === TransferStatus.COMPLETED;
     const current = !complete && currentStep === index;
 
     return {
@@ -144,19 +150,26 @@ export function receivingMethodLabel(method: ReceivingMethod) {
   return method === "MOBILE_MONEY" ? "Mobile money" : "Bank transfer";
 }
 
-export function transferEstimatedArrival(status: TransferStatus) {
+export function transferEstimatedArrival(status: TransferStatusValue) {
   switch (status) {
-    case "PENDING_PAYMENT":
+    case TransferStatus.PENDING_PAYMENT:
       return "After payment is verified";
-    case "PAYMENT_RECEIVED":
-    case "VERIFYING":
+    case TransferStatus.PAYMENT_RECEIVED:
+    case TransferStatus.VERIFYING:
       return "Usually within 30 minutes";
-    case "PROCESSING":
+    case TransferStatus.PROCESSING:
       return "In progress now";
-    case "COMPLETED":
+    case TransferStatus.COMPLETED:
       return "Delivered";
-    case "FAILED":
-    case "CANCELLED":
+    case TransferStatus.FAILED:
+    case TransferStatus.CANCELLED:
       return "Not applicable";
   }
+}
+
+/** True when the customer can still pay and upload proof. */
+export function canContinuePayment(transfer: Transfer) {
+  if (transfer.status !== TransferStatus.PENDING_PAYMENT) return false;
+  const expires = new Date(transfer.expires_at).getTime();
+  return !Number.isNaN(expires) && expires > Date.now();
 }

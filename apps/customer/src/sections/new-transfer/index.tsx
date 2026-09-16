@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
@@ -53,15 +54,26 @@ const stepMotion = {
   transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const },
 };
 
+export type ResumePayment = {
+  reference: string;
+  sendAmount: string;
+  sendCurrency: string;
+  senderCountryCode: string;
+};
+
 type NewTransferProps = {
   transferOptions: TransferOptions;
+  resume?: ResumePayment;
 };
 
 type PendingAction = "submit" | "upload" | null;
 
-export default function NewTransfer({ transferOptions }: NewTransferProps) {
-  const [step, setStep] = useState(0);
-  const [reference, setReference] = useState("");
+export default function NewTransfer({
+  transferOptions,
+  resume,
+}: NewTransferProps) {
+  const [step, setStep] = useState(resume ? 3 : 0);
+  const [reference, setReference] = useState(resume?.reference ?? "");
   const [paymentAccountId, setPaymentAccountId] = useState("");
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const idempotencyKeyRef = useRef<string | null>(null);
@@ -80,9 +92,12 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
     resolver: zodResolver(transferRequestSchema),
     defaultValues: {
       ...defaultTransferValues,
-      senderCountryCode: firstSenderCountry?.id.toString() ?? "",
+      senderCountryCode:
+        resume?.senderCountryCode ?? firstSenderCountry?.id.toString() ?? "",
       recipientCountryCode: firstDestination?.id.toString() ?? "",
-      sendCurrency: firstSenderCountry?.currency_code ?? "GBP",
+      sendAmount: resume?.sendAmount ?? "",
+      sendCurrency:
+        resume?.sendCurrency ?? firstSenderCountry?.currency_code ?? "GBP",
     },
     mode: "onTouched",
     reValidateMode: "onChange",
@@ -111,7 +126,7 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
     fee,
   );
 
-  const inRequestPhase = step <= 1;
+  const inRequestPhase = !resume && step <= 1;
   const isSubmittedScreen = step === 2;
   const isCompleteScreen = step === 5;
   const showFooter = step === 0 || step === 1 || step === 3 || step === 4;
@@ -352,6 +367,9 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
     setReference("");
     setPaymentAccountId("");
     setStep(0);
+    if (resume) {
+      window.history.replaceState(null, "", "/transfer");
+    }
   }
 
   if (!transferOptions.sources.length) {
@@ -442,7 +460,16 @@ export default function NewTransfer({ transferOptions }: NewTransferProps) {
 
             {showFooter ? (
               <div className="mt-12 flex items-center justify-between gap-3">
-                {step > 0 ? (
+                {resume && step === 3 ? (
+                  <Button asChild variant="ghost">
+                    <Link
+                      href={`/track?ref=${encodeURIComponent(reference)}`}
+                    >
+                      <ArrowLeft className="size-4" aria-hidden />
+                      Back
+                    </Link>
+                  </Button>
+                ) : step > 0 ? (
                   <Button
                     type="button"
                     variant="ghost"

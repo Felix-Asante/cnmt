@@ -9,17 +9,28 @@ export type TransferOptions = {
   destinations: TransferDestinationCountry[];
 };
 
-export const TRANSFER_STATUSES = [
-  "PENDING_PAYMENT",
-  "PAYMENT_RECEIVED",
-  "VERIFYING",
-  "PROCESSING",
-  "COMPLETED",
-  "FAILED",
-  "CANCELLED",
-] as const;
+export const TransferStatus = {
+  PENDING_PAYMENT: "PENDING_PAYMENT",
+  PAYMENT_RECEIVED: "PAYMENT_RECEIVED",
+  VERIFYING: "VERIFYING",
+  PROCESSING: "PROCESSING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+  CANCELLED: "CANCELLED",
+} as const;
 
-export type TransferStatus = (typeof TRANSFER_STATUSES)[number];
+export type TransferStatus =
+  (typeof TransferStatus)[keyof typeof TransferStatus];
+
+export const TRANSFER_STATUSES = [
+  TransferStatus.PENDING_PAYMENT,
+  TransferStatus.PAYMENT_RECEIVED,
+  TransferStatus.VERIFYING,
+  TransferStatus.PROCESSING,
+  TransferStatus.COMPLETED,
+  TransferStatus.FAILED,
+  TransferStatus.CANCELLED,
+] as const;
 
 export type ReceivingMethod = "BANK" | "MOBILE_MONEY";
 

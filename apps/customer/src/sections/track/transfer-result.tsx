@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { Transfer } from "@repo/types";
+import { TransferStatus, type Transfer } from "@repo/types";
 import { Badge } from "@repo/ui/badge";
 import { InformationBanner } from "@repo/ui/information-banner";
 import { Timeline } from "@repo/ui/timeline";
@@ -14,6 +14,7 @@ import {
 } from "@repo/utils/money";
 import {
   TRANSFER_STATUS_LABELS,
+  canContinuePayment,
   receivingMethodLabel,
   transferEstimatedArrival,
   transferStatusBadgeVariant,
@@ -49,8 +50,10 @@ export function TransferResult({ transfer }: TransferResultProps) {
   const source = transfer.route.source_country;
   const destination = transfer.route.destination_country;
   const timeline = transferTimelineItems(transfer.status);
+  const canContinue = canContinuePayment(transfer);
   const showExpiry =
-    transfer.status === "PENDING_PAYMENT" && isExpiringSoon(transfer.expires_at);
+    transfer.status === TransferStatus.PENDING_PAYMENT &&
+    isExpiringSoon(transfer.expires_at);
 
   const summaryItems = [
     {
@@ -130,14 +133,17 @@ export function TransferResult({ transfer }: TransferResultProps) {
           </div>
         </div>
 
-        {transfer.status === "FAILED" || transfer.status === "CANCELLED" ? (
+        {transfer.status === TransferStatus.FAILED ||
+        transfer.status === TransferStatus.CANCELLED ? (
           <InformationBanner
             title={
-              transfer.status === "FAILED"
+              transfer.status === TransferStatus.FAILED
                 ? "This transfer cannot continue"
                 : "This transfer was cancelled"
             }
-            tone={transfer.status === "FAILED" ? "warning" : "info"}
+            tone={
+              transfer.status === TransferStatus.FAILED ? "warning" : "info"
+            }
             icon={AlertCircle}
           >
             Contact support with your reference if you believe this is a mistake
@@ -153,11 +159,10 @@ export function TransferResult({ transfer }: TransferResultProps) {
           </InformationBanner>
         ) : null}
 
-        {transfer.status === "PENDING_PAYMENT" ? (
+        {transfer.status === TransferStatus.PENDING_PAYMENT ? (
           <InformationBanner title="Payment still required">
-            Send the exact amount with your reference to continue. Once we
-            receive and verify payment, payout usually follows within 30
-            minutes.
+            Send the exact amount with your reference, then upload proof to
+            continue. Once verified, payout usually follows within 30 minutes.
           </InformationBanner>
         ) : null}
 
@@ -199,19 +204,32 @@ export function TransferResult({ transfer }: TransferResultProps) {
             {transfer.notes ? (
               <div className="sm:col-span-2">
                 <dt className="text-sm text-muted">Note</dt>
-                <dd className="mt-1 text-sm text-foreground">{transfer.notes}</dd>
+                <dd className="mt-1 text-sm text-foreground">
+                  {transfer.notes}
+                </dd>
               </div>
             ) : null}
           </dl>
         </div>
 
         <div className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row">
-          <Button asChild size="lg" className="gap-2">
-            <Link href="/transfer">
-              Send another transfer
-              <ArrowRight className="size-4" aria-hidden />
-            </Link>
-          </Button>
+          {canContinue ? (
+            <Button asChild size="lg" className="gap-2">
+              <Link
+                href={`/transfer?ref=${encodeURIComponent(transfer.reference)}`}
+              >
+                Continue payment
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size="lg" className="gap-2">
+              <Link href="/transfer">
+                Send another transfer
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </Button>
+          )}
           <Button asChild variant="outline" size="lg">
             <Link href="/">Back home</Link>
           </Button>
