@@ -1,5 +1,4 @@
-const BASE_URL =
-  import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
 
 function createEndpoint(path: string) {
   const origin = BASE_URL.replace(/\/$/, "");
@@ -77,7 +76,7 @@ export const API_ENDPOINTS = {
       reference?: string;
       sender_phone?: string;
       recipient_phone?: string;
-    }) => createEndpoint(`transfers${toQuery(params)}`),
+    }) => createEndpoint(`admin/transfers${toQuery(params)}`),
     getByReference: (reference: string) =>
       createEndpoint(`transfers/${encodeURIComponent(reference)}`),
     verifyPayment: (id: string) =>
