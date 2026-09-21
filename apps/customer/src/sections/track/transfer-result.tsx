@@ -15,6 +15,7 @@ import {
 import {
   TRANSFER_STATUS_LABELS,
   canContinuePayment,
+  formatPromoDiscount,
   receivingMethodLabel,
   transferEstimatedArrival,
   transferStatusBadgeVariant,
@@ -55,6 +56,8 @@ export function TransferResult({ transfer }: TransferResultProps) {
     transfer.status === TransferStatus.PENDING_PAYMENT &&
     isExpiringSoon(transfer.expires_at);
 
+  const promo = transfer.promo_code;
+
   const summaryItems = [
     {
       label: "You send",
@@ -86,6 +89,14 @@ export function TransferResult({ transfer }: TransferResultProps) {
         destination.currency_code,
       ),
     },
+    ...(promo
+      ? [
+          {
+            label: "Promo",
+            value: `${promo.code} · ${formatPromoDiscount(promo.discount_percentage)} off fee`,
+          },
+        ]
+      : []),
     {
       label: "Submitted",
       value: formatDateTime(transfer.created_at),
@@ -209,6 +220,19 @@ export function TransferResult({ transfer }: TransferResultProps) {
                 </dd>
               </div>
             ) : null}
+            {promo ? (
+              <div className="sm:col-span-2">
+                <dt className="text-sm text-muted">Promo code</dt>
+                <dd className="mt-1 text-sm font-medium text-foreground">
+                  {promo.code}
+                  <span className="font-normal text-muted">
+                    {" "}
+                    · {formatPromoDiscount(promo.discount_percentage)} off the
+                    fee
+                  </span>
+                </dd>
+              </div>
+            ) : null}
           </dl>
         </div>
 
@@ -246,6 +270,11 @@ export function TransferResult({ transfer }: TransferResultProps) {
           destination.currency_symbol,
         )}
         estimatedCompletion={transferEstimatedArrival(transfer.status)}
+        feesIncludedText={
+          promo
+            ? `Fees included · ${formatPromoDiscount(promo.discount_percentage)} promo off the fee`
+            : undefined
+        }
       />
     </div>
   );

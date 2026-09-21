@@ -25,4 +25,8 @@ export const API_ENDPOINTS = {
     confirmPaymentProofUploaded: () =>
       createEndpoint("transfers/payment-proof/confirm"),
   },
+  promoCodes: {
+    preview: (code: string) =>
+      createEndpoint(`promocodes/${encodeURIComponent(code.trim())}`),
+  },
 };

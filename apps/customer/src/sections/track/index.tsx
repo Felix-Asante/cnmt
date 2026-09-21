@@ -25,7 +25,9 @@ export default function TrackTransfer({
   const [isPending, startTransition] = useTransition();
   const autoSearched = useRef(false);
   const validationError =
-    hasSearched && !reference.trim() ? "Enter your transfer reference." : undefined;
+    hasSearched && !reference.trim()
+      ? "Enter your transfer reference."
+      : undefined;
 
   function track(nextReference = reference) {
     const trimmed = nextReference.trim();
@@ -97,7 +99,7 @@ export default function TrackTransfer({
                   name="reference"
                   value={reference}
                   onChange={(event) => setReference(event.target.value)}
-                  placeholder="CNMT-01J..."
+                  placeholder="TRANS-..."
                   autoComplete="off"
                   spellCheck={false}
                   className="font-mono tracking-wide"
@@ -124,14 +126,11 @@ export default function TrackTransfer({
             ) : transfer ? (
               <TransferResult transfer={transfer} />
             ) : hasSearched && error ? (
-              <SearchState
-                title="Transfer not found"
-                description={error}
-              />
+              <SearchState title="Transfer not found" description={error} />
             ) : (
               <SearchState
                 title="Ready when you are"
-                description="Your reference usually starts with CNMT-. You’ll see live progress once we find a match."
+                description="Your reference usually starts with TRANS-. You’ll see live progress once we find a match."
               />
             )}
           </div>

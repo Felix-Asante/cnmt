@@ -55,6 +55,12 @@ export const transferRequestPayloadSchema = z
       .string()
       .max(160, "Note must be 160 characters or fewer.")
       .optional(),
+    promoCode: z
+      .string()
+      .trim()
+      .max(64, "Promo code is too long.")
+      .optional()
+      .or(z.literal("")),
   })
   .superRefine((data, ctx) => {
     if (data.receivingMethod === "mobile_money") {
@@ -150,6 +156,7 @@ export const defaultTransferValues: TransferFormValues = {
   bankAccountName: "",
   bankAccountNumber: "",
   note: "",
+  promoCode: "",
   proofFile: null,
 };
 

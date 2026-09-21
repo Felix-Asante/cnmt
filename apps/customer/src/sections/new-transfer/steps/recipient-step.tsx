@@ -19,11 +19,16 @@ import { getRecipientCountry, getSenderCountry } from "../constants";
 import { itemId, itemName } from "@repo/utils/lookup";
 import { getSavedRecipients, type SavedRecipient } from "../memory";
 import type { TransferFormValues } from "../schema";
-import type { TransferOptions } from "@repo/types";
+import type { PreviewPromoCode, TransferOptions } from "@repo/types";
+import { PromoCodeField } from "../promo-code-field";
 
 type RecipientStepProps = {
   form: UseFormReturn<TransferFormValues>;
   transferOptions: TransferOptions;
+  appliedPromo: PreviewPromoCode | null;
+  promoError?: string;
+  onApplyPromo: (code: string) => Promise<string | null>;
+  onClearPromo: () => void;
 };
 
 function SelectField({
@@ -60,7 +65,14 @@ function SelectField({
   );
 }
 
-export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
+export function RecipientStep({
+  form,
+  transferOptions,
+  appliedPromo,
+  promoError,
+  onApplyPromo,
+  onClearPromo,
+}: RecipientStepProps) {
   const [saved, setSaved] = useState<SavedRecipient[]>([]);
   const [paymentChannels, setPaymentChannels] = useState<string[]>([]);
   const recipientCode = useWatch({
@@ -70,6 +82,10 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
   const senderCode = useWatch({
     control: form.control,
     name: "senderCountryCode",
+  });
+  const promoCode = useWatch({
+    control: form.control,
+    name: "promoCode",
   });
   const country = getRecipientCountry(
     recipientCode,
@@ -471,6 +487,21 @@ export function RecipientStep({ form, transferOptions }: RecipientStepProps) {
             </div>
           </>
         )}
+
+        <PromoCodeField
+          value={promoCode ?? ""}
+          applied={appliedPromo}
+          error={promoError}
+          onChange={(value) => {
+            form.setValue("promoCode", value, {
+              shouldDirty: true,
+              shouldValidate: true,
+            });
+            if (appliedPromo) onClearPromo();
+          }}
+          onApply={onApplyPromo}
+          onClear={onClearPromo}
+        />
       </div>
     </div>
   );

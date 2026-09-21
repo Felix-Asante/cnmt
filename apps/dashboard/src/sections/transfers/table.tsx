@@ -56,6 +56,11 @@ export function TransferTable({ transfers }: { transfers: Transfer[] }) {
                   >
                     {transfer.reference}
                   </Link>
+                  {transfer.promo_code ? (
+                    <p className="mt-0.5 font-mono text-xs tracking-wide text-muted">
+                      {transfer.promo_code.code}
+                    </p>
+                  ) : null}
                 </td>
                 <td className="px-4 py-3.5 text-foreground">
                   <CorridorCell

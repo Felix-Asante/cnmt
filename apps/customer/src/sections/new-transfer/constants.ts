@@ -96,3 +96,14 @@ export function calculateFee(
   }
   return Math.floor((amount * fee) / 100) ?? 0;
 }
+
+/** Mirrors backend promo fee discount (percentage off the fee only). */
+export function applyPromoDiscount(
+  fee: number,
+  discountPercentage: string | number,
+) {
+  const pct = Number(discountPercentage);
+  if (!Number.isFinite(fee) || !Number.isFinite(pct) || pct <= 0) return fee;
+  const discount = Math.round(((fee * pct) / 100) * 100) / 100;
+  return Math.max(Math.round((fee - discount) * 100) / 100, 0);
+}

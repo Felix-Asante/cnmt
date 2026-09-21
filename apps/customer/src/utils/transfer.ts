@@ -150,6 +150,12 @@ export function receivingMethodLabel(method: ReceivingMethod) {
   return method === "MOBILE_MONEY" ? "Mobile money" : "Bank transfer";
 }
 
+export function formatPromoDiscount(value: string | number) {
+  const amount = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(amount)) return "—";
+  return `${amount}%`;
+}
+
 export function transferEstimatedArrival(status: TransferStatusValue) {
   switch (status) {
     case TransferStatus.PENDING_PAYMENT:

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
-import type { Transfer } from "@repo/types";
+import { TransferStatus, type Transfer } from "@repo/types";
 import { Button } from "@repo/ui/button";
 import { InformationBanner } from "@repo/ui/information-banner";
 import {
@@ -16,11 +16,17 @@ import { TransferPipeline } from "./pipeline";
 import { TransferSheet, useCloseTransferSheet } from "./sheet";
 import { TransferStatusBadge } from "./status-badge";
 
+function formatPromoDiscount(value: string | number) {
+  const amount = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(amount)) return "—";
+  return `${amount}%`;
+}
+
 export function TransferDetail({ transfer }: { transfer: Transfer }) {
   const source = transfer.route.source_country;
   const destination = transfer.route.destination_country;
   const expired =
-    transfer.status === "PENDING_PAYMENT" &&
+    transfer.status === TransferStatus.PENDING_PAYMENT &&
     new Date(transfer.expires_at).getTime() < Date.now();
   const payoutChannel =
     transfer.recipient.receiving_method === "BANK"
@@ -29,11 +35,12 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
   const payment = transfer.payment_instructions;
   const hasPaymentInstructions = Boolean(
     payment?.payment_method ||
-    payment?.channel_name ||
-    payment?.account_name ||
-    payment?.account_number ||
-    payment?.currency_code,
+      payment?.channel_name ||
+      payment?.account_name ||
+      payment?.account_number ||
+      payment?.currency_code,
   );
+  const promo = transfer.promo_code;
 
   return (
     <TransferSheet
@@ -64,7 +71,8 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
       </div>
 
       <div className="space-y-5 px-5 py-5">
-        {transfer.status === "FAILED" || transfer.status === "CANCELLED" ? (
+        {transfer.status === TransferStatus.FAILED ||
+        transfer.status === TransferStatus.CANCELLED ? (
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-medium text-navy">Status</p>
             <TransferStatusBadge status={transfer.status} />
@@ -82,12 +90,26 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
         <Section title="Transfer">
           <Row
             label="Fee"
-            value={formatAmount(
-              transfer.fee,
-              source.currency_code,
-              source.currency_symbol,
-            )}
+            value={
+              promo
+                ? `${formatAmount(
+                    transfer.fee,
+                    source.currency_code,
+                    source.currency_symbol,
+                  )} (after ${formatPromoDiscount(promo.discount_percentage)} off)`
+                : formatAmount(
+                    transfer.fee,
+                    source.currency_code,
+                    source.currency_symbol,
+                  )
+            }
           />
+          {promo ? (
+            <Row
+              label="Promo"
+              value={`${promo.code} · ${formatPromoDiscount(promo.discount_percentage)} off`}
+            />
+          ) : null}
           <Row
             label="Rate"
             value={formatExchangeRate(
@@ -112,7 +134,10 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
                   className="inline-flex items-center gap-1.5 font-medium text-navy underline decoration-border-strong underline-offset-4 transition-colors hover:text-brand hover:decoration-brand"
                 >
                   <span>View proof</span>
-                  <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" />
+                  <ExternalLink
+                    className="size-3.5 shrink-0"
+                    aria-hidden="true"
+                  />
                 </a>
               ) : transfer.payment_proof_key ? (
                 "On file"
@@ -121,7 +146,7 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
               )
             }
           />
-          {transfer.status === "PENDING_PAYMENT" && !expired ? (
+          {transfer.status === TransferStatus.PENDING_PAYMENT && !expired ? (
             <Row label="Expires" value={formatDateTime(transfer.expires_at)} />
           ) : null}
         </Section>

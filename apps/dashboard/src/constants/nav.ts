@@ -3,6 +3,7 @@ import {
   Building2,
   Globe,
   LayoutDashboard,
+  TicketPercent,
   Waypoints,
   type LucideIcon,
 } from "lucide-react";
@@ -51,6 +52,11 @@ export const NAV_GROUPS: NavGroup[] = [
         to: "/dashboard/payment-accounts",
         label: "Payment accounts",
         icon: Building2,
+      },
+      {
+        to: "/dashboard/promo-codes",
+        label: "Promo codes",
+        icon: TicketPercent,
       },
     ],
   },

@@ -14,6 +14,7 @@ import {
   FULFILLMENT_STEPS,
   REQUEST_STEPS,
   STATIC_QUOTE,
+  applyPromoDiscount,
   calculateFee,
   firstDestinationForSource,
   getRecipientCountry,
@@ -22,6 +23,7 @@ import {
 } from "./constants";
 import { amountOutOfRangeMessage } from "@repo/utils/money";
 import { itemName } from "@repo/utils/lookup";
+import { formatPromoDiscount } from "@/utils/transfer";
 import { rememberCorridor, rememberRecipient } from "./memory";
 import {
   defaultTransferValues,
@@ -35,11 +37,12 @@ import { RecipientStep } from "./steps/recipient-step";
 import { SuccessStep } from "./steps/success-step";
 import { TransferStep } from "./steps/transfer-step";
 import { UploadStep } from "./steps/upload-step";
-import type { TransferOptions } from "@repo/types";
+import type { PreviewPromoCode, TransferOptions } from "@repo/types";
 import {
   confirmPaymentProofUploaded,
   createTransfer,
   createUploadPaymentProofSignedUrl,
+  previewPromoCode,
 } from "./api/server";
 import {
   normalizeMimeType,
@@ -75,6 +78,10 @@ export default function NewTransfer({
   const [step, setStep] = useState(resume ? 3 : 0);
   const [reference, setReference] = useState(resume?.reference ?? "");
   const [paymentAccountId, setPaymentAccountId] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<PreviewPromoCode | null>(
+    null,
+  );
+  const [promoError, setPromoError] = useState<string | undefined>();
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const idempotencyKeyRef = useRef<string | null>(null);
   const pendingActionRef = useRef<PendingAction>(null);
@@ -113,11 +120,14 @@ export default function NewTransfer({
     values.senderCountryCode ?? "",
     transferOptions.destinations,
   );
-  const fee = calculateFee(
+  const baseFee = calculateFee(
     Number(values.sendAmount ?? 0),
     recipient?.fee_type ?? "fixed",
     Number(recipient?.fee ?? 0),
   );
+  const fee = appliedPromo
+    ? applyPromoDiscount(baseFee, appliedPromo.discount_percentage)
+    : baseFee;
   const quote = getTransferQuote(
     values.sendAmount ?? "",
     values.sendCurrency ?? "",
@@ -170,11 +180,42 @@ export default function NewTransfer({
         label: "Payout",
         value: payoutDetail,
       },
+      ...(appliedPromo
+        ? [
+            {
+              label: "Promo",
+              value: `${appliedPromo.code} · ${formatPromoDiscount(appliedPromo.discount_percentage)} off fee`,
+            },
+          ]
+        : []),
       { label: "You send", value: quote.sendLabel, emphasis: true },
       { label: "Recipient gets", value: quote.receiveLabel, emphasis: true },
       { label: "Rate", value: recipient?.default_exchange_rate ?? "" },
     ];
-  }, [quote, recipient, sender, values]);
+  }, [appliedPromo, quote, recipient, sender, values]);
+
+  async function handleApplyPromo(code: string) {
+    setPromoError(undefined);
+    const result = await previewPromoCode(code);
+    if (!result.ok) {
+      setAppliedPromo(null);
+      setPromoError(result.error);
+      return result.error;
+    }
+
+    setAppliedPromo(result.promo);
+    form.setValue("promoCode", result.promo.code, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    return null;
+  }
+
+  function handleClearPromo() {
+    setAppliedPromo(null);
+    setPromoError(undefined);
+    form.setValue("promoCode", "", { shouldDirty: true });
+  }
 
   async function goNext() {
     if (busy || pendingActionRef.current) return;
@@ -307,7 +348,10 @@ export default function NewTransfer({
 
     try {
       const response = await createTransfer(
-        requestValues,
+        {
+          ...requestValues,
+          promoCode: appliedPromo?.code ?? "",
+        },
         idempotencyKeyRef.current,
       );
       if (!response) {
@@ -366,6 +410,8 @@ export default function NewTransfer({
     });
     setReference("");
     setPaymentAccountId("");
+    setAppliedPromo(null);
+    setPromoError(undefined);
     setStep(0);
     if (resume) {
       window.history.replaceState(null, "", "/transfer");
@@ -424,6 +470,10 @@ export default function NewTransfer({
                     <RecipientStep
                       form={form}
                       transferOptions={transferOptions}
+                      appliedPromo={appliedPromo}
+                      promoError={promoError}
+                      onApplyPromo={handleApplyPromo}
+                      onClearPromo={handleClearPromo}
                     />
                   ) : null}
                   {step === 2 ? (
@@ -551,6 +601,11 @@ export default function NewTransfer({
               items={summaryItems}
               receiveHighlight={quote.receiveLabel}
               estimatedCompletion={STATIC_QUOTE.estimatedCompletion}
+              feesIncludedText={
+                appliedPromo
+                  ? `Fees included · ${formatPromoDiscount(appliedPromo.discount_percentage)} promo off the fee`
+                  : undefined
+              }
             />
           ) : null}
         </div>

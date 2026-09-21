@@ -60,6 +60,11 @@ export type TransferPaymentInstructions = {
   currency_code?: string;
 };
 
+export type TransferPromoCode = {
+  code: string;
+  discount_percentage: string | number;
+};
+
 export type Transfer = {
   id: string;
   reference: string;
@@ -77,6 +82,7 @@ export type Transfer = {
   payment_proof_url?: string;
   payment_instructions?: TransferPaymentInstructions;
   recipient: TransferRecipient;
+  promo_code?: TransferPromoCode;
   notes?: string;
   expires_at: string;
   created_at: string;

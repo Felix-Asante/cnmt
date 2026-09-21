@@ -4,7 +4,7 @@ import { cleanDeep } from "@/utils/clean-deep";
 import { isUuid } from "@/utils/id";
 import { validatePhoneNumber } from "@/utils/phone";
 import { request } from "@/utils/request";
-import type { PaymentAccount, TransferOptions } from "@repo/types";
+import type { PaymentAccount, PreviewPromoCode, TransferOptions } from "@repo/types";
 import {
   isAllowedMimeType,
   normalizeMimeType,
@@ -20,6 +20,7 @@ type CreateTransferResponse = {
   transfer_id: string;
   reference: string;
   expires_in: number;
+  promo_code?: PreviewPromoCode;
 };
 
 type CreateUploadPaymentProofSignedUrlResponse = {
@@ -132,6 +133,9 @@ export const createTransfer = async (
         recipient_phone: isBank ? undefined : recipientPhone,
       },
       notes: data.note || undefined,
+      promo_code: data.promoCode?.trim()
+        ? data.promoCode.trim().toUpperCase()
+        : undefined,
     };
 
     return await request<CreateTransferResponse>({
@@ -197,3 +201,41 @@ export const confirmPaymentProofUploaded = async (
     return false;
   }
 };
+
+type PreviewPromoCodeResult =
+  | { ok: true; promo: PreviewPromoCode }
+  | { ok: false; error: string };
+
+function readErrorMessage(error: unknown) {
+  if (
+    error !== null &&
+    typeof error === "object" &&
+    "error" in error &&
+    typeof error.error === "string" &&
+    error.error.trim()
+  ) {
+    return error.error;
+  }
+
+  return "This promo code is not valid.";
+}
+
+export async function previewPromoCode(
+  code: string,
+): Promise<PreviewPromoCodeResult> {
+  const trimmed = code.trim();
+  if (!trimmed) {
+    return { ok: false, error: "Enter a promo code." };
+  }
+
+  try {
+    const promo = await request<PreviewPromoCode>({
+      endpoint: API_ENDPOINTS.promoCodes.preview(trimmed),
+      method: "GET",
+      cache: "no-store",
+    });
+    return { ok: true, promo };
+  } catch (error) {
+    return { ok: false, error: readErrorMessage(error) };
+  }
+}

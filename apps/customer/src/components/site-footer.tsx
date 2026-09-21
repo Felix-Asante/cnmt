@@ -4,14 +4,12 @@ import { SUPPORT } from "@/constants/support";
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-border bg-background">
-      <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="mx-auto flex w-full max-w-280 flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
           <p className="font-display text-xs font-bold tracking-[0.14em] text-navy uppercase">
             C.N Connect
           </p>
-          <p className="mt-1 text-xs text-muted">
-            Support {SUPPORT.hours}
-          </p>
+          <p className="mt-1 text-xs text-muted">Support {SUPPORT.hours}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
@@ -23,17 +21,18 @@ export function SiteFooter() {
           >
             WhatsApp
           </a>
-          <a
-            href={SUPPORT.phoneHref}
-            className="text-muted no-underline transition-colors hover:text-navy"
-          >
-            {SUPPORT.phoneDisplay}
-          </a>
+
           <a
             href={SUPPORT.phoneSecondaryHref}
             className="text-muted no-underline transition-colors hover:text-navy"
           >
             {SUPPORT.phoneSecondaryDisplay}
+          </a>
+          <a
+            href={SUPPORT.phoneHref}
+            className="text-muted no-underline transition-colors hover:text-navy"
+          >
+            {SUPPORT.phoneDisplay}
           </a>
           <a
             href={SUPPORT.emailHref}

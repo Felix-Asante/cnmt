@@ -68,6 +68,13 @@ export const API_ENDPOINTS = {
     toggleActive: (id: string) =>
       createEndpoint(`admin/routes/${id}/toggle-active`),
   },
+  promoCodes: {
+    list: () => createEndpoint("admin/promocodes"),
+    create: () => createEndpoint("admin/promocodes"),
+    get: (id: string) => createEndpoint(`admin/promocodes/${id}`),
+    update: (id: string) => createEndpoint(`admin/promocodes/${id}`),
+    remove: (id: string) => createEndpoint(`admin/promocodes/${id}`),
+  },
   transfers: {
     list: (params: {
       page?: number;

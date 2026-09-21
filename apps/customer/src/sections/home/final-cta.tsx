@@ -37,12 +37,19 @@ export function HomeFinalCta() {
             </div>
           </div>
 
-          <div className="border border-white/10 bg-white/[0.03] px-5 py-5">
+          <div className="border border-white/10 bg-white/3 px-5 py-5">
             <p className="text-xs font-medium tracking-[0.14em] text-white/45 uppercase">
               Talk to support
             </p>
             <p className="mt-2 text-sm text-white/65">{SUPPORT.hours}</p>
             <div className="mt-5 space-y-3">
+              <a
+                href={SUPPORT.phoneSecondaryHref}
+                className="flex items-center gap-3 text-sm text-white no-underline transition-colors hover:text-brand"
+              >
+                <Phone className="size-4 text-brand" aria-hidden />
+                {SUPPORT.phoneSecondaryDisplay}
+              </a>
               <a
                 href={SUPPORT.whatsappHref}
                 target="_blank"
@@ -51,13 +58,6 @@ export function HomeFinalCta() {
               >
                 <MessageCircle className="size-4 text-brand" aria-hidden />
                 {SUPPORT.phoneDisplay}
-              </a>
-              <a
-                href={SUPPORT.phoneSecondaryHref}
-                className="flex items-center gap-3 text-sm text-white no-underline transition-colors hover:text-brand"
-              >
-                <Phone className="size-4 text-brand" aria-hidden />
-                {SUPPORT.phoneSecondaryDisplay}
               </a>
             </div>
           </div>
