@@ -86,10 +86,7 @@ export const createTransfer = async (
       throw new Error("Invalid transfer data");
     }
 
-    const senderRes = validatePhoneNumber(data.senderWhatsApp, {
-      required: true,
-      label: "sender phone",
-    });
+    const senderRes = validatePhoneNumber(data.senderWhatsApp);
     if (!senderRes.isValid || !senderRes.normalized) {
       throw new Error("Invalid transfer data");
     }
@@ -106,11 +103,7 @@ export const createTransfer = async (
       if (!data.network || !isUuid(data.network)) {
         throw new Error("Invalid transfer data");
       }
-      const recipientRes = validatePhoneNumber(data.recipientPhone, {
-        required: true,
-        mobileOnly: true,
-        label: "recipient phone",
-      });
+      const recipientRes = validatePhoneNumber(data.recipientPhone);
       if (!recipientRes.isValid || !recipientRes.normalized) {
         throw new Error("Invalid transfer data");
       }

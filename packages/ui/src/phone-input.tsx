@@ -10,13 +10,14 @@ import {
 } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import {
-  getCountryByIso,
   getPhoneCountryOptions,
-  normalizePhoneToE164,
-  splitPhoneNumber,
-  COUNTRY_PHONE_RULES,
   type PhoneCountryOption,
 } from "@repo/utils/countries";
+import {
+  getPhonePlaceholder,
+  normalizePhoneToE164,
+  splitPhoneNumber,
+} from "@repo/utils/phone";
 import { cn } from "./utils";
 
 export type PhoneInputProps = {
@@ -99,8 +100,8 @@ export function PhoneInput({
     countryOptions[0]!;
 
   const callingCode = activeCountry?.calling_code ?? "+212";
-  const activeRule = COUNTRY_PHONE_RULES[selectedIso];
-  const resolvedPlaceholder = placeholder || activeRule?.placeholder || "638 118 002";
+  const resolvedPlaceholder =
+    placeholder || getPhonePlaceholder(selectedIso);
 
   // If defaultCountry prop changes and user hasn't explicitly entered an international number for another country
   const prevDefaultCountryRef = useRef(defaultCountry);
@@ -111,10 +112,8 @@ export function PhoneInput({
       if (!value || !value.startsWith("+")) {
         const nextIso = defaultCountry.toUpperCase();
         setSelectedIso(nextIso);
-        const nextEntry = getCountryByIso(nextIso);
-        const nextCode = nextEntry?.calling_code || "+212";
         if (localDigits) {
-          const nextFull = normalizePhoneToE164(localDigits, nextCode);
+          const nextFull = normalizePhoneToE164(localDigits, nextIso);
           onChange?.(nextFull);
         }
       }
@@ -167,7 +166,7 @@ export function PhoneInput({
     inputRef.current?.focus();
 
     if (localDigits) {
-      const fullNumber = normalizePhoneToE164(localDigits, option.calling_code);
+      const fullNumber = normalizePhoneToE164(localDigits, option.iso_code);
       onChange?.(fullNumber);
     }
   }
@@ -180,7 +179,7 @@ export function PhoneInput({
       const parsed = splitPhoneNumber(raw, selectedIso);
       setSelectedIso(parsed.isoCode);
       setLocalDigits(parsed.nationalNumber);
-      const full = normalizePhoneToE164(parsed.nationalNumber, parsed.callingCode);
+      const full = normalizePhoneToE164(parsed.nationalNumber, parsed.isoCode);
       onChange?.(full);
       return;
     }
@@ -191,7 +190,7 @@ export function PhoneInput({
 
     const nationalDigits = cleaned.replace(/\D/g, "").replace(/^0+/, "");
     const fullNumber = nationalDigits
-      ? normalizePhoneToE164(nationalDigits, callingCode)
+      ? normalizePhoneToE164(nationalDigits, selectedIso)
       : "";
     onChange?.(fullNumber);
   }
@@ -203,7 +202,7 @@ export function PhoneInput({
       const cleaned = digitsOnly.replace(/^0+/, "");
       setLocalDigits(cleaned);
       if (cleaned) {
-        const full = normalizePhoneToE164(cleaned, callingCode);
+        const full = normalizePhoneToE164(cleaned, selectedIso);
         onChange?.(full);
       }
     }

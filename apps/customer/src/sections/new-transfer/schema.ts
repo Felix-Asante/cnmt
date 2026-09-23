@@ -1,27 +1,11 @@
 import { z } from "zod";
 import { isUuid } from "@/utils/id";
 import { PAYMENT_PROOF_UPLOAD, createFileValidator } from "@repo/utils/file";
-import { validatePhoneNumber } from "@repo/utils/countries";
+import { validatePhoneNumber } from "@repo/utils/phone";
 
 const validateProofFile = createFileValidator(PAYMENT_PROOF_UPLOAD);
 
 const receivingMethodSchema = z.enum(["mobile_money", "bank"]);
-
-const senderPhoneSchema = z
-  .string()
-  .trim()
-  .superRefine((val, ctx) => {
-    const res = validatePhoneNumber(val, {
-      required: true,
-      label: "WhatsApp number",
-    });
-    if (!res.isValid) {
-      ctx.addIssue({
-        code: "custom",
-        message: res.error ?? "Enter a valid phone number.",
-      });
-    }
-  });
 
 export const transferRequestPayloadSchema = z
   .object({
@@ -39,7 +23,7 @@ export const transferRequestPayloadSchema = z
         message: "Amount must be greater than zero.",
       }),
     sendCurrency: z.string(),
-    senderWhatsApp: senderPhoneSchema,
+    senderWhatsApp: z.string().trim(),
     recipientName: z
       .string()
       .trim()
@@ -63,18 +47,22 @@ export const transferRequestPayloadSchema = z
       .or(z.literal("")),
   })
   .superRefine((data, ctx) => {
-    if (data.receivingMethod === "mobile_money") {
-      const phoneRes = validatePhoneNumber(data.recipientPhone, {
-        required: true,
-        mobileOnly: true,
-        label: "mobile money number",
+    const senderPhone = validatePhoneNumber(data.senderWhatsApp);
+    if (!senderPhone.isValid) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["senderWhatsApp"],
+        message: senderPhone.error ?? "Enter a valid phone number.",
       });
-      if (!phoneRes.isValid) {
+    }
+
+    if (data.receivingMethod === "mobile_money") {
+      const recipientPhone = validatePhoneNumber(data.recipientPhone);
+      if (!recipientPhone.isValid) {
         ctx.addIssue({
           code: "custom",
           path: ["recipientPhone"],
-          message:
-            phoneRes.error ?? "Enter the mobile money number.",
+          message: recipientPhone.error ?? "Enter the mobile money number.",
         });
       }
 
@@ -88,7 +76,6 @@ export const transferRequestPayloadSchema = z
       return;
     }
 
-    // Bank channel — no recipient phone
     if (!data.bank || !isUuid(data.bank)) {
       ctx.addIssue({
         code: "custom",

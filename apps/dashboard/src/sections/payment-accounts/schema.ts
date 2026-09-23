@@ -4,7 +4,7 @@ import type {
   ReceivingMethod,
   UpdatePaymentAccountPayload,
 } from "@repo/types";
-import { validatePhoneNumber } from "@repo/utils/countries";
+import { validatePhoneNumber } from "@repo/utils/phone";
 
 export const paymentAccountFormSchema = z
   .object({
@@ -43,10 +43,7 @@ export const paymentAccountFormSchema = z
     }
 
     if (values.payment_method === "MOBILE_MONEY") {
-      const phoneRes = validatePhoneNumber(values.phone_number, {
-        required: true,
-        label: "phone number",
-      });
+      const phoneRes = validatePhoneNumber(values.phone_number);
       if (!phoneRes.isValid) {
         ctx.addIssue({
           code: "custom",
