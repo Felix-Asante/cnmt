@@ -98,12 +98,6 @@ export function getCountryByIso(isoCode: string) {
   return getCountryCatalog().find((entry) => entry.iso_code === code);
 }
 
-export function getCallingCodeByIso(isoCode?: string): string {
-  if (!isoCode) return "";
-  const match = getCountryByIso(isoCode);
-  return match?.calling_code ?? "";
-}
-
 export type PhoneCountryOption = {
   iso_code: string;
   name: string;

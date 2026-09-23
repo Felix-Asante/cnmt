@@ -2,7 +2,7 @@
 import { API_ENDPOINTS } from "@/constants/endpoints";
 import { cleanDeep } from "@/utils/clean-deep";
 import { isUuid } from "@/utils/id";
-import { validatePhoneNumber } from "@/utils/phone";
+import { validatePhoneNumber } from "@repo/utils/phone";
 import { request } from "@/utils/request";
 import type { PaymentAccount, PreviewPromoCode, TransferOptions } from "@repo/types";
 import {

@@ -8,10 +8,6 @@ export type PaymentMethodGroup = {
   accounts: PaymentAccount[];
 };
 
-export function paymentMethodLabel(method: ReceivingMethod) {
-  return method === "MOBILE_MONEY" ? "Mobile money" : "Bank transfer";
-}
-
 export function groupPaymentAccounts(
   accounts: PaymentAccount[],
   preferredCurrency?: string,

@@ -17,7 +17,7 @@ function asCountryCode(iso?: string): CountryCode | undefined {
   }
 }
 
-export function normalizePhone(raw: string): string | null {
+function normalizePhone(raw: string): string | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
 
@@ -35,13 +35,10 @@ export type PhoneValidationResult = {
 
 export function validatePhoneNumber(
   input: string | null | undefined,
-  options: { required?: boolean } = {},
 ): PhoneValidationResult {
-  const required = options.required ?? true;
   const raw = (input ?? "").trim();
 
   if (!raw) {
-    if (!required) return { isValid: true, normalized: "" };
     return { isValid: false, error: "Please enter a phone number." };
   }
 
