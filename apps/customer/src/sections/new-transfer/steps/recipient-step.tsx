@@ -15,7 +15,11 @@ import {
   SelectValue,
 } from "@repo/ui/select";
 import { cn } from "@/lib/utils";
-import { getRecipientCountry, getSenderCountry } from "../constants";
+import {
+  channelOptionLabel,
+  getRecipientCountry,
+  getSenderCountry,
+} from "../constants";
 import { itemId, itemName } from "@repo/utils/lookup";
 import { getSavedRecipients, type SavedRecipient } from "../memory";
 import type { TransferFormValues } from "../schema";
@@ -392,7 +396,7 @@ export function RecipientStep({
                 <SelectContent>
                   {country.mobile_networks.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
-                      {item.name}
+                      {channelOptionLabel(item, country.currency_code)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -450,7 +454,7 @@ export function RecipientStep({
                 <SelectContent>
                   {country.banks.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
-                      {item.name}
+                      {channelOptionLabel(item, country.currency_code)}
                     </SelectItem>
                   ))}
                 </SelectContent>

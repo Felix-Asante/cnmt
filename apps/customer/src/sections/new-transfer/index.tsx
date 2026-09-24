@@ -14,14 +14,14 @@ import {
   FULFILLMENT_STEPS,
   REQUEST_STEPS,
   STATIC_QUOTE,
-  applyPromoDiscount,
-  calculateFee,
   firstDestinationForSource,
+  getChannelExtraFee,
   getRecipientCountry,
   getSenderCountry,
   getTransferQuote,
+  resolveTransferFee,
 } from "./constants";
-import { amountOutOfRangeMessage } from "@repo/utils/money";
+import { amountOutOfRangeMessage, formatMoney } from "@repo/utils/money";
 import { itemName } from "@repo/utils/lookup";
 import { formatPromoDiscount } from "@/utils/transfer";
 import { rememberCorridor, rememberRecipient } from "./memory";
@@ -120,14 +120,20 @@ export default function NewTransfer({
     values.senderCountryCode ?? "",
     transferOptions.destinations,
   );
-  const baseFee = calculateFee(
-    Number(values.sendAmount ?? 0),
-    recipient?.fee_type ?? "fixed",
-    Number(recipient?.fee ?? 0),
-  );
-  const fee = appliedPromo
-    ? applyPromoDiscount(baseFee, appliedPromo.discount_percentage)
-    : baseFee;
+  const selectedChannelId =
+    values.receivingMethod === "bank" ? values.bank : values.network;
+  const selectedChannels =
+    values.receivingMethod === "bank"
+      ? recipient?.banks
+      : recipient?.mobile_networks;
+  const extraFee = getChannelExtraFee(selectedChannels, selectedChannelId);
+  const fee = resolveTransferFee({
+    amount: Number(values.sendAmount ?? 0),
+    feeType: recipient?.fee_type ?? "fixed",
+    fee: Number(recipient?.fee ?? 0),
+    extraFee,
+    promoDiscountPercentage: appliedPromo?.discount_percentage,
+  });
   const quote = getTransferQuote(
     values.sendAmount ?? "",
     values.sendCurrency ?? "",
@@ -188,11 +194,19 @@ export default function NewTransfer({
             },
           ]
         : []),
+      ...(extraFee > 0
+        ? [
+            {
+              label: "Extra fee(Instant transfer)",
+              value: `+${formatMoney(extraFee, recipient?.currency_code ?? "")}`,
+            },
+          ]
+        : []),
       { label: "You send", value: quote.sendLabel, emphasis: true },
       { label: "Recipient gets", value: quote.receiveLabel, emphasis: true },
       { label: "Rate", value: recipient?.default_exchange_rate ?? "" },
     ];
-  }, [appliedPromo, quote, recipient, sender, values]);
+  }, [appliedPromo, extraFee, quote, recipient, sender, values]);
 
   async function handleApplyPromo(code: string) {
     setPromoError(undefined);
@@ -512,9 +526,7 @@ export default function NewTransfer({
               <div className="mt-12 flex items-center justify-between gap-3">
                 {resume && step === 3 ? (
                   <Button asChild variant="ghost">
-                    <Link
-                      href={`/track?ref=${encodeURIComponent(reference)}`}
-                    >
+                    <Link href={`/track?ref=${encodeURIComponent(reference)}`}>
                       <ArrowLeft className="size-4" aria-hidden />
                       Back
                     </Link>
@@ -601,11 +613,19 @@ export default function NewTransfer({
               items={summaryItems}
               receiveHighlight={quote.receiveLabel}
               estimatedCompletion={STATIC_QUOTE.estimatedCompletion}
-              feesIncludedText={
-                appliedPromo
-                  ? `Fees included · ${formatPromoDiscount(appliedPromo.discount_percentage)} promo off the fee`
-                  : undefined
-              }
+              feesIncludedText={(() => {
+                const notes = [
+                  appliedPromo
+                    ? `${formatPromoDiscount(appliedPromo.discount_percentage)} promo off the fee`
+                    : null,
+                  extraFee > 0
+                    ? `+${formatMoney(extraFee, recipient?.currency_code ?? "")} extra fee`
+                    : null,
+                ].filter(Boolean);
+                return notes.length
+                  ? `Fees included · ${notes.join(" · ")}`
+                  : undefined;
+              })()}
             />
           ) : null}
         </div>
