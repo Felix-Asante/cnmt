@@ -30,20 +30,33 @@ const countryFields = {
     .max(3, "Currency symbol is too long."),
 };
 
+const extraFeeSchema = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value === "" || Number.isFinite(Number(value)),
+    "Enter a valid amount.",
+  )
+  .refine(
+    (value) => value === "" || Number(value) >= 0,
+    "Extra fee cannot be negative.",
+  );
+
+const paymentChannelFields = {
+  name: z
+    .string()
+    .trim()
+    .min(3, "Enter at least 3 characters.")
+    .max(255, "Name is too long."),
+  channel_type: z.enum(PAYMENT_CHANNEL_TYPES),
+  extra_fee: extraFeeSchema,
+};
+
 export const createCountrySchema = z.object({
   ...countryFields,
   iso_code: z.string().trim().min(2, "Select a country.").max(3),
   payment_channels: z
-    .array(
-      z.object({
-        name: z
-          .string()
-          .trim()
-          .min(3, "Enter at least 3 characters.")
-          .max(255, "Name is too long."),
-        channel_type: z.enum(PAYMENT_CHANNEL_TYPES),
-      }),
-    )
+    .array(z.object(paymentChannelFields))
     .min(1, "Add at least one payment channel."),
 });
 
@@ -52,14 +65,7 @@ export const updateCountrySchema = z.object({
   iso_code: z.string().trim().min(2, "Select a country.").max(3),
 });
 
-export const updatePaymentChannelSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(3, "Enter at least 3 characters.")
-    .max(255, "Name is too long."),
-  channel_type: z.enum(PAYMENT_CHANNEL_TYPES),
-});
+export const updatePaymentChannelSchema = z.object(paymentChannelFields);
 
 export type CreateCountryValues = z.infer<typeof createCountrySchema>;
 export type UpdateCountryValues = z.infer<typeof updateCountrySchema>;
@@ -75,7 +81,9 @@ export function defaultCreateCountryValues(): CreateCountryValues {
     currency_name: "",
     currency_code: "",
     currency_symbol: "",
-    payment_channels: [{ name: "", channel_type: "MOBILE_MONEY" }],
+    payment_channels: [
+      { name: "", channel_type: "MOBILE_MONEY", extra_fee: "" },
+    ],
   };
 }
 
@@ -100,6 +108,16 @@ export function valuesFromCatalog(
   };
 }
 
+function toPaymentChannelPayload(
+  values: UpdatePaymentChannelValues,
+): CreatePaymentChannelPayload {
+  return {
+    name: values.name.trim(),
+    channel_type: values.channel_type as PaymentChannelType,
+    extra_fee: values.extra_fee.trim() || "0",
+  };
+}
+
 export function toCreateCountryPayload(
   values: CreateCountryValues,
 ): CreateCountryPayload {
@@ -110,10 +128,9 @@ export function toCreateCountryPayload(
     currency_name: values.currency_name,
     currency_code: values.currency_code,
     currency_symbol: values.currency_symbol,
-    payment_channels: values.payment_channels.map((channel) => ({
-      name: channel.name.trim(),
-      channel_type: channel.channel_type as PaymentChannelType,
-    })),
+    payment_channels: values.payment_channels.map((channel) =>
+      toPaymentChannelPayload(channel),
+    ),
   };
 }
 
@@ -133,16 +150,13 @@ export function toUpdateCountryPayload(
 export function toUpdatePaymentChannelPayload(
   values: UpdatePaymentChannelValues,
 ): UpdatePaymentChannelPayload {
-  return {
-    name: values.name.trim(),
-    channel_type: values.channel_type as PaymentChannelType,
-  };
+  return toPaymentChannelPayload(values);
 }
 
 export function toCreatePaymentChannelPayload(
   values: UpdatePaymentChannelValues,
 ): CreatePaymentChannelPayload {
-  return toUpdatePaymentChannelPayload(values);
+  return toPaymentChannelPayload(values);
 }
 
 export const CREATE_COUNTRY_STEPS = [
@@ -152,4 +166,10 @@ export const CREATE_COUNTRY_STEPS = [
 
 export function channelTypeLabel(type: PaymentChannelType) {
   return type === "BANK" ? "Bank" : "Mobile money";
+}
+
+export function formatExtraFee(value: string | number | null | undefined) {
+  const amount = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return amount.toFixed(2);
 }

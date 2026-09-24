@@ -24,6 +24,7 @@ import {
 } from "./api";
 import {
   channelTypeLabel,
+  formatExtraFee,
   toCreatePaymentChannelPayload,
   toUpdatePaymentChannelPayload,
   updatePaymentChannelSchema,
@@ -33,10 +34,12 @@ import {
 export function CountryChannels({
   countryId,
   channels,
+  currencyCode,
   onChanged,
 }: {
   countryId: number;
   channels: AdminPaymentChannel[];
+  currencyCode: string;
   onChanged: () => Promise<void>;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -70,7 +73,8 @@ export function CountryChannels({
         <div>
           <h2 className="text-sm font-semibold text-navy">Payment channels</h2>
           <p className="mt-1 text-sm text-muted">
-            Banks and mobile money networks available for this country.
+            Banks and mobile money networks available for this country. Optional
+            extra fees are added on top of the corridor fee.
           </p>
         </div>
         {!adding ? (
@@ -94,6 +98,7 @@ export function CountryChannels({
         <div className="border border-border p-4">
           <p className="mb-3 text-sm font-medium text-navy">New channel</p>
           <ChannelForm
+            currencyCode={currencyCode}
             pending={pendingAction === "create"}
             submitLabel="Add channel"
             onCancel={() => setAdding(false)}
@@ -128,73 +133,83 @@ export function CountryChannels({
         </div>
       ) : channels.length > 0 ? (
         <ul className="divide-y divide-border border border-border">
-          {channels.map((channel) => (
-            <li key={channel.id} className="p-4">
-              {editingId === channel.id ? (
-                <ChannelForm
-                  defaultValues={{
-                    name: channel.name,
-                    channel_type: channel.channel_type,
-                  }}
-                  pending={pendingAction === `edit:${channel.id}`}
-                  submitLabel="Save"
-                  onCancel={() => setEditingId(null)}
-                  onSubmit={(values) =>
-                    run(
-                      `edit:${channel.id}`,
-                      () =>
-                        updatePaymentChannel(
-                          channel.id,
-                          toUpdatePaymentChannelPayload(values),
-                        ),
-                      "Payment channel updated.",
-                    )
-                  }
-                />
-              ) : (
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0 space-y-1">
-                    <p className="font-medium text-navy">{channel.name}</p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="neutral">
-                        {channelTypeLabel(channel.channel_type)}
-                      </Badge>
-                      <Badge
-                        variant={channel.is_active ? "success" : "neutral"}
+          {channels.map((channel) => {
+            const extraFee = formatExtraFee(channel.extra_fee);
+            return (
+              <li key={channel.id} className="p-4">
+                {editingId === channel.id ? (
+                  <ChannelForm
+                    currencyCode={currencyCode}
+                    defaultValues={{
+                      name: channel.name,
+                      channel_type: channel.channel_type,
+                      extra_fee: formatExtraFeeInput(channel.extra_fee),
+                    }}
+                    pending={pendingAction === `edit:${channel.id}`}
+                    submitLabel="Save"
+                    onCancel={() => setEditingId(null)}
+                    onSubmit={(values) =>
+                      run(
+                        `edit:${channel.id}`,
+                        () =>
+                          updatePaymentChannel(
+                            channel.id,
+                            toUpdatePaymentChannelPayload(values),
+                          ),
+                        "Payment channel updated.",
+                      )
+                    }
+                  />
+                ) : (
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 space-y-1">
+                      <p className="font-medium text-navy">{channel.name}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="neutral">
+                          {channelTypeLabel(channel.channel_type)}
+                        </Badge>
+                        <Badge
+                          variant={channel.is_active ? "success" : "neutral"}
+                        >
+                          {channel.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                        {extraFee ? (
+                          <Badge variant="neutral">
+                            +{extraFee} {currencyCode} extra fee
+                          </Badge>
+                        ) : null}
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        aria-label={`Edit ${channel.name}`}
+                        disabled={isPending || adding}
+                        onClick={() => {
+                          setAdding(false);
+                          setEditingId(channel.id);
+                        }}
                       >
-                        {channel.is_active ? "Active" : "Inactive"}
-                      </Badge>
+                        <Pencil className="size-4" aria-hidden />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        aria-label={`Delete ${channel.name}`}
+                        disabled={isPending || adding}
+                        onClick={() => setDeleting(channel)}
+                      >
+                        <Trash2 className="size-4" aria-hidden />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex shrink-0 gap-1">
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      aria-label={`Edit ${channel.name}`}
-                      disabled={isPending || adding}
-                      onClick={() => {
-                        setAdding(false);
-                        setEditingId(channel.id);
-                      }}
-                    >
-                      <Pencil className="size-4" aria-hidden />
-                    </Button>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      aria-label={`Delete ${channel.name}`}
-                      disabled={isPending || adding}
-                      onClick={() => setDeleting(channel)}
-                    >
-                      <Trash2 className="size-4" aria-hidden />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </li>
-          ))}
+                )}
+              </li>
+            );
+          })}
         </ul>
       ) : null}
 
@@ -218,13 +233,21 @@ export function CountryChannels({
   );
 }
 
+function formatExtraFeeInput(value: string | number | null | undefined) {
+  const amount = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return "";
+  return String(amount);
+}
+
 function ChannelForm({
+  currencyCode,
   defaultValues,
   pending,
   submitLabel,
   onSubmit,
   onCancel,
 }: {
+  currencyCode: string;
   defaultValues?: UpdatePaymentChannelValues;
   pending: boolean;
   submitLabel: string;
@@ -236,6 +259,7 @@ function ChannelForm({
     defaultValues: defaultValues ?? {
       name: "",
       channel_type: "MOBILE_MONEY",
+      extra_fee: "",
     },
     mode: "onTouched",
   });
@@ -244,7 +268,7 @@ function ChannelForm({
 
   return (
     <form
-      className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_10rem_auto]"
+      className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_10rem_8rem_auto]"
       onSubmit={form.handleSubmit(onSubmit)}
       noValidate
     >
@@ -284,6 +308,20 @@ function ChannelForm({
           </Field>
         )}
       />
+
+      <Field
+        label={`Extra fee (${currencyCode})`}
+        htmlFor={`channel-${formId}-extra-fee`}
+        error={errors.extra_fee?.message}
+      >
+        <Input
+          {...form.register("extra_fee")}
+          id={`channel-${formId}-extra-fee`}
+          placeholder="0.00"
+          inputMode="decimal"
+          autoComplete="off"
+        />
+      </Field>
 
       <div className="flex items-end gap-2">
         <Button

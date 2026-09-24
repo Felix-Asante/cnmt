@@ -158,6 +158,7 @@ export function CountryDetail({
         <CountryChannels
           countryId={country.id}
           channels={country.payment_channels}
+          currencyCode={country.currency_code}
           onChanged={refresh}
         />
       </div>

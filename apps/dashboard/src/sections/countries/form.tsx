@@ -251,7 +251,7 @@ function ChannelsStep({
         {channels.fields.map((field, index) => (
           <div
             key={field.id}
-            className="grid gap-3 border border-border p-3 sm:grid-cols-[minmax(0,1fr)_10rem_auto]"
+            className="grid gap-3 border border-border p-3 sm:grid-cols-[minmax(0,1fr)_10rem_8rem_auto]"
           >
             <Field
               label="Channel name"
@@ -294,6 +294,19 @@ function ChannelsStep({
               )}
             />
 
+            <Field
+              label="Extra fee"
+              htmlFor={`payment_channels.${index}.extra_fee`}
+              error={errors.payment_channels?.[index]?.extra_fee?.message}
+            >
+              <Input
+                {...form.register(`payment_channels.${index}.extra_fee`)}
+                placeholder="0.00"
+                inputMode="decimal"
+                autoComplete="off"
+              />
+            </Field>
+
             <div className="flex items-end">
               <Button
                 type="button"
@@ -321,7 +334,11 @@ function ChannelsStep({
         size="sm"
         variant="outline"
         onClick={() =>
-          channels.append({ name: "", channel_type: "MOBILE_MONEY" })
+          channels.append({
+            name: "",
+            channel_type: "MOBILE_MONEY",
+            extra_fee: "",
+          })
         }
       >
         <Plus className="size-4" aria-hidden />

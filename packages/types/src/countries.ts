@@ -24,6 +24,7 @@ export type PaymentChannelType = "BANK" | "MOBILE_MONEY";
 export type CreatePaymentChannelPayload = {
   name: string;
   channel_type: PaymentChannelType;
+  extra_fee?: string;
 };
 
 export type CreateCountryPayload = {
@@ -53,6 +54,7 @@ export type AdminPaymentChannel = {
   channel_type: PaymentChannelType;
   country_id: number;
   is_active: boolean;
+  extra_fee: string;
   created_at: string;
   updated_at: string;
 };
@@ -64,11 +66,12 @@ export type AdminCountryDetail = AdminCountry & {
 export type CountryPaymentChannel = {
   id: string;
   name: string;
+  extra_fee: string;
 };
 
 export type TransferCountryPaymentChannel = Pick<
   CountryPaymentChannel,
-  "id" | "name"
+  "id" | "name" | "extra_fee"
 >;
 
 export type TransferSourceCountry = {
