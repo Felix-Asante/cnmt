@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState, type ComponentType } from "react";
 import {
   Bug,
@@ -13,6 +11,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SUPPORT } from "@/constants/support";
+import { Link, usePathname } from "@/i18n/navigation";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 function getContextLabel(pathname: string) {
   if (pathname.startsWith("/transfer")) return "New transfer";
@@ -110,6 +110,8 @@ export function SiteHeader() {
             Track transfer
           </Link>
 
+          <LanguageSwitcher className="ml-1" />
+
           <div ref={rootRef} className="relative">
             <button
               type="button"
@@ -168,12 +170,6 @@ export function SiteHeader() {
                     label={SUPPORT.phoneSecondaryDisplay}
                     detail="Primary support line"
                   />
-                  {/* <SupportLink
-                    href={SUPPORT.phoneHref}
-                    icon={Phone}
-                    label={SUPPORT.phoneDisplay}
-                    detail="Alternate support line"
-                  /> */}
                   <SupportLink
                     href={SUPPORT.emailHref}
                     icon={Mail}

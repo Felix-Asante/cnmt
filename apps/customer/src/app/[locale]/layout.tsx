@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Schibsted_Grotesk } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { Toaster } from "@repo/ui/toast";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import "./globals.css";
+import "../globals.css";
 
 const display = Barlow_Condensed({
   variable: "--font-display-family",
@@ -21,17 +23,25 @@ export const metadata: Metadata = {
   description: "Secure, reliable international money transfer.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${display.variable} ${sans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">{children}</div>
-        <SiteFooter />
-        <Toaster position="top-center" />
+        <NextIntlClientProvider>
+          <SiteHeader />
+          <div className="flex flex-1 flex-col">{children}</div>
+          <SiteFooter />
+          <Toaster position="top-center" />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
