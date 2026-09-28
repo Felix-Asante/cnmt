@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { AmountInput } from "@repo/ui/amount-input";
 import { CorridorPicker } from "@repo/ui/corridor-picker";
@@ -23,6 +24,7 @@ type TransferStepProps = {
 };
 
 export function TransferStep({ form, transferOptions }: TransferStepProps) {
+  const t = useTranslations("NewTransfer.Transfer");
   const [recent] = useState<RecentCorridor[]>(getRecentCorridors());
   const senderCode = useWatch({
     control: form.control,
@@ -129,16 +131,16 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
     <div className="space-y-10">
       <header className="max-w-lg space-y-2">
         <h1 className="text-[1.75rem] font-semibold tracking-tight text-navy md:text-[2rem]">
-          Send money abroad
+          {t("title")}
         </h1>
         <p className="text-[15px] leading-relaxed text-muted">
-          Choose where you’re sending from, where it’s going, and how much.
+          {t("description")}
         </p>
       </header>
 
       {recent.length > 0 ? (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-subtle">Recent</span>
+          <span className="text-xs text-subtle">{t("recent")}</span>
           {recent.map((item) => {
             const from = getSenderCountry(
               item.senderCountryCode,
@@ -178,7 +180,7 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
       <CorridorPicker
         from={{
           id: "sender-country",
-          label: "From",
+          label: t("from"),
           value: senderCode,
           recentCodes: recent.map((item) => item.senderCountryCode),
           options: senderSources.map((country) => ({
@@ -203,7 +205,7 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
         }}
         to={{
           id: "recipient-country",
-          label: "To",
+          label: t("to"),
           value: recipientCode,
           recentCodes: recent.map((item) => item.recipientCountryCode),
           options: recipientDestinations.map((country) => ({
@@ -231,11 +233,14 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
         error={errors?.sendAmount?.message}
         helperText={
           quote.hasAmount
-            ? `Recipient receives ${quote.receiveLabel}`
+            ? t("receivesAmount", { amount: quote.receiveLabel })
             : hasLimits
-              ? `Send ${formatMoney(minAmount, currency)} – ${formatMoney(maxAmount, currency)}`
+              ? t("sendRange", {
+                  min: formatMoney(minAmount, currency),
+                  max: formatMoney(maxAmount, currency),
+                })
               : recipient
-                ? `Recipient receives in ${recipient.currency_code}`
+                ? t("receivesIn", { currency: recipient.currency_code })
                 : undefined
         }
       />

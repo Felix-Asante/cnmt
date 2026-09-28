@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 import { Label } from "@repo/ui/label";
 import { Input } from "@repo/ui/input";
@@ -77,6 +78,7 @@ export function RecipientStep({
   onApplyPromo,
   onClearPromo,
 }: RecipientStepProps) {
+  const t = useTranslations("NewTransfer.Recipient");
   const [saved, setSaved] = useState<SavedRecipient[]>([]);
   const [paymentChannels, setPaymentChannels] = useState<string[]>([]);
   const recipientCode = useWatch({
@@ -228,18 +230,17 @@ export function RecipientStep({
     <div className="space-y-10">
       <header className="max-w-lg space-y-2">
         <h1 className="text-[1.75rem] font-semibold tracking-tight text-navy md:text-[2rem]">
-          Recipient details
+          {t("title")}
         </h1>
         <p className="text-[15px] leading-relaxed text-muted">
-          Add your WhatsApp for updates, then the details for their{" "}
-          {isMobileMoney ? "mobile money" : "bank"} payout.
+          {isMobileMoney ? t("descriptionMobile") : t("descriptionBank")}
         </p>
       </header>
 
       {matchingSaved.length > 0 ? (
         <div className="space-y-3">
           <p className="text-xs font-medium tracking-wide text-muted">
-            Send again
+            {t("sendAgain")}
           </p>
           <div className="divide-y divide-border border border-border">
             {matchingSaved.map((recipient) => (
@@ -275,7 +276,7 @@ export function RecipientStep({
                   </span>
                 </span>
                 <span className="shrink-0 text-xs font-medium text-navy">
-                  Select
+                  {t("select")}
                 </span>
               </button>
             ))}
@@ -285,10 +286,10 @@ export function RecipientStep({
 
       <div className="space-y-5">
         <Field
-          label="Your WhatsApp number"
+          label={t("whatsappLabel")}
           htmlFor="senderWhatsApp"
           required
-          description="We’ll use this to update you on the transfer."
+          description={t("whatsappDescription")}
           error={errors.senderWhatsApp?.message}
         >
           <Controller
@@ -301,7 +302,7 @@ export function RecipientStep({
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 defaultCountry={senderCountry?.iso_code ?? "MA"}
-                placeholder="537800000"
+                placeholder={t("whatsappPlaceholder")}
                 error={errors.senderWhatsApp?.message}
                 autoComplete="tel"
               />
@@ -311,19 +312,19 @@ export function RecipientStep({
 
         <div className="border-t border-border pt-5">
           <p className="text-xs font-medium tracking-wide text-muted">
-            Recipient
+            {t("recipientSection")}
           </p>
         </div>
 
         <Field
-          label="Full name"
+          label={t("fullName")}
           htmlFor="recipientName"
           required
           error={errors.recipientName?.message}
         >
           <Input
             {...recipientNameField}
-            placeholder="Ama Mensah"
+            placeholder={t("fullNamePlaceholder")}
             autoComplete="name"
             onBlur={(event) => {
               void recipientNameField.onBlur(event);
@@ -342,12 +343,12 @@ export function RecipientStep({
 
         <fieldset className="space-y-2">
           <legend className="text-xs font-medium tracking-wide text-muted">
-            Payout method
+            {t("payoutMethod")}
           </legend>
           <div className="grid grid-cols-2 border border-border p-1">
             {paymentChannels.map((item) => {
               const label =
-                item === "mobile_money" ? "Mobile money" : "Bank transfer";
+                item === "mobile_money" ? t("mobileMoney") : t("bankTransfer");
               const selected = method === item;
               return (
                 <button
@@ -373,7 +374,7 @@ export function RecipientStep({
         {isMobileMoney ? (
           <>
             <SelectField
-              label="Network"
+              label={t("network")}
               htmlFor="network"
               required
               error={errors.network?.message}
@@ -391,7 +392,7 @@ export function RecipientStep({
                   id="network"
                   aria-invalid={Boolean(errors.network) || undefined}
                 >
-                  <SelectValue placeholder="Choose network" />
+                  <SelectValue placeholder={t("chooseNetwork")} />
                 </SelectTrigger>
                 <SelectContent>
                   {country.mobile_networks.map((item) => (
@@ -404,10 +405,10 @@ export function RecipientStep({
             </SelectField>
 
             <Field
-              label="Mobile money number"
+              label={t("mobileNumber")}
               htmlFor="recipientPhone"
               required
-              description="Must match the number registered on their wallet."
+              description={t("mobileNumberDescription")}
               error={errors.recipientPhone?.message}
             >
               <Controller
@@ -420,7 +421,7 @@ export function RecipientStep({
                     onChange={field.onChange}
                     onBlur={field.onBlur}
                     defaultCountry={country?.iso_code ?? "GH"}
-                    placeholder="24 000 0000"
+                    placeholder={t("mobileNumberPlaceholder")}
                     error={errors.recipientPhone?.message}
                     autoComplete="tel"
                   />
@@ -431,7 +432,7 @@ export function RecipientStep({
         ) : (
           <>
             <SelectField
-              label="Bank"
+              label={t("bank")}
               htmlFor="bank"
               required
               error={errors.bank?.message}
@@ -449,7 +450,7 @@ export function RecipientStep({
                   id="bank"
                   aria-invalid={Boolean(errors.bank) || undefined}
                 >
-                  <SelectValue placeholder="Choose bank" />
+                  <SelectValue placeholder={t("chooseBank")} />
                 </SelectTrigger>
                 <SelectContent>
                   {country.banks.map((item) => (
@@ -463,27 +464,27 @@ export function RecipientStep({
 
             <div className="grid gap-5 sm:grid-cols-2">
               <Field
-                label="Account holder name"
+                label={t("accountHolderName")}
                 htmlFor="bankAccountName"
                 required
                 error={errors.bankAccountName?.message}
               >
                 <Input
                   {...form.register("bankAccountName")}
-                  placeholder="Ama Mensah"
+                  placeholder={t("fullNamePlaceholder")}
                   autoComplete="name"
                 />
               </Field>
 
               <Field
-                label="Account number"
+                label={t("accountNumber")}
                 htmlFor="bankAccountNumber"
                 required
                 error={errors.bankAccountNumber?.message}
               >
                 <Input
                   {...form.register("bankAccountNumber")}
-                  placeholder="0123456789"
+                  placeholder={t("accountNumberPlaceholder")}
                   inputMode="numeric"
                   autoComplete="off"
                 />

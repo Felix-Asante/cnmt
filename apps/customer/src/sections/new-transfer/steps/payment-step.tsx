@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import type { PaymentAccount, ReceivingMethod } from "@repo/types";
 import type { UseFormReturn } from "react-hook-form";
 import { Building2, Smartphone } from "lucide-react";
@@ -31,6 +32,7 @@ export function PaymentStep({
   selectedAccountId,
   onSelectAccount,
 }: PaymentStepProps) {
+  const t = useTranslations("NewTransfer.Payment");
   const amount = form.watch("sendAmount");
   const currency = form.watch("sendCurrency");
   const countryId = form.watch("senderCountryCode");
@@ -47,7 +49,7 @@ export function PaymentStep({
       setGroups([]);
       setSelectedMethod(null);
       onSelectAccount("");
-      setError("Select a source country before making payment.");
+      setError(t("selectSourceCountry"));
       return;
     }
 
@@ -73,9 +75,7 @@ export function PaymentStep({
       onSelectAccount(preferred?.id ?? "");
 
       if (nextGroups.length === 0) {
-        setError(
-          "No payment accounts are available for this corridor right now. Contact support with your reference.",
-        );
+        setError(t("noAccounts"));
       }
     });
     // Only reload when corridor/currency changes; selection sync is handled above.
@@ -94,6 +94,14 @@ export function PaymentStep({
       ? formatMoney(parsedAmount, currency)
       : `— ${currency.trim() || "—"}`;
 
+  function methodLabel(method: ReceivingMethod) {
+    return method === "BANK" ? t("bankLabel") : t("mobileLabel");
+  }
+
+  function methodDescription(method: ReceivingMethod) {
+    return method === "BANK" ? t("bankDescription") : t("mobileDescription");
+  }
+
   function selectMethod(method: ReceivingMethod) {
     const group = groups.find((item) => item.method === method);
     if (!group) return;
@@ -101,61 +109,75 @@ export function PaymentStep({
     onSelectAccount(group.accounts[0]?.id ?? "");
   }
 
+  const detailLabels = {
+    channel: t("detailChannel"),
+    accountName: t("detailAccountName"),
+    accountNumber: t("detailAccountNumber"),
+    sortCode: t("detailSortCode"),
+    iban: t("detailIban"),
+    phone: t("detailPhone"),
+    currency: t("detailCurrency"),
+    reference: t("detailReference"),
+  };
+
   return (
     <div className="space-y-8">
       <header className="max-w-lg space-y-2">
         <h1 className="text-[1.75rem] font-semibold tracking-tight text-navy md:text-[2rem]">
-          Make your payment
+          {t("title")}
         </h1>
         <p className="text-[15px] leading-relaxed text-muted">
-          Choose a payment method, pick an account, then send the exact amount
-          with your reference.
+          {t("description")}
         </p>
       </header>
 
       <div className="border border-border bg-navy px-5 py-5 text-white sm:px-6">
         <p className="text-[11px] font-medium tracking-[0.16em] text-white/55 uppercase">
-          Amount to pay
+          {t("amountToPay")}
         </p>
         <p className="mt-2 font-sans text-3xl font-semibold tracking-tight">
           {displayAmount}
         </p>
         <p className="mt-2 text-sm text-white/70">
-          Reference{" "}
+          {t("referenceLabel")}{" "}
           <span className="font-mono font-medium tracking-wide text-white">
             {reference}
           </span>
         </p>
       </div>
 
-      <InformationBanner title="Verified before processing">
-        We’ll confirm your payment before sending money to the recipient. Most
-        transfers complete within 30 minutes after verification.
+      <InformationBanner title={t("verifiedTitle")}>
+        {t("verifiedBody")}
       </InformationBanner>
 
       {isPending ? (
         <PaymentStepSkeleton />
       ) : error || groups.length === 0 ? (
-        <InformationBanner title="Payment details unavailable" tone="warning">
-          {error ?? "Unable to load payment details."} You can reach us on{" "}
-          <a href={SUPPORT.whatsappHref} className="font-medium text-navy">
-            WhatsApp
-          </a>{" "}
-          or{" "}
-          <a href={SUPPORT.emailHref} className="font-medium text-navy">
-            {SUPPORT.email}
-          </a>
-          .
+        <InformationBanner title={t("unavailableTitle")} tone="warning">
+          {t.rich("unavailableContact", {
+            error: error ?? t("unavailableFallback"),
+            email: SUPPORT.email,
+            wa: (chunks) => (
+              <a href={SUPPORT.whatsappHref} className="font-medium text-navy">
+                {chunks}
+              </a>
+            ),
+            mail: (chunks) => (
+              <a href={SUPPORT.emailHref} className="font-medium text-navy">
+                {chunks}
+              </a>
+            ),
+          })}
         </InformationBanner>
       ) : (
         <div className="space-y-8">
           <section className="space-y-3">
             <div>
               <h2 className="text-sm font-medium text-navy">
-                1. Choose payment method
+                {t("chooseMethodTitle")}
               </h2>
               <p className="mt-1 text-sm text-muted">
-                Bank and mobile money are listed separately when available.
+                {t("chooseMethodDescription")}
               </p>
             </div>
 
@@ -195,12 +217,12 @@ export function PaymentStep({
                     </span>
                     <span className="min-w-0">
                       <span className="block text-sm font-medium text-navy">
-                        {group.label}
+                        {methodLabel(group.method)}
                       </span>
                       <span className="mt-1 block text-xs leading-relaxed text-muted">
-                        {group.accounts.length}{" "}
-                        {group.accounts.length === 1 ? "account" : "accounts"}{" "}
-                        available
+                        {t("accountsAvailable", {
+                          count: group.accounts.length,
+                        })}
                       </span>
                     </span>
                   </button>
@@ -213,10 +235,12 @@ export function PaymentStep({
             <section className="space-y-3">
               <div>
                 <h2 className="text-sm font-medium text-navy">
-                  2. Select a {activeGroup.label.toLowerCase()} account
+                  {t("selectAccountTitle", {
+                    method: methodLabel(activeGroup.method).toLowerCase(),
+                  })}
                 </h2>
                 <p className="mt-1 text-sm text-muted">
-                  {activeGroup.description}
+                  {methodDescription(activeGroup.method)}
                 </p>
               </div>
 
@@ -237,18 +261,22 @@ export function PaymentStep({
             <section className="space-y-3">
               <div>
                 <h2 className="text-sm font-medium text-navy">
-                  3. Pay using these details
+                  {t("payDetailsTitle")}
                 </h2>
                 <p className="mt-1 text-sm text-muted">
-                  Send exactly {displayAmount} and include your reference.
+                  {t("payDetailsDescription", { amount: displayAmount })}
                 </p>
               </div>
 
               <PaymentCard
                 title={selected.name}
-                amountLabel="Amount to pay"
+                amountLabel={t("amountToPay")}
                 amountValue={displayAmount}
-                details={paymentAccountDetails(selected, reference)}
+                details={paymentAccountDetails(
+                  selected,
+                  reference,
+                  detailLabels,
+                )}
               />
             </section>
           ) : null}

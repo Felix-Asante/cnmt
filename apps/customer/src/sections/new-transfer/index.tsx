@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
@@ -11,9 +11,8 @@ import { Stepper } from "@repo/ui/stepper";
 import { toast } from "@repo/ui/toast";
 import { TransferSummary } from "@repo/ui/transfer-summary";
 import {
-  FULFILLMENT_STEPS,
-  REQUEST_STEPS,
-  STATIC_QUOTE,
+  FULFILLMENT_STEP_IDS,
+  REQUEST_STEP_IDS,
   firstDestinationForSource,
   getChannelExtraFee,
   getRecipientCountry,
@@ -21,16 +20,18 @@ import {
   getTransferQuote,
   resolveTransferFee,
 } from "./constants";
-import { amountOutOfRangeMessage, formatMoney } from "@repo/utils/money";
+import { formatMoney } from "@repo/utils/money";
 import { itemName } from "@repo/utils/lookup";
 import { formatPromoDiscount } from "@/utils/transfer";
+import { Link, useRouter } from "@/i18n/navigation";
 import { rememberCorridor, rememberRecipient } from "./memory";
 import {
+  createProofSchema,
+  createTransferRequestSchema,
   defaultTransferValues,
-  proofSchema,
   stepFieldMap,
-  transferRequestSchema,
   type TransferFormValues,
+  type ValidationMessageKey,
 } from "./schema";
 import { PaymentStep } from "./steps/payment-step";
 import { RecipientStep } from "./steps/recipient-step";
@@ -75,6 +76,13 @@ export default function NewTransfer({
   transferOptions,
   resume,
 }: NewTransferProps) {
+  const t = useTranslations("NewTransfer");
+  const tValidation = useTranslations("NewTransfer.Validation");
+  const tErrors = useTranslations("NewTransfer.Errors");
+  const router = useRouter();
+
+  const translateValidation = (key: ValidationMessageKey) => tValidation(key);
+
   const [step, setStep] = useState(resume ? 3 : 0);
   const [reference, setReference] = useState(resume?.reference ?? "");
   const [paymentAccountId, setPaymentAccountId] = useState("");
@@ -96,7 +104,12 @@ export default function NewTransfer({
     : undefined;
 
   const form = useForm<TransferFormValues>({
-    resolver: zodResolver(transferRequestSchema),
+    resolver: (values, context, options) =>
+      zodResolver(createTransferRequestSchema(translateValidation))(
+        values,
+        context,
+        options,
+      ),
     defaultValues: {
       ...defaultTransferValues,
       senderCountryCode:
@@ -148,9 +161,9 @@ export default function NewTransfer({
   const showFooter = step === 0 || step === 1 || step === 3 || step === 4;
   const showSummary = step <= 4 && !isSubmittedScreen;
 
-  const stepperSteps = inRequestPhase
-    ? [...REQUEST_STEPS]
-    : [...FULFILLMENT_STEPS];
+  const stepperSteps = (
+    inRequestPhase ? REQUEST_STEP_IDS : FULFILLMENT_STEP_IDS
+  ).map((id) => ({ id, label: t(`steps.${id}`) }));
   const stepperIndex = inRequestPhase
     ? step
     : step === 2
@@ -164,49 +177,56 @@ export default function NewTransfer({
         : itemName(recipient?.banks ?? [], values.bank);
     const payoutDetail =
       values.receivingMethod === "mobile_money"
-        ? channelNameValue || "Mobile money"
+        ? channelNameValue || t("summary.mobileMoney")
         : [channelNameValue, values.bankAccountNumber]
             .filter(Boolean)
-            .join(" · ") || "Bank transfer";
+            .join(" · ") || t("summary.bankTransfer");
 
     return [
       {
-        label: "From",
+        label: t("summary.from"),
         value: sender ? `${sender.flag} ${sender.name}` : "—",
       },
       {
-        label: "To",
+        label: t("summary.to"),
         value: recipient ? `${recipient.flag} ${recipient.name}` : "—",
       },
       {
-        label: "Recipient",
+        label: t("summary.recipient"),
         value: values.recipientName?.trim() || "—",
       },
       {
-        label: "Payout",
+        label: t("summary.payout"),
         value: payoutDetail,
       },
       ...(appliedPromo
         ? [
             {
-              label: "Promo",
-              value: `${appliedPromo.code} · ${formatPromoDiscount(appliedPromo.discount_percentage)} off fee`,
+              label: t("summary.promo"),
+              value: t("summary.promoValue", {
+                code: appliedPromo.code,
+                discount: formatPromoDiscount(appliedPromo.discount_percentage),
+              }),
             },
           ]
         : []),
       ...(extraFee > 0
         ? [
             {
-              label: "Extra fee(Instant transfer)",
+              label: t("summary.extraFee"),
               value: `+${formatMoney(extraFee, recipient?.currency_code ?? "")}`,
             },
           ]
         : []),
-      { label: "You send", value: quote.sendLabel, emphasis: true },
-      { label: "Recipient gets", value: quote.receiveLabel, emphasis: true },
-      { label: "Rate", value: recipient?.default_exchange_rate ?? "" },
+      { label: t("summary.youSend"), value: quote.sendLabel, emphasis: true },
+      {
+        label: t("summary.recipientGets"),
+        value: quote.receiveLabel,
+        emphasis: true,
+      },
+      { label: t("summary.rate"), value: recipient?.default_exchange_rate ?? "" },
     ];
-  }, [appliedPromo, extraFee, quote, recipient, sender, values]);
+  }, [appliedPromo, extraFee, quote, recipient, sender, t, values]);
 
   async function handleApplyPromo(code: string) {
     setPromoError(undefined);
@@ -231,6 +251,23 @@ export default function NewTransfer({
     form.setValue("promoCode", "", { shouldDirty: true });
   }
 
+  function amountRangeError(amount: number, currency: string) {
+    const min = Number(recipient?.min_transfer_amount);
+    const max = Number(recipient?.max_transfer_amount);
+    if (!Number.isFinite(amount)) return tValidation("sendAmountInvalid");
+    if (Number.isFinite(min) && min > 0 && amount < min) {
+      return tValidation("amountMin", {
+        amount: formatMoney(min, currency),
+      });
+    }
+    if (Number.isFinite(max) && max > 0 && amount > max) {
+      return tValidation("amountMax", {
+        amount: formatMoney(max, currency),
+      });
+    }
+    return null;
+  }
+
   async function goNext() {
     if (busy || pendingActionRef.current) return;
     const fields = stepFieldMap[step];
@@ -238,7 +275,9 @@ export default function NewTransfer({
 
     if (step === 4) {
       const proofFile = form.getValues("proofFile");
-      const proofValid = proofSchema.safeParse({ proofFile });
+      const proofValid = createProofSchema(translateValidation).safeParse({
+        proofFile,
+      });
       if (!proofValid.success) {
         form.setError("proofFile", {
           message: proofValid.error.issues[0]?.message,
@@ -254,12 +293,9 @@ export default function NewTransfer({
 
     if (step === 0) {
       const amount = Number(form.getValues("sendAmount"));
-      const rangeMessage = amountOutOfRangeMessage(
+      const rangeMessage = amountRangeError(
         amount,
-        Number(recipient?.min_transfer_amount),
-        Number(recipient?.max_transfer_amount),
         form.getValues("sendCurrency"),
-        "transfer",
       );
       if (rangeMessage) {
         form.setError("sendAmount", { message: rangeMessage });
@@ -277,22 +313,27 @@ export default function NewTransfer({
 
   async function uploadProof(proofFile: File | null) {
     if (pendingActionRef.current) return;
-    const message = validateFile(proofFile, PAYMENT_PROOF_UPLOAD);
+    const message = validateFile(proofFile, {
+      ...PAYMENT_PROOF_UPLOAD,
+      requiredMessage: tValidation("proofRequired"),
+      typeMessage: tValidation("proofType"),
+      sizeMessage: tValidation("proofSize"),
+    });
     if (message || !proofFile) {
-      toast.error("No proof file provided", {
-        description: message ?? "Please select a proof file to upload.",
+      toast.error(tErrors("proofMissingTitle"), {
+        description: message ?? tErrors("proofMissingDescription"),
       });
       return;
     }
     if (!reference) {
-      toast.error("Missing transfer reference", {
-        description: "Go back and submit the transfer first.",
+      toast.error(tErrors("missingReferenceTitle"), {
+        description: tErrors("missingReferenceDescription"),
       });
       return;
     }
     if (!paymentAccountId) {
-      toast.error("Select a payment account", {
-        description: "Go back and choose the account you paid to.",
+      toast.error(tErrors("selectAccountTitle"), {
+        description: tErrors("selectAccountDescription"),
       });
       return;
     }
@@ -306,8 +347,8 @@ export default function NewTransfer({
         contentType,
       );
       if (!signed) {
-        toast.error("We couldn’t upload the proof", {
-          description: "Check the details and try again.",
+        toast.error(tErrors("uploadFailedTitle"), {
+          description: tErrors("uploadFailedDescription"),
         });
         return;
       }
@@ -320,8 +361,8 @@ export default function NewTransfer({
       });
 
       if (!uploaded.ok) {
-        toast.error("We couldn’t upload the proof", {
-          description: "Check the file and try again.",
+        toast.error(tErrors("uploadFailedTitle"), {
+          description: tErrors("uploadFileFailedDescription"),
         });
         return;
       }
@@ -332,8 +373,8 @@ export default function NewTransfer({
         paymentAccountId,
       );
       if (!confirmed) {
-        toast.error("We couldn’t confirm the proof", {
-          description: "The file uploaded, but confirmation failed. Try again.",
+        toast.error(tErrors("confirmFailedTitle"), {
+          description: tErrors("confirmFailedDescription"),
         });
         return;
       }
@@ -341,8 +382,8 @@ export default function NewTransfer({
       setStep(5);
     } catch (error) {
       console.error("Error uploading proof:", error);
-      toast.error("We couldn’t upload the proof", {
-        description: "Check the details and try again.",
+      toast.error(tErrors("uploadFailedTitle"), {
+        description: tErrors("uploadFailedDescription"),
       });
     } finally {
       pendingActionRef.current = null;
@@ -369,8 +410,8 @@ export default function NewTransfer({
         idempotencyKeyRef.current,
       );
       if (!response) {
-        toast.error("We couldn’t submit this transfer", {
-          description: "Check the details and try again.",
+        toast.error(tErrors("submitFailedTitle"), {
+          description: tErrors("submitFailedDescription"),
         });
         return;
       }
@@ -396,8 +437,8 @@ export default function NewTransfer({
       setStep(2);
     } catch (error) {
       console.error("Error submitting request:", error);
-      toast.error("We couldn’t submit this transfer", {
-        description: "Something went wrong. Please try again.",
+      toast.error(tErrors("submitFailedTitle"), {
+        description: tErrors("submitUnexpectedDescription"),
       });
     } finally {
       pendingActionRef.current = null;
@@ -428,7 +469,7 @@ export default function NewTransfer({
     setPromoError(undefined);
     setStep(0);
     if (resume) {
-      window.history.replaceState(null, "", "/transfer");
+      router.replace("/transfer");
     }
   }
 
@@ -437,11 +478,10 @@ export default function NewTransfer({
       <main className="min-h-full bg-[#f7f8fa]">
         <div className="mx-auto max-w-lg px-4 py-16 text-center">
           <h1 className="text-[1.75rem] font-semibold tracking-tight text-navy">
-            Transfers unavailable
+            {t("unavailable.title")}
           </h1>
           <p className="mt-2 text-[15px] leading-relaxed text-muted">
-            We couldn’t load sending options right now. Please try again
-            shortly.
+            {t("unavailable.description")}
           </p>
         </div>
       </main>
@@ -528,7 +568,7 @@ export default function NewTransfer({
                   <Button asChild variant="ghost">
                     <Link href={`/track?ref=${encodeURIComponent(reference)}`}>
                       <ArrowLeft className="size-4" aria-hidden />
-                      Back
+                      {t("actions.back")}
                     </Link>
                   </Button>
                 ) : step > 0 ? (
@@ -539,7 +579,7 @@ export default function NewTransfer({
                     disabled={busy}
                   >
                     <ArrowLeft className="size-4" aria-hidden />
-                    Back
+                    {t("actions.back")}
                   </Button>
                 ) : (
                   <span />
@@ -552,7 +592,7 @@ export default function NewTransfer({
                     onClick={goNext}
                     disabled={busy}
                   >
-                    Continue
+                    {t("actions.continue")}
                     <ArrowRight className="size-4" aria-hidden />
                   </Button>
                 ) : null}
@@ -566,8 +606,8 @@ export default function NewTransfer({
                     disabled={busy}
                   >
                     {pendingAction === "submit"
-                      ? "Submitting…"
-                      : "Submit request"}
+                      ? t("actions.submitting")
+                      : t("actions.submit")}
                   </Button>
                 ) : null}
 
@@ -577,9 +617,8 @@ export default function NewTransfer({
                     size="lg"
                     onClick={() => {
                       if (!paymentAccountId) {
-                        toast.error("Select a payment account", {
-                          description:
-                            "Choose the bank or mobile money account you will pay to.",
+                        toast.error(tErrors("selectAccountTitle"), {
+                          description: tErrors("selectAccountBeforeContinue"),
                         });
                         return;
                       }
@@ -587,7 +626,7 @@ export default function NewTransfer({
                     }}
                     disabled={busy || !reference || !paymentAccountId}
                   >
-                    I’ve paid
+                    {t("actions.ivePaid")}
                     <ArrowRight className="size-4" aria-hidden />
                   </Button>
                 ) : null}
@@ -600,7 +639,9 @@ export default function NewTransfer({
                     loading={pendingAction === "upload"}
                     disabled={busy}
                   >
-                    {pendingAction === "upload" ? "Uploading…" : "Finish"}
+                    {pendingAction === "upload"
+                      ? t("actions.uploading")
+                      : t("actions.finish")}
                   </Button>
                 ) : null}
               </div>
@@ -612,18 +653,27 @@ export default function NewTransfer({
               className="lg:sticky lg:top-8"
               items={summaryItems}
               receiveHighlight={quote.receiveLabel}
-              estimatedCompletion={STATIC_QUOTE.estimatedCompletion}
+              estimatedCompletion={t("summary.estimatedCompletion")}
               feesIncludedText={(() => {
                 const notes = [
                   appliedPromo
-                    ? `${formatPromoDiscount(appliedPromo.discount_percentage)} promo off the fee`
+                    ? t("summary.promoOffFee", {
+                        discount: formatPromoDiscount(
+                          appliedPromo.discount_percentage,
+                        ),
+                      })
                     : null,
                   extraFee > 0
-                    ? `+${formatMoney(extraFee, recipient?.currency_code ?? "")} extra fee`
+                    ? t("summary.extraFeeNote", {
+                        amount: formatMoney(
+                          extraFee,
+                          recipient?.currency_code ?? "",
+                        ),
+                      })
                     : null,
                 ].filter(Boolean);
                 return notes.length
-                  ? `Fees included · ${notes.join(" · ")}`
+                  ? t("summary.feesIncluded", { notes: notes.join(" · ") })
                   : undefined;
               })()}
             />

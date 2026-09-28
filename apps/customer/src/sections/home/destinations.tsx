@@ -1,12 +1,16 @@
 "use client";
 
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@repo/ui/button";
-import { HOME_DESTINATIONS } from "./constants";
+import { Link } from "@/i18n/navigation";
+import { HOME_DESTINATION_CODES, HOME_DESTINATION_FLAGS } from "./constants";
 
 export function HomeDestinations() {
+  const t = useTranslations("Home.Destinations");
+  const locale = useLocale();
   const reduceMotion = useReducedMotion();
+  const regionNames = new Intl.DisplayNames([locale], { type: "region" });
 
   return (
     <section className="border-b border-border bg-background">
@@ -14,18 +18,17 @@ export function HomeDestinations() {
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-xl">
             <p className="text-xs font-medium tracking-[0.16em] text-brand uppercase">
-              Corridors
+              {t("eyebrow")}
             </p>
             <h2 className="mt-3 text-[1.75rem] font-semibold tracking-tight text-navy md:text-[2.15rem]">
-              Send money to multiple countries
+              {t("title")}
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-muted">
-              Send from the UK, France, Spain, and Morocco — receive in Ghana,
-              Nigeria, Sierra Leone, Liberia, Kenya, Uganda, and Morocco.
+              {t("description")}
             </p>
           </div>
           <Button asChild variant="outline" size="lg">
-            <Link href="/transfer">Start a transfer</Link>
+            <Link href="/transfer">{t("cta")}</Link>
           </Button>
         </div>
 
@@ -41,9 +44,9 @@ export function HomeDestinations() {
             },
           }}
         >
-          {HOME_DESTINATIONS.map((country) => (
+          {HOME_DESTINATION_CODES.map((code) => (
             <motion.li
-              key={country.code}
+              key={code}
               variants={{
                 hidden: { opacity: 0, y: 8 },
                 show: {
@@ -55,13 +58,13 @@ export function HomeDestinations() {
               className="flex items-center gap-3 bg-background px-4 py-4"
             >
               <span className="flex size-9 items-center justify-center rounded-full bg-surface text-lg ring-1 ring-border">
-                {country.flag}
+                {HOME_DESTINATION_FLAGS[code]}
               </span>
               <span>
                 <span className="block text-sm font-medium text-foreground">
-                  {country.name}
+                  {regionNames.of(code) ?? code}
                 </span>
-                <span className="block text-xs text-muted">{country.code}</span>
+                <span className="block text-xs text-muted">{code}</span>
               </span>
             </motion.li>
           ))}

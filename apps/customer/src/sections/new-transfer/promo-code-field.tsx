@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import type { PreviewPromoCode } from "@repo/types";
 import { formatPromoDiscount } from "@/utils/transfer";
 import { Button } from "@repo/ui/button";
@@ -24,6 +25,7 @@ export function PromoCodeField({
   onApply,
   onClear,
 }: PromoCodeFieldProps) {
+  const t = useTranslations("NewTransfer.Promo");
   const [isPending, startTransition] = useTransition();
 
   function handleApply() {
@@ -35,13 +37,16 @@ export function PromoCodeField({
   return (
     <div className="space-y-3 border-t border-border pt-5">
       <Field
-        label="Promo code"
+        label={t("label")}
         htmlFor="promoCode"
         error={error}
         description={
           applied
-            ? `${applied.code} applied · ${formatPromoDiscount(applied.discount_percentage)} off the fee`
-            : "Optional. Apply a valid code to reduce the transfer fee."
+            ? t("applied", {
+                code: applied.code,
+                discount: formatPromoDiscount(applied.discount_percentage),
+              })
+            : t("description")
         }
       >
         <div className="flex gap-2">
@@ -49,7 +54,7 @@ export function PromoCodeField({
             id="promoCode"
             value={value}
             onChange={(event) => onChange(event.target.value.toUpperCase())}
-            placeholder="SAVE10"
+            placeholder={t("placeholder")}
             autoComplete="off"
             spellCheck={false}
             disabled={Boolean(applied) || isPending}
@@ -62,7 +67,7 @@ export function PromoCodeField({
               disabled={isPending}
               onClick={onClear}
             >
-              Remove
+              {t("remove")}
             </Button>
           ) : (
             <Button
@@ -71,7 +76,7 @@ export function PromoCodeField({
               disabled={isPending || !value.trim()}
               onClick={handleApply}
             >
-              {isPending ? "Checking…" : "Apply"}
+              {isPending ? t("checking") : t("apply")}
             </Button>
           )}
         </div>

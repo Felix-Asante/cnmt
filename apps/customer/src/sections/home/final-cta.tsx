@@ -1,12 +1,15 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { MessageCircle, Phone } from "lucide-react";
 import { Button } from "@repo/ui/button";
 import { SUPPORT } from "@/constants/support";
+import { Link } from "@/i18n/navigation";
 
 export function HomeFinalCta() {
+  const t = useTranslations("Home.FinalCta");
+  const tSupport = useTranslations("Support");
   const reduceMotion = useReducedMotion();
 
   return (
@@ -21,27 +24,26 @@ export function HomeFinalCta() {
         >
           <div className="max-w-xl">
             <p className="text-xs font-medium tracking-[0.16em] text-brand uppercase">
-              Ready when you are
+              {t("eyebrow")}
             </p>
             <h2 className="mt-3 text-[1.75rem] font-semibold tracking-tight text-white md:text-[2.25rem]">
-              Fast money transfer at your convenience
+              {t("title")}
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-white/65">
-              Start a transfer in about a minute. Pay when you’re ready — we’ll
-              verify and keep you updated through payout.
+              {t("description")}
             </p>
             <div className="mt-8">
               <Button asChild size="lg" className="min-w-44">
-                <Link href="/transfer">Send money now</Link>
+                <Link href="/transfer">{t("cta")}</Link>
               </Button>
             </div>
           </div>
 
           <div className="border border-white/10 bg-white/3 px-5 py-5">
             <p className="text-xs font-medium tracking-[0.14em] text-white/45 uppercase">
-              Talk to support
+              {t("supportEyebrow")}
             </p>
-            <p className="mt-2 text-sm text-white/65">{SUPPORT.hours}</p>
+            <p className="mt-2 text-sm text-white/65">{tSupport("hours")}</p>
             <div className="mt-5 space-y-3">
               <a
                 href={SUPPORT.phoneSecondaryHref}

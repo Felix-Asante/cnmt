@@ -1,8 +1,11 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
+import { TRUST_KEYS } from "./constants";
 
 export function HomeTrust() {
+  const t = useTranslations("Home.Trust");
   const reduceMotion = useReducedMotion();
 
   return (
@@ -15,24 +18,13 @@ export function HomeTrust() {
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
-          {[
-            {
-              title: "Verified before payout",
-              text: "We confirm payment proof before processing begins.",
-            },
-            {
-              title: "Clear references",
-              text: "Every transfer gets a reference so support can help quickly.",
-            },
-            {
-              title: "Human support",
-              text: "Reach us on WhatsApp or phone when you need a hand.",
-            },
-          ].map((item) => (
-            <div key={item.title}>
-              <h3 className="text-sm font-semibold text-navy">{item.title}</h3>
+          {TRUST_KEYS.map((key) => (
+            <div key={key}>
+              <h3 className="text-sm font-semibold text-navy">
+                {t(`${key}.title`)}
+              </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">
-                {item.text}
+                {t(`${key}.text`)}
               </p>
             </div>
           ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,8 @@ function PhoneFrame({
 }
 
 export function HeroIllustration({ className }: { className?: string }) {
+  const t = useTranslations("Home.Illustration");
+  const tBrand = useTranslations("Brand");
   const reduceMotion = useReducedMotion();
 
   return (
@@ -42,12 +45,10 @@ export function HeroIllustration({ className }: { className?: string }) {
       )}
       aria-hidden
     >
-      {/* Soft LemFi-style color blobs */}
       <div className="absolute top-[8%] right-[6%] h-[58%] w-[58%] rounded-full bg-brand/10 blur-2xl" />
       <div className="absolute bottom-[4%] left-[4%] h-[48%] w-[52%] rounded-full bg-navy/8 blur-2xl" />
       <div className="absolute top-[30%] left-[18%] h-[36%] w-[36%] rounded-full bg-gold/15 blur-xl" />
 
-      {/* Decorative rings */}
       <motion.div
         className="absolute top-[12%] left-[8%] size-24 rounded-full border border-brand/20 sm:size-28"
         animate={
@@ -61,7 +62,6 @@ export function HeroIllustration({ className }: { className?: string }) {
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Floating corridor chip */}
       <motion.div
         className="absolute top-[10%] left-[2%] z-20 flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 shadow-md sm:left-[6%]"
         initial={reduceMotion ? false : { opacity: 0, x: -12 }}
@@ -87,7 +87,6 @@ export function HeroIllustration({ className }: { className?: string }) {
         <span className="text-base">🇬🇭</span>
       </motion.div>
 
-      {/* Delivered chip */}
       <motion.div
         className="absolute right-[0%] bottom-[10%] z-20 rounded-full border border-border bg-background px-3 py-2 shadow-md sm:right-[4%]"
         initial={reduceMotion ? false : { opacity: 0, x: 12 }}
@@ -111,21 +110,22 @@ export function HeroIllustration({ className }: { className?: string }) {
               }
         }
       >
-        <p className="text-[11px] font-medium text-success">Delivered</p>
+        <p className="text-[11px] font-medium text-success">{t("delivered")}</p>
         <p className="font-display text-sm font-bold text-navy">GHS 1,642</p>
       </motion.div>
 
-      {/* Back phone — home / balance */}
       <PhoneFrame
         className="absolute top-[6%] left-[8%] z-0 -rotate-6 sm:left-[12%]"
         delay={0.08}
       >
         <div className="rounded-2xl bg-navy px-3 py-4 text-white">
-          <p className="text-[10px] text-white/55">C.N Connect</p>
+          <p className="text-[10px] text-white/55">{tBrand("name")}</p>
           <p className="mt-1 font-display text-2xl font-bold tracking-tight">
             £250.00
           </p>
-          <p className="mt-0.5 text-[10px] text-white/50">Available to send</p>
+          <p className="mt-0.5 text-[10px] text-white/50">
+            {t("availableToSend")}
+          </p>
         </div>
         <div className="mt-3 space-y-2">
           <div className="flex items-center justify-between rounded-xl bg-surface px-3 py-2.5">
@@ -135,7 +135,7 @@ export function HeroIllustration({ className }: { className?: string }) {
               </span>
               <div>
                 <p className="text-[11px] font-semibold text-navy">Ama Osei</p>
-                <p className="text-[10px] text-muted">Ghana · MTN</p>
+                <p className="text-[10px] text-muted">{t("ghanaMtn")}</p>
               </div>
             </div>
             <p className="text-[11px] font-semibold text-navy">-£80</p>
@@ -147,7 +147,7 @@ export function HeroIllustration({ className }: { className?: string }) {
               </span>
               <div>
                 <p className="text-[11px] font-semibold text-navy">Chidi O.</p>
-                <p className="text-[10px] text-muted">Nigeria · Bank</p>
+                <p className="text-[10px] text-muted">{t("nigeriaBank")}</p>
               </div>
             </div>
             <p className="text-[11px] font-semibold text-navy">-£120</p>
@@ -155,20 +155,19 @@ export function HeroIllustration({ className }: { className?: string }) {
         </div>
       </PhoneFrame>
 
-      {/* Front phone — send flow */}
       <PhoneFrame
         className="absolute top-[14%] right-[2%] z-10 rotate-[7deg] sm:right-[6%]"
         delay={0.18}
       >
         <p className="text-[10px] font-medium tracking-[0.14em] text-brand uppercase">
-          New transfer
+          {t("newTransfer")}
         </p>
         <p className="mt-1 font-display text-lg font-bold text-navy">
-          Send money
+          {t("sendMoney")}
         </p>
 
         <div className="mt-3 rounded-xl border border-border bg-surface px-3 py-3">
-          <p className="text-[10px] text-muted">You send</p>
+          <p className="text-[10px] text-muted">{t("youSend")}</p>
           <div className="mt-1 flex items-end justify-between">
             <p className="font-display text-2xl font-bold text-navy">100</p>
             <p className="text-xs font-semibold text-navy">🇬🇧 GBP</p>
@@ -182,7 +181,7 @@ export function HeroIllustration({ className }: { className?: string }) {
         </div>
 
         <div className="rounded-xl border border-border bg-surface px-3 py-3">
-          <p className="text-[10px] text-muted">They get</p>
+          <p className="text-[10px] text-muted">{t("theyGet")}</p>
           <div className="mt-1 flex items-end justify-between">
             <p className="font-display text-2xl font-bold text-navy">1,642</p>
             <p className="text-xs font-semibold text-navy">🇬🇭 GHS</p>
@@ -190,7 +189,7 @@ export function HeroIllustration({ className }: { className?: string }) {
         </div>
 
         <div className="mt-3 rounded-xl bg-brand py-2.5 text-center text-[11px] font-semibold text-white">
-          Continue
+          {t("continue")}
         </div>
       </PhoneFrame>
     </div>

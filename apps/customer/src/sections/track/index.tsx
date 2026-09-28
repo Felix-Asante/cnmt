@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { Transfer } from "@repo/types";
 import { Button } from "@repo/ui/button";
 import { Field } from "@repo/ui/field";
 import { Input } from "@repo/ui/input";
 import { Search } from "lucide-react";
+import { useRouter } from "@/i18n/navigation";
 import { getTransferByReference } from "./api/server";
 import { TransferResult } from "./transfer-result";
 
@@ -17,6 +18,7 @@ type TrackTransferProps = {
 export default function TrackTransfer({
   initialReference = "",
 }: TrackTransferProps) {
+  const t = useTranslations("Track");
   const router = useRouter();
   const [reference, setReference] = useState(initialReference);
   const [transfer, setTransfer] = useState<Transfer | null>(null);
@@ -25,9 +27,7 @@ export default function TrackTransfer({
   const [isPending, startTransition] = useTransition();
   const autoSearched = useRef(false);
   const validationError =
-    hasSearched && !reference.trim()
-      ? "Enter your transfer reference."
-      : undefined;
+    hasSearched && !reference.trim() ? t("validationEmpty") : undefined;
 
   function track(nextReference = reference) {
     const trimmed = nextReference.trim();
@@ -68,14 +68,13 @@ export default function TrackTransfer({
         <div className="bg-background px-5 py-7 sm:px-8 sm:py-9 md:px-10 md:py-10">
           <header className="max-w-2xl space-y-2">
             <p className="text-xs font-medium tracking-[0.16em] text-brand uppercase">
-              Track transfer
+              {t("eyebrow")}
             </p>
             <h1 className="text-[1.75rem] font-semibold tracking-tight text-navy md:text-[2rem]">
-              Check your transfer status
+              {t("title")}
             </h1>
             <p className="text-[15px] leading-relaxed text-muted">
-              Enter the reference from your confirmation email or receipt to see
-              payment progress, verification, and payout status.
+              {t("description")}
             </p>
           </header>
 
@@ -88,7 +87,7 @@ export default function TrackTransfer({
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <Field
-                label="Transfer reference"
+                label={t("referenceLabel")}
                 htmlFor="reference"
                 required
                 error={validationError}
@@ -99,7 +98,7 @@ export default function TrackTransfer({
                   name="reference"
                   value={reference}
                   onChange={(event) => setReference(event.target.value)}
-                  placeholder="TRANS-..."
+                  placeholder={t("referencePlaceholder")}
                   autoComplete="off"
                   spellCheck={false}
                   className="font-mono tracking-wide"
@@ -112,7 +111,7 @@ export default function TrackTransfer({
                 className="gap-2 sm:min-w-36"
               >
                 <Search className="size-4" aria-hidden />
-                {isPending ? "Searching…" : "Track"}
+                {isPending ? t("searching") : t("submit")}
               </Button>
             </div>
           </form>
@@ -120,17 +119,17 @@ export default function TrackTransfer({
           <div className="mt-10">
             {isPending ? (
               <SearchState
-                title="Looking up your transfer"
-                description="Fetching the latest status from our records."
+                title={t("lookingUpTitle")}
+                description={t("lookingUpDescription")}
               />
             ) : transfer ? (
               <TransferResult transfer={transfer} />
             ) : hasSearched && error ? (
-              <SearchState title="Transfer not found" description={error} />
+              <SearchState title={t("notFoundTitle")} description={error} />
             ) : (
               <SearchState
-                title="Ready when you are"
-                description="Your reference usually starts with TRANS-. You’ll see live progress once we find a match."
+                title={t("readyTitle")}
+                description={t("readyDescription")}
               />
             )}
           </div>

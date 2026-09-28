@@ -1,4 +1,5 @@
 "use server";
+import { getTranslations } from "next-intl/server";
 import { API_ENDPOINTS } from "@/constants/endpoints";
 import { cleanDeep } from "@/utils/clean-deep";
 import { isUuid } from "@/utils/id";
@@ -199,7 +200,7 @@ type PreviewPromoCodeResult =
   | { ok: true; promo: PreviewPromoCode }
   | { ok: false; error: string };
 
-function readErrorMessage(error: unknown) {
+function readErrorMessage(error: unknown, fallback: string) {
   if (
     error !== null &&
     typeof error === "object" &&
@@ -210,15 +211,16 @@ function readErrorMessage(error: unknown) {
     return error.error;
   }
 
-  return "This promo code is not valid.";
+  return fallback;
 }
 
 export async function previewPromoCode(
   code: string,
 ): Promise<PreviewPromoCodeResult> {
+  const t = await getTranslations("NewTransfer.Promo");
   const trimmed = code.trim();
   if (!trimmed) {
-    return { ok: false, error: "Enter a promo code." };
+    return { ok: false, error: t("empty") };
   }
 
   try {
@@ -229,6 +231,6 @@ export async function previewPromoCode(
     });
     return { ok: true, promo };
   } catch (error) {
-    return { ok: false, error: readErrorMessage(error) };
+    return { ok: false, error: readErrorMessage(error, t("invalid")) };
   }
 }

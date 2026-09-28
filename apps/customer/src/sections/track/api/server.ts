@@ -2,6 +2,7 @@
 
 import "server-only";
 
+import { getTranslations } from "next-intl/server";
 import type { Transfer } from "@repo/types";
 import { API_ENDPOINTS } from "@/constants/endpoints";
 import { request } from "@/utils/request";
@@ -10,7 +11,7 @@ type TrackTransferResult =
   | { ok: true; transfer: Transfer }
   | { ok: false; error: string };
 
-function readErrorMessage(error: unknown) {
+function readErrorMessage(error: unknown, fallback: string) {
   if (
     error !== null &&
     typeof error === "object" &&
@@ -21,15 +22,16 @@ function readErrorMessage(error: unknown) {
     return error.error;
   }
 
-  return "Unable to find that transfer. Check the reference and try again.";
+  return fallback;
 }
 
 export async function getTransferByReference(
   reference: string,
 ): Promise<TrackTransferResult> {
+  const t = await getTranslations("Track.errors");
   const trimmed = reference.trim();
   if (!trimmed) {
-    return { ok: false, error: "Enter your transfer reference." };
+    return { ok: false, error: t("empty") };
   }
 
   try {
@@ -41,6 +43,6 @@ export async function getTransferByReference(
 
     return { ok: true, transfer };
   } catch (error) {
-    return { ok: false, error: readErrorMessage(error) };
+    return { ok: false, error: readErrorMessage(error, t("notFound")) };
   }
 }

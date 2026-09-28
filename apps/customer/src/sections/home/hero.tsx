@@ -1,14 +1,16 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@repo/ui/button";
+import { Link } from "@/i18n/navigation";
 import { HeroIllustration } from "./hero-illustration";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 export function HomeHero() {
+  const t = useTranslations("Home.Hero");
   const reduceMotion = useReducedMotion();
 
   return (
@@ -26,7 +28,7 @@ export function HomeHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease }}
           >
-            C.N Connect
+            {t("brand")}
           </motion.p>
 
           <motion.h1
@@ -35,11 +37,11 @@ export function HomeHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.05, ease }}
           >
-            International
+            {t("titleLine1")}
             <br />
-            money transfer
+            {t("titleLine2")}
             <br />
-            <span className="text-brand">for everyone</span>
+            <span className="text-brand">{t("titleAccent")}</span>
           </motion.h1>
 
           <motion.p
@@ -48,8 +50,7 @@ export function HomeHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.12, ease }}
           >
-            Send money to loved ones abroad with clear rates, verified payouts,
-            and delivery to mobile money or bank.
+            {t("description")}
           </motion.p>
 
           <motion.div
@@ -61,19 +62,19 @@ export function HomeHero() {
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               <Button asChild size="lg" className="gap-2">
                 <Link href="/transfer">
-                  Send money
+                  {t("sendMoney")}
                   <ArrowRight className="size-4" aria-hidden />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link href="/track">Track transfer</Link>
+                <Link href="/track">{t("trackTransfer")}</Link>
               </Button>
             </div>
             <a
               href="#how-it-works"
               className="text-sm font-medium text-muted no-underline transition-colors duration-150 hover:text-navy"
             >
-              How it works
+              {t("howItWorks")}
             </a>
           </motion.div>
         </div>

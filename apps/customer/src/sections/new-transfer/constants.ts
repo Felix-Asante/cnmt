@@ -7,20 +7,8 @@ import { formatMoney } from "@repo/utils/money";
 
 export type ReceivingMethod = "mobile_money" | "bank";
 
-export const REQUEST_STEPS = [
-  { id: "transfer", label: "Transfer" },
-  { id: "recipient", label: "Recipient" },
-] as const;
-
-export const FULFILLMENT_STEPS = [
-  { id: "payment", label: "Pay" },
-  { id: "upload", label: "Proof" },
-  { id: "done", label: "Done" },
-] as const;
-
-export const STATIC_QUOTE = {
-  estimatedCompletion: "Within 30 minutes after payment verification",
-} as const;
+export const REQUEST_STEP_IDS = ["transfer", "recipient"] as const;
+export const FULFILLMENT_STEP_IDS = ["payment", "upload", "done"] as const;
 
 export function getSenderCountry(
   code: string,

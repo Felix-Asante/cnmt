@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ComponentType } from "react";
+import { useTranslations } from "next-intl";
 import {
   Bug,
   ChevronDown,
@@ -14,18 +15,21 @@ import { SUPPORT } from "@/constants/support";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
-function getContextLabel(pathname: string) {
-  if (pathname.startsWith("/transfer")) return "New transfer";
-  if (pathname.startsWith("/track")) return "Track transfer";
-  return null;
-}
-
 export function SiteHeader() {
+  const t = useTranslations("Nav");
+  const tBrand = useTranslations("Brand");
+  const tHelp = useTranslations("Help");
+  const tSupport = useTranslations("Support");
   const pathname = usePathname();
-  const contextLabel = getContextLabel(pathname);
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+
+  const contextLabel = pathname.startsWith("/transfer")
+    ? t("contextNewTransfer")
+    : pathname.startsWith("/track")
+      ? t("contextTrackTransfer")
+      : null;
 
   useEffect(() => {
     setHelpOpen(false);
@@ -65,10 +69,10 @@ export function SiteHeader() {
             </span>
             <span className="min-w-0">
               <span className="block font-display text-sm font-bold tracking-[0.12em] text-navy uppercase">
-                C.N Connect
+                {tBrand("name")}
               </span>
               <span className="hidden text-[11px] text-muted sm:block">
-                International money transfer
+                {tBrand("tagline")}
               </span>
             </span>
           </Link>
@@ -86,7 +90,7 @@ export function SiteHeader() {
           ) : null}
         </div>
 
-        <nav aria-label="Primary" className="flex items-center gap-1 sm:gap-2">
+        <nav aria-label={t("primary")} className="flex items-center gap-1 sm:gap-2">
           <Link
             href="/transfer"
             className={cn(
@@ -96,7 +100,7 @@ export function SiteHeader() {
                 : "text-navy hover:text-brand",
             )}
           >
-            Send money
+            {t("sendMoney")}
           </Link>
           <Link
             href="/track"
@@ -107,7 +111,7 @@ export function SiteHeader() {
                 : "text-navy hover:text-brand",
             )}
           >
-            Track transfer
+            {t("trackTransfer")}
           </Link>
 
           <LanguageSwitcher className="ml-1" />
@@ -126,7 +130,7 @@ export function SiteHeader() {
                   : "text-muted hover:bg-surface hover:text-navy",
               )}
             >
-              Help
+              {t("help")}
               <ChevronDown
                 className={cn(
                   "size-3.5 transition-transform duration-150",
@@ -140,59 +144,58 @@ export function SiteHeader() {
               <div
                 id={menuId}
                 role="menu"
-                aria-label="Help and support"
+                aria-label={tHelp("menuLabel")}
                 className="absolute top-[calc(100%+8px)] right-0 w-[min(20rem,calc(100vw-2rem))] border border-border bg-background shadow-md"
               >
                 <div className="border-b border-border px-4 py-3">
                   <p className="text-sm font-medium text-foreground">
-                    Need help?
+                    {tHelp("title")}
                   </p>
                   <p className="mt-1 text-xs leading-relaxed text-muted">
-                    Reach our team {SUPPORT.hours}. Include your transfer
-                    reference when you can.
+                    {tHelp("description", { hours: tSupport("hours") })}
                   </p>
                 </div>
 
                 <div className="p-1.5">
                   <p className="px-2.5 py-1.5 text-[11px] font-medium tracking-[0.12em] text-subtle uppercase">
-                    Contact support
+                    {tHelp("contactSupport")}
                   </p>
                   <SupportLink
                     href={SUPPORT.whatsappHref}
                     icon={MessageCircle}
                     label={SUPPORT.whatsappDisplay}
-                    detail="Chat with us on WhatsApp"
+                    detail={tHelp("whatsappDetail")}
                     external
                   />
                   <SupportLink
                     href={SUPPORT.phoneSecondaryHref}
                     icon={Phone}
                     label={SUPPORT.phoneSecondaryDisplay}
-                    detail="Primary support line"
+                    detail={tHelp("phoneDetail")}
                   />
                   <SupportLink
                     href={SUPPORT.emailHref}
                     icon={Mail}
                     label={SUPPORT.email}
-                    detail="Email the support desk"
+                    detail={tHelp("emailDetail")}
                   />
                 </div>
 
                 <div className="border-t border-border p-1.5">
                   <p className="px-2.5 py-1.5 text-[11px] font-medium tracking-[0.12em] text-subtle uppercase">
-                    Feedback
+                    {tHelp("feedback")}
                   </p>
                   <SupportLink
                     href={SUPPORT.reportIssueHref}
                     icon={Bug}
-                    label="Report an issue"
-                    detail="Something broken or unclear?"
+                    label={tHelp("reportIssue")}
+                    detail={tHelp("reportIssueDetail")}
                   />
                   <SupportLink
                     href={SUPPORT.featureRequestHref}
                     icon={Lightbulb}
-                    label="Request a feature"
-                    detail="Tell us what to build next"
+                    label={tHelp("requestFeature")}
+                    detail={tHelp("requestFeatureDetail")}
                   />
                 </div>
               </div>

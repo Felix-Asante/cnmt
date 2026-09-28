@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { UseFormReturn } from "react-hook-form";
 import { InformationBanner } from "@repo/ui/information-banner";
 import { UploadArea } from "@repo/ui/upload-area";
@@ -13,6 +14,8 @@ type UploadStepProps = {
 };
 
 export function UploadStep({ form, disabled = false }: UploadStepProps) {
+  const t = useTranslations("NewTransfer.Upload");
+  const tValidation = useTranslations("NewTransfer.Validation");
   const file = useWatch({ control: form.control, name: "proofFile" });
   const error = form.formState.errors.proofFile?.message;
 
@@ -20,24 +23,29 @@ export function UploadStep({ form, disabled = false }: UploadStepProps) {
     <div className="space-y-8">
       <header className="max-w-lg space-y-2">
         <h1 className="text-[1.75rem] font-semibold tracking-tight text-navy md:text-[2rem]">
-          Upload payment proof
+          {t("title")}
         </h1>
         <p className="text-[15px] leading-relaxed text-muted">
-          A clear screenshot or PDF of the confirmation helps us verify without
-          delay.
+          {t("description")}
         </p>
       </header>
 
-      <InformationBanner tone="warning" title="Include these details">
-        Amount, date, and your payment reference should be visible.
+      <InformationBanner tone="warning" title={t("detailsTitle")}>
+        {t("detailsBody")}
       </InformationBanner>
 
       <UploadArea
         value={file instanceof File ? file : null}
         disabled={disabled}
-        rules={PAYMENT_PROOF_UPLOAD}
-        dropLabel="Drop payment proof here"
-        previewAlt="Payment proof preview"
+        rules={{
+          ...PAYMENT_PROOF_UPLOAD,
+          requiredMessage: tValidation("proofRequired"),
+          typeMessage: tValidation("proofType"),
+          sizeMessage: tValidation("proofSize"),
+        }}
+        helperText={t("helperText")}
+        dropLabel={t("dropLabel")}
+        previewAlt={t("previewAlt")}
         onChange={(next) =>
           form.setValue("proofFile", next, {
             shouldValidate: true,

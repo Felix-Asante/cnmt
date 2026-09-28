@@ -1,1 +1,454 @@
-{}
+{
+  "Metadata": {
+    "title": "C.N International Money Transfer",
+    "description": "Secure, reliable international money transfer."
+  },
+  "Brand": {
+    "name": "C.N Connect",
+    "tagline": "International money transfer"
+  },
+  "Nav": {
+    "primary": "Primary",
+    "sendMoney": "Send money",
+    "trackTransfer": "Track transfer",
+    "help": "Help",
+    "contextNewTransfer": "New transfer",
+    "contextTrackTransfer": "Track transfer"
+  },
+  "Help": {
+    "menuLabel": "Help and support",
+    "title": "Need help?",
+    "description": "Reach our team {hours}. Include your transfer reference when you can.",
+    "contactSupport": "Contact support",
+    "whatsappDetail": "Chat with us on WhatsApp",
+    "phoneDetail": "Primary support line",
+    "emailDetail": "Email the support desk",
+    "feedback": "Feedback",
+    "reportIssue": "Report an issue",
+    "reportIssueDetail": "Something broken or unclear?",
+    "requestFeature": "Request a feature",
+    "requestFeatureDetail": "Tell us what to build next"
+  },
+  "Footer": {
+    "support": "Support {hours}",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "reportIssue": "Report issue",
+    "requestFeature": "Request feature",
+    "sendMoney": "Send money"
+  },
+  "Support": {
+    "hours": "Mon–Sat · 9:00–18:00 GMT"
+  },
+  "Home": {
+    "Hero": {
+      "brand": "C.N Connect",
+      "titleLine1": "International",
+      "titleLine2": "money transfer",
+      "titleAccent": "for everyone",
+      "description": "Send money to loved ones abroad with clear rates, verified payouts, and delivery to mobile money or bank.",
+      "sendMoney": "Send money",
+      "trackTransfer": "Track transfer",
+      "howItWorks": "How it works"
+    },
+    "Destinations": {
+      "eyebrow": "Corridors",
+      "title": "Send money to multiple countries",
+      "description": "Send from the UK, France, Spain, and Morocco — receive in Ghana, Nigeria, Sierra Leone, Liberia, Kenya, Uganda, and Morocco.",
+      "cta": "Start a transfer"
+    },
+    "HowItWorks": {
+      "eyebrow": "How it works",
+      "title": "Three clear steps to send",
+      "description": "Built to feel fast without cutting corners on verification.",
+      "steps": {
+        "corridor": {
+          "title": "Choose corridor and amount",
+          "description": "Select where you’re sending from, where it’s going, and how much. Rates and fees stay visible as you type."
+        },
+        "recipient": {
+          "title": "Add your recipient",
+          "description": "Enter their name, phone, and payout method — mobile money or bank — in under a minute."
+        },
+        "pay": {
+          "title": "Pay, we verify, they receive",
+          "description": "Send the transfer with your reference, upload proof, and we confirm before payout begins."
+        }
+      }
+    },
+    "Why": {
+      "eyebrow": "Why C.N Connect",
+      "title": "Built for trust on every transfer",
+      "description": "C.N International Money Transfer helps people send money across borders electronically — with security and speed at the center.",
+      "points": {
+        "secure": {
+          "title": "Secure & reliable",
+          "description": "Payments are verified before processing. Your details stay protected throughout."
+        },
+        "fast": {
+          "title": "Fast after confirmation",
+          "description": "Once payment is confirmed, most transfers complete within minutes — not days."
+        },
+        "network": {
+          "title": "Wide receiving network",
+          "description": "Reach family and partners across multiple countries via mobile money or bank."
+        }
+      }
+    },
+    "Trust": {
+      "verified": {
+        "title": "Verified before payout",
+        "text": "We confirm payment proof before processing begins."
+      },
+      "references": {
+        "title": "Clear references",
+        "text": "Every transfer gets a reference so support can help quickly."
+      },
+      "support": {
+        "title": "Human support",
+        "text": "Reach us on WhatsApp or phone when you need a hand."
+      }
+    },
+    "FinalCta": {
+      "eyebrow": "Ready when you are",
+      "title": "Fast money transfer at your convenience",
+      "description": "Start a transfer in about a minute. Pay when you’re ready — we’ll verify and keep you updated through payout.",
+      "cta": "Send money now",
+      "supportEyebrow": "Talk to support"
+    },
+    "Illustration": {
+      "availableToSend": "Available to send",
+      "delivered": "Delivered",
+      "newTransfer": "New transfer",
+      "sendMoney": "Send money",
+      "youSend": "You send",
+      "theyGet": "They get",
+      "ghanaMtn": "Ghana · MTN",
+      "nigeriaBank": "Nigeria · Bank",
+      "continue": "Continue"
+    }
+  },
+  "Track": {
+    "eyebrow": "Track transfer",
+    "title": "Check your transfer status",
+    "description": "Enter the reference from your confirmation email or receipt to see payment progress, verification, and payout status.",
+    "referenceLabel": "Transfer reference",
+    "referencePlaceholder": "TRANS-...",
+    "submit": "Track",
+    "searching": "Searching…",
+    "validationEmpty": "Enter your transfer reference.",
+    "lookingUpTitle": "Looking up your transfer",
+    "lookingUpDescription": "Fetching the latest status from our records.",
+    "notFoundTitle": "Transfer not found",
+    "readyTitle": "Ready when you are",
+    "readyDescription": "Your reference usually starts with TRANS-. You’ll see live progress once we find a match.",
+    "errors": {
+      "empty": "Enter your transfer reference.",
+      "notFound": "Unable to find that transfer. Check the reference and try again."
+    },
+    "Result": {
+      "updated": "Updated {time}",
+      "reference": "Reference",
+      "corridor": "Corridor",
+      "corridorTo": "to {destination}",
+      "failedBannerTitle": "This transfer cannot continue",
+      "cancelledBannerTitle": "This transfer was cancelled",
+      "terminalBannerBody": "Contact support with your reference if you believe this is a mistake or need help starting a new transfer.",
+      "expiryTitle": "Payment window closing soon",
+      "expiryBody": "This transfer expires {relative}. Send payment before {absolute} to keep it active.",
+      "paymentRequiredTitle": "Payment still required",
+      "paymentRequiredBody": "Send the exact amount with your reference, then upload proof to continue. Once verified, payout usually follows within 30 minutes.",
+      "progress": "Progress",
+      "recipient": "Recipient",
+      "name": "Name",
+      "deliveryMethod": "Delivery method",
+      "destination": "Destination",
+      "note": "Note",
+      "promoCode": "Promo code",
+      "promoOffFee": "{discount} off the fee",
+      "continuePayment": "Continue payment",
+      "sendAnother": "Send another transfer",
+      "backHome": "Back home",
+      "summaryTitle": "Transfer summary",
+      "youSend": "You send",
+      "recipientGets": "Recipient gets",
+      "route": "Route",
+      "exchangeRate": "Exchange rate",
+      "promo": "Promo",
+      "promoSummary": "{code} · {discount} off fee",
+      "submitted": "Submitted",
+      "feesIncludedPromo": "Fees included · {discount} promo off the fee"
+    }
+  },
+  "Transfer": {
+    "status": {
+      "PENDING_PAYMENT": {
+        "label": "Pending payment",
+        "headline": "Awaiting your payment",
+        "description": "Send the payment using the details from your confirmation. Include your reference so we can match it quickly.",
+        "estimatedArrival": "After payment is verified"
+      },
+      "PAYMENT_RECEIVED": {
+        "label": "Payment received",
+        "headline": "Payment received",
+        "description": "We’ve received your payment and will verify it before sending funds to the recipient.",
+        "estimatedArrival": "Usually within 30 minutes"
+      },
+      "VERIFYING": {
+        "label": "Verifying",
+        "headline": "Verifying your payment",
+        "description": "Our team is confirming your payment. Most transfers move to payout within 30 minutes.",
+        "estimatedArrival": "Usually within 30 minutes"
+      },
+      "PROCESSING": {
+        "label": "Processing",
+        "headline": "Sending to recipient",
+        "description": "Your transfer is being paid out to the recipient now.",
+        "estimatedArrival": "In progress now"
+      },
+      "COMPLETED": {
+        "label": "Completed",
+        "headline": "Transfer complete",
+        "description": "The recipient has received the funds. No further action is needed.",
+        "estimatedArrival": "Delivered"
+      },
+      "FAILED": {
+        "label": "Failed",
+        "headline": "Transfer failed",
+        "description": "This transfer could not be completed. Contact support if you need help.",
+        "estimatedArrival": "Not applicable"
+      },
+      "CANCELLED": {
+        "label": "Cancelled",
+        "headline": "Transfer cancelled",
+        "description": "This transfer was cancelled and will not be processed.",
+        "estimatedArrival": "Not applicable"
+      }
+    },
+    "timeline": {
+      "submitted": {
+        "title": "Request submitted",
+        "description": "Transfer details saved securely."
+      },
+      "payment": {
+        "title": "Payment",
+        "description": "Send the exact amount with your reference."
+      },
+      "verification": {
+        "title": "Verification",
+        "description": "We confirm your payment before payout."
+      },
+      "payout": {
+        "title": "Payout complete",
+        "description": "Recipient receives the funds."
+      }
+    },
+    "receivingMethod": {
+      "MOBILE_MONEY": "Mobile money",
+      "BANK": "Bank transfer"
+    }
+  },
+  "NewTransfer": {
+    "steps": {
+      "transfer": "Transfer",
+      "recipient": "Recipient",
+      "payment": "Pay",
+      "upload": "Proof",
+      "done": "Done"
+    },
+    "actions": {
+      "back": "Back",
+      "continue": "Continue",
+      "submit": "Submit request",
+      "submitting": "Submitting…",
+      "ivePaid": "I’ve paid",
+      "finish": "Finish",
+      "uploading": "Uploading…"
+    },
+    "unavailable": {
+      "title": "Transfers unavailable",
+      "description": "We couldn’t load sending options right now. Please try again shortly."
+    },
+    "summary": {
+      "from": "From",
+      "to": "To",
+      "recipient": "Recipient",
+      "payout": "Payout",
+      "promo": "Promo",
+      "promoValue": "{code} · {discount} off fee",
+      "extraFee": "Extra fee (instant transfer)",
+      "youSend": "You send",
+      "recipientGets": "Recipient gets",
+      "rate": "Rate",
+      "estimatedCompletion": "Within 30 minutes after payment verification",
+      "feesIncluded": "Fees included · {notes}",
+      "promoOffFee": "{discount} promo off the fee",
+      "extraFeeNote": "+{amount} extra fee",
+      "mobileMoney": "Mobile money",
+      "bankTransfer": "Bank transfer"
+    },
+    "Transfer": {
+      "title": "Send money abroad",
+      "description": "Choose where you’re sending from, where it’s going, and how much.",
+      "recent": "Recent",
+      "from": "From",
+      "to": "To",
+      "receivesAmount": "Recipient receives {amount}",
+      "sendRange": "Send {min} – {max}",
+      "receivesIn": "Recipient receives in {currency}"
+    },
+    "Recipient": {
+      "title": "Recipient details",
+      "descriptionMobile": "Add your WhatsApp for updates, then the details for their mobile money payout.",
+      "descriptionBank": "Add your WhatsApp for updates, then the details for their bank payout.",
+      "sendAgain": "Send again",
+      "select": "Select",
+      "whatsappLabel": "Your WhatsApp number",
+      "whatsappDescription": "We’ll use this to update you on the transfer.",
+      "whatsappPlaceholder": "537800000",
+      "recipientSection": "Recipient",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Ama Mensah",
+      "payoutMethod": "Payout method",
+      "mobileMoney": "Mobile money",
+      "bankTransfer": "Bank transfer",
+      "network": "Network",
+      "chooseNetwork": "Choose network",
+      "mobileNumber": "Mobile money number",
+      "mobileNumberDescription": "Must match the number registered on their wallet.",
+      "mobileNumberPlaceholder": "24 000 0000",
+      "bank": "Bank",
+      "chooseBank": "Choose bank",
+      "accountHolderName": "Account holder name",
+      "accountNumber": "Account number",
+      "accountNumberPlaceholder": "0123456789"
+    },
+    "Promo": {
+      "label": "Promo code",
+      "description": "Optional. Apply a valid code to reduce the transfer fee.",
+      "applied": "{code} applied · {discount} off the fee",
+      "placeholder": "SAVE10",
+      "remove": "Remove",
+      "apply": "Apply",
+      "checking": "Checking…",
+      "empty": "Enter a promo code.",
+      "invalid": "This promo code is not valid."
+    },
+    "Payment": {
+      "title": "Make your payment",
+      "description": "Choose a payment method, pick an account, then send the exact amount with your reference.",
+      "amountToPay": "Amount to pay",
+      "referenceLabel": "Reference",
+      "verifiedTitle": "Verified before processing",
+      "verifiedBody": "We’ll confirm your payment before sending money to the recipient. Most transfers complete within 30 minutes after verification.",
+      "unavailableTitle": "Payment details unavailable",
+      "unavailableFallback": "Unable to load payment details.",
+      "unavailableContact": "{error} You can reach us on <wa>WhatsApp</wa> or <mail>{email}</mail>.",
+      "chooseMethodTitle": "1. Choose payment method",
+      "chooseMethodDescription": "Bank and mobile money are listed separately when available.",
+      "accountsAvailable": "{count, plural, one {# account available} other {# accounts available}}",
+      "selectAccountTitle": "2. Select a {method} account",
+      "payDetailsTitle": "3. Pay using these details",
+      "payDetailsDescription": "Send exactly {amount} and include your reference.",
+      "bankLabel": "Bank transfer",
+      "bankDescription": "Pay from your bank using the account details below.",
+      "mobileLabel": "Mobile money",
+      "mobileDescription": "Send to the mobile money wallet shown below.",
+      "selectSourceCountry": "Select a source country before making payment.",
+      "noAccounts": "No payment accounts are available for this corridor right now. Contact support with your reference.",
+      "detailChannel": "Channel",
+      "detailAccountName": "Account name",
+      "detailAccountNumber": "Account number",
+      "detailSortCode": "Sort code",
+      "detailIban": "IBAN",
+      "detailPhone": "Phone number",
+      "detailCurrency": "Currency",
+      "detailReference": "Payment reference"
+    },
+    "Upload": {
+      "title": "Upload payment proof",
+      "description": "A clear screenshot or PDF of the confirmation helps us verify without delay.",
+      "detailsTitle": "Include these details",
+      "detailsBody": "Amount, date, and your payment reference should be visible.",
+      "dropLabel": "Drop payment proof here",
+      "previewAlt": "Payment proof preview",
+      "helperText": "JPG, PNG, PDF up to 10MB"
+    },
+    "Success": {
+      "submittedEyebrow": "Request received",
+      "completeEyebrow": "Proof received",
+      "submittedTitle": "Your transfer request is ready",
+      "completeTitle": "We’re verifying your payment",
+      "submittedDescription": "Next, send the payment using the details we provide. Keep your reference handy.",
+      "completeDescription": "You’ll get updates as we confirm the transfer and pay out to the recipient.",
+      "reference": "Reference",
+      "track": "Track this transfer",
+      "whatNext": "What happens next",
+      "continuePayment": "Continue to payment",
+      "payLater": "Pay later",
+      "sendAnother": "Send another",
+      "backHome": "Back home",
+      "timeline": {
+        "request": {
+          "title": "Request submitted",
+          "description": "Transfer details saved securely."
+        },
+        "payment": {
+          "title": "Payment",
+          "description": "Send the exact amount with your reference."
+        },
+        "verification": {
+          "title": "Verification",
+          "description": "We confirm your payment proof."
+        },
+        "completed": {
+          "title": "Payout complete",
+          "description": "Recipient receives the funds."
+        }
+      }
+    },
+    "Validation": {
+      "senderCountryRequired": "Please select where you are sending from.",
+      "recipientCountryRequired": "Please select a recipient country.",
+      "sendAmountRequired": "Enter how much you want to send.",
+      "sendAmountInvalid": "Enter a valid amount.",
+      "sendAmountPositive": "Amount must be greater than zero.",
+      "amountMin": "Minimum transfer is {amount}.",
+      "amountMax": "Maximum transfer is {amount}.",
+      "phoneInvalid": "Please enter a valid phone number.",
+      "recipientNameMin": "Enter the recipient’s full name.",
+      "recipientNameMax": "Name is too long.",
+      "recipientPhoneMax": "Phone number is too long.",
+      "recipientPhoneRequired": "Enter the mobile money number.",
+      "networkRequired": "Select a mobile money network.",
+      "bankRequired": "Select a receiving bank.",
+      "bankAccountNameRequired": "Enter the account holder’s name.",
+      "bankAccountNameMax": "Account name is too long.",
+      "bankAccountNumberRequired": "Enter a valid account number.",
+      "bankAccountNumberInvalid": "Use letters and numbers only.",
+      "bankAccountNumberMax": "Account number is too long.",
+      "noteMax": "Note must be 160 characters or fewer.",
+      "promoCodeMax": "Promo code is too long.",
+      "proofRequired": "Upload a payment proof to continue.",
+      "proofType": "Use a PNG, JPG, or PDF.",
+      "proofSize": "File must be 10MB or less."
+    },
+    "Errors": {
+      "proofMissingTitle": "No proof file provided",
+      "proofMissingDescription": "Please select a proof file to upload.",
+      "missingReferenceTitle": "Missing transfer reference",
+      "missingReferenceDescription": "Go back and submit the transfer first.",
+      "selectAccountTitle": "Select a payment account",
+      "selectAccountDescription": "Go back and choose the account you paid to.",
+      "selectAccountBeforeContinue": "Choose the bank or mobile money account you will pay to.",
+      "uploadFailedTitle": "We couldn’t upload the proof",
+      "uploadFailedDescription": "Check the details and try again.",
+      "uploadFileFailedDescription": "Check the file and try again.",
+      "confirmFailedTitle": "We couldn’t confirm the proof",
+      "confirmFailedDescription": "The file uploaded, but confirmation failed. Try again.",
+      "submitFailedTitle": "We couldn’t submit this transfer",
+      "submitFailedDescription": "Check the details and try again.",
+      "submitUnexpectedDescription": "Something went wrong. Please try again."
+    }
+  }
+}

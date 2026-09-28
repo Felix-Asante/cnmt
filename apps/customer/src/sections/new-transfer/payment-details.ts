@@ -3,9 +3,18 @@ import type { PaymentDetail } from "@repo/ui/payment-card";
 
 export type PaymentMethodGroup = {
   method: ReceivingMethod;
-  label: string;
-  description: string;
   accounts: PaymentAccount[];
+};
+
+export type PaymentDetailLabels = {
+  channel: string;
+  accountName: string;
+  accountNumber: string;
+  sortCode: string;
+  iban: string;
+  phone: string;
+  currency: string;
+  reference: string;
 };
 
 export function groupPaymentAccounts(
@@ -26,16 +35,12 @@ export function groupPaymentAccounts(
   const groups: PaymentMethodGroup[] = [
     {
       method: "BANK",
-      label: "Bank transfer",
-      description: "Pay from your bank using the account details below.",
       accounts: sortGroup(
         accounts.filter((account) => account.payment_method === "BANK"),
       ),
     },
     {
       method: "MOBILE_MONEY",
-      label: "Mobile money",
-      description: "Send to the mobile money wallet shown below.",
       accounts: sortGroup(
         accounts.filter((account) => account.payment_method === "MOBILE_MONEY"),
       ),
@@ -64,15 +69,16 @@ export function accountSummary(account: PaymentAccount) {
 export function paymentAccountDetails(
   account: PaymentAccount,
   reference: string,
+  labels: PaymentDetailLabels,
 ): PaymentDetail[] {
   const details: PaymentDetail[] = [];
 
   if (account.channel_name) {
-    details.push({ label: "Channel", value: account.channel_name });
+    details.push({ label: labels.channel, value: account.channel_name });
   }
 
   details.push({
-    label: "Account name",
+    label: labels.accountName,
     value: account.account_name,
     copyable: true,
   });
@@ -80,28 +86,28 @@ export function paymentAccountDetails(
   if (account.payment_method === "BANK") {
     if (account.account_number) {
       details.push({
-        label: "Account number",
+        label: labels.accountNumber,
         value: account.account_number,
         copyable: true,
       });
     }
     if (account.sort_code) {
       details.push({
-        label: "Sort code",
+        label: labels.sortCode,
         value: account.sort_code,
         copyable: true,
       });
     }
     if (account.iban) {
       details.push({
-        label: "IBAN",
+        label: labels.iban,
         value: account.iban,
         copyable: true,
       });
     }
   } else if (account.phone_number) {
     details.push({
-      label: "Phone number",
+      label: labels.phone,
       value: account.phone_number,
       copyable: true,
     });
@@ -109,11 +115,11 @@ export function paymentAccountDetails(
 
   details.push(
     {
-      label: "Currency",
+      label: labels.currency,
       value: account.currency_code,
     },
     {
-      label: "Payment reference",
+      label: labels.reference,
       value: reference,
       copyable: true,
     },

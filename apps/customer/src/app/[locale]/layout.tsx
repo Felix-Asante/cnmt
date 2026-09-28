@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Schibsted_Grotesk } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getLocale, getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { Toaster } from "@repo/ui/toast";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { routing } from "@/i18n/routing";
 import "../globals.css";
+
 
 const display = Barlow_Condensed({
   variable: "--font-display-family",
@@ -18,17 +20,30 @@ const sans = Schibsted_Grotesk({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "C.N International Money Transfer",
-  description: "Secure, reliable international money transfer.",
-};
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Metadata");
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function RootLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale: localeParam } = await params;
+  setRequestLocale(localeParam);
+
   const locale = await getLocale();
+  const messages = await getMessages();
 
   return (
     <html
@@ -36,7 +51,7 @@ export default async function RootLayout({
       className={`${display.variable} ${sans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <NextIntlClientProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteHeader />
           <div className="flex flex-1 flex-col">{children}</div>
           <SiteFooter />
