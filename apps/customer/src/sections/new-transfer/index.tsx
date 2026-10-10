@@ -442,6 +442,9 @@ export default function NewTransfer({
         sendCurrency: requestValues.sendCurrency,
       });
       setReference(response.reference);
+      const url = new URL(window.location.href);
+      url.searchParams.set("ref", response.reference);
+      window.history.replaceState(null, "", `${url.pathname}${url.search}`);
       setStep(2);
     } catch (error) {
       console.error("Error submitting request:", error);

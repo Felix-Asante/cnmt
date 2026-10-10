@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Check, Copy } from "lucide-react";
 import { Button } from "@repo/ui/button";
 import { Timeline } from "@repo/ui/timeline";
+import { toast } from "@repo/ui/toast";
 import { Link } from "@/i18n/navigation";
 
 type SuccessStepProps = {
@@ -20,6 +23,18 @@ export function SuccessStep({
 }: SuccessStepProps) {
   const t = useTranslations("NewTransfer.Success");
   const isSubmitted = variant === "submitted";
+  const [copied, setCopied] = useState(false);
+
+  async function copyReference() {
+    try {
+      await navigator.clipboard.writeText(reference);
+      setCopied(true);
+      toast.success(t("copied"));
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error(t("copyFailed"));
+    }
+  }
 
   return (
     <div className="space-y-10">
@@ -37,11 +52,36 @@ export function SuccessStep({
 
       <div className="border border-border bg-surface px-5 py-4">
         <p className="text-xs text-muted">{t("reference")}</p>
-        <p className="mt-1 font-mono text-lg font-semibold tracking-wide text-navy">
-          {reference}
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <p className="font-mono text-lg font-semibold tracking-wide text-navy">
+            {reference}
+          </p>
+          <button
+            type="button"
+            onClick={copyReference}
+            className="cursor-pointer inline-flex items-center gap-1.5 border border-border px-2.5 py-1.5 text-xs font-medium text-navy transition-colors duration-150 hover:border-navy hover:bg-background"
+          >
+            {copied ? (
+              <Check className="size-3.5 text-success" aria-hidden />
+            ) : (
+              <Copy className="size-3.5" aria-hidden />
+            )}
+            {copied ? t("copied") : t("copy")}
+          </button>
+        </div>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          {t("referenceHint")}
         </p>
-        <Button asChild variant="ghost" size="sm" className="mt-3 h-8 px-0 text-brand">
-          <Link href={`/track?ref=${encodeURIComponent(reference)}`}>
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="mt-2 h-8 px-0 text-brand"
+        >
+          <Link
+            target="_blank"
+            href={`/track?ref=${encodeURIComponent(reference)}`}
+          >
             {t("track")}
           </Link>
         </Button>
@@ -89,7 +129,9 @@ export function SuccessStep({
               {t("continuePayment")}
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/">{t("payLater")}</Link>
+              <Link href={`/track?ref=${encodeURIComponent(reference)}`}>
+                {t("payLater")}
+              </Link>
             </Button>
           </>
         ) : (
