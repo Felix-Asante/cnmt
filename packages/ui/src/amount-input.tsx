@@ -12,6 +12,7 @@ type AmountInputProps = {
   error?: string;
   helperText?: string;
   className?: string;
+  "aria-label"?: string;
 };
 
 function sanitizeAmount(raw: string): string {
@@ -23,13 +24,14 @@ function sanitizeAmount(raw: string): string {
 
 export function AmountInput({
   id = "send-amount",
-  label = "You send",
+  label,
   value,
   onChange,
   currency,
   error,
   helperText,
   className,
+  "aria-label": ariaLabel,
 }: AmountInputProps) {
   const [draft, setDraft] = useState(value);
   const descriptionId = helperText ? `${id}-helper` : undefined;
@@ -41,9 +43,11 @@ export function AmountInput({
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
-        {label}
-      </label>
+      {label ? (
+        <label htmlFor={id} className="text-sm font-medium text-foreground">
+          {label}
+        </label>
+      ) : null}
 
       <div
         className={cn(
@@ -67,6 +71,7 @@ export function AmountInput({
               setDraft(next);
               onChange(next);
             }}
+            aria-label={ariaLabel ?? label ?? currency}
             aria-invalid={Boolean(error) || undefined}
             aria-describedby={
               [descriptionId, errorId].filter(Boolean).join(" ") || undefined

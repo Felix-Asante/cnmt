@@ -163,7 +163,7 @@
       "name": "Name",
       "deliveryMethod": "Delivery method",
       "destination": "Destination",
-      "note": "Note",
+      "note": "Special instructions",
       "promoCode": "Promo code",
       "promoOffFee": "{discount} off the fee",
       "continuePayment": "Continue payment",
@@ -274,6 +274,7 @@
       "to": "To",
       "recipient": "Recipient",
       "payout": "Payout",
+      "note": "Instructions",
       "promo": "Promo",
       "promoValue": "{code} · {discount} off fee",
       "extraFee": "Extra fee (instant transfer)",
@@ -293,9 +294,14 @@
       "recent": "Recent",
       "from": "From",
       "to": "To",
+      "youSend": "You send",
+      "theyGet": "Recipient gets",
       "receivesAmount": "Recipient receives {amount}",
+      "youPay": "You pay {amount}",
       "sendRange": "Send {min} – {max}",
-      "receivesIn": "Recipient receives in {currency}"
+      "receiveRange": "Recipient gets {min} – {max}",
+      "receivesIn": "Recipient receives in {currency}",
+      "amountSide": "Amount entry"
     },
     "Recipient": {
       "title": "Recipient details",
@@ -321,7 +327,10 @@
       "chooseBank": "Choose bank",
       "accountHolderName": "Account holder name",
       "accountNumber": "Account number",
-      "accountNumberPlaceholder": "0123456789"
+      "accountNumberPlaceholder": "0123456789",
+      "noteLabel": "Special instructions",
+      "noteDescription": "Optional. Add a payout reference or note.",
+      "notePlaceholder": "e.g. Group contribution ref: AMA-042"
     },
     "Promo": {
       "label": "Promo code",

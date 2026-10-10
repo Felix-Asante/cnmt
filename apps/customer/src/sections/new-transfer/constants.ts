@@ -73,6 +73,44 @@ export function getTransferQuote(
   };
 }
 
+export function toAmountInputValue(value: number) {
+  if (!Number.isFinite(value) || value <= 0) return "";
+  return (Math.round(value * 100) / 100).toFixed(2);
+}
+
+/** Invert quote math: receive amount → send amount (same fee rules as create). */
+export function sendAmountFromReceive(
+  receiveAmount: number,
+  rate: number,
+  feeType: "fixed" | "percentage",
+  fee: number,
+) {
+  if (!(receiveAmount > 0) || !(rate > 0)) return 0;
+
+  if (feeType === "fixed") {
+    return Math.max((receiveAmount + fee) / rate, 0);
+  }
+
+  const factor = rate - fee / 100;
+  let send = receiveAmount / Math.max(factor, Number.EPSILON);
+  for (let i = 0; i < 4; i++) {
+    const computedFee = Math.floor((send * fee) / 100);
+    send = (receiveAmount + computedFee) / rate;
+  }
+  return Math.max(send, 0);
+}
+
+export function receiveAmountFromSend(
+  sendAmount: number,
+  rate: number,
+  feeType: "fixed" | "percentage",
+  fee: number,
+) {
+  if (!(sendAmount > 0) || !(rate > 0)) return 0;
+  const resolvedFee = calculateFee(sendAmount, feeType, fee);
+  return Math.max(sendAmount * rate - resolvedFee, 0);
+}
+
 export function calculateFee(
   amount: number,
   feeType: "fixed" | "percentage",

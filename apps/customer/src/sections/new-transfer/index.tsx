@@ -199,6 +199,14 @@ export default function NewTransfer({
         label: t("summary.payout"),
         value: payoutDetail,
       },
+      ...(values.note?.trim()
+        ? [
+            {
+              label: t("summary.note"),
+              value: values.note.trim(),
+            },
+          ]
+        : []),
       ...(appliedPromo
         ? [
             {

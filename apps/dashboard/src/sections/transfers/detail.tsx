@@ -35,10 +35,10 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
   const payment = transfer.payment_instructions;
   const hasPaymentInstructions = Boolean(
     payment?.payment_method ||
-      payment?.channel_name ||
-      payment?.account_name ||
-      payment?.account_number ||
-      payment?.currency_code,
+    payment?.channel_name ||
+    payment?.account_name ||
+    payment?.account_number ||
+    payment?.currency_code,
   );
   const promo = transfer.promo_code;
 
@@ -87,6 +87,16 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
 
         <TransferWorkflow transfer={transfer} />
 
+        {transfer.notes ? (
+          <section>
+            <h3 className="text-[11px] font-medium tracking-[0.12em] text-subtle uppercase">
+              Special instructions
+            </h3>
+            <p className="mt-2 border border-border px-3 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+              {transfer.notes}
+            </p>
+          </section>
+        ) : null}
         <Section title="Transfer">
           <Row
             label="Fee"
@@ -200,17 +210,6 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
             ) : null}
           </Section>
         ) : null}
-
-        {transfer.notes ? (
-          <section>
-            <h3 className="text-[11px] font-medium tracking-[0.12em] text-subtle uppercase">
-              Notes
-            </h3>
-            <p className="mt-2 border border-border px-3 py-2.5 text-sm leading-relaxed text-foreground">
-              {transfer.notes}
-            </p>
-          </section>
-        ) : null}
       </div>
     </TransferSheet>
   );
@@ -291,7 +290,7 @@ function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-4 border-b border-border px-3 py-2.5 last:border-b-0">
       <dt className="text-sm text-muted">{label}</dt>
-      <dd className="text-sm font-medium break-words text-navy">{value}</dd>
+      <dd className="text-sm font-medium wrap-break-word text-navy">{value}</dd>
     </div>
   );
 }

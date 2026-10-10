@@ -5,18 +5,24 @@ import { useTranslations } from "next-intl";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { AmountInput } from "@repo/ui/amount-input";
 import { CorridorPicker } from "@repo/ui/corridor-picker";
+import { cn } from "@/lib/utils";
 import {
   calculateFee,
   firstDestinationForSource,
   getRecipientCountry,
   getSenderCountry,
   getTransferQuote,
+  receiveAmountFromSend,
+  sendAmountFromReceive,
+  toAmountInputValue,
 } from "../constants";
 import { itemId } from "@repo/utils/lookup";
 import { formatMoney } from "@repo/utils/money";
 import { getRecentCorridors, type RecentCorridor } from "../memory";
 import type { TransferFormValues } from "../schema";
 import type { TransferOptions } from "@repo/types";
+
+type AmountSide = "send" | "receive";
 
 type TransferStepProps = {
   form: UseFormReturn<TransferFormValues>;
@@ -26,6 +32,9 @@ type TransferStepProps = {
 export function TransferStep({ form, transferOptions }: TransferStepProps) {
   const t = useTranslations("NewTransfer.Transfer");
   const [recent] = useState<RecentCorridor[]>(getRecentCorridors());
+  const [amountSide, setAmountSide] = useState<AmountSide>("send");
+  const [receiveDraft, setReceiveDraft] = useState("");
+
   const senderCode = useWatch({
     control: form.control,
     name: "senderCountryCode",
@@ -48,19 +57,18 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
     senderCode,
     transferOptions.destinations,
   );
-  const currency = sender?.currency_code ?? sendCurrency;
+  const sendCode = sender?.currency_code ?? sendCurrency;
+  const receiveCode = recipient?.currency_code ?? "GHS";
+  const rate = Number(recipient?.default_exchange_rate ?? 1);
+  const feeType = recipient?.fee_type ?? "fixed";
+  const feeValue = Number(recipient?.fee ?? 0);
 
-  const fee = calculateFee(
-    Number(amount ?? 0),
-    recipient?.fee_type ?? "fixed",
-    Number(recipient?.fee ?? 0),
-  );
-
+  const fee = calculateFee(Number(amount ?? 0), feeType, feeValue);
   const quote = getTransferQuote(
     amount,
-    currency,
-    recipient?.currency_code ?? "GHS",
-    Number(recipient?.default_exchange_rate ?? 1),
+    sendCode,
+    receiveCode,
+    rate,
     fee,
   );
 
@@ -78,6 +86,21 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
       });
     }
   }, [form, sendCurrency, sender]);
+
+  useEffect(() => {
+    if (amountSide !== "receive" || !receiveDraft) return;
+    const receiveAmount = Number(receiveDraft);
+    if (!Number.isFinite(receiveAmount) || receiveAmount <= 0) return;
+    const nextSend = toAmountInputValue(
+      sendAmountFromReceive(receiveAmount, rate, feeType, feeValue),
+    );
+    if (nextSend !== form.getValues("sendAmount")) {
+      form.setValue("sendAmount", nextSend, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+  }, [amountSide, feeType, feeValue, form, rate, receiveDraft, recipientCode]);
 
   function applyCorridor(nextSender: string, nextRecipient: string) {
     const senderCountry = getSenderCountry(nextSender, transferOptions.sources);
@@ -122,10 +145,78 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
     }
   }
 
+  function setSendAmount(value: string) {
+    form.setValue("sendAmount", value, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  }
+
+  function switchAmountSide(next: AmountSide) {
+    if (next === amountSide) return;
+
+    if (next === "receive") {
+      const sendValue = Number(form.getValues("sendAmount"));
+      setReceiveDraft(
+        Number.isFinite(sendValue) && sendValue > 0
+          ? toAmountInputValue(
+              receiveAmountFromSend(sendValue, rate, feeType, feeValue),
+            )
+          : "",
+      );
+    }
+
+    setAmountSide(next);
+  }
+
+  function handleAmountChange(value: string) {
+    if (amountSide === "send") {
+      setSendAmount(value);
+      return;
+    }
+
+    setReceiveDraft(value);
+    const receiveAmount = Number(value);
+    if (!value || !Number.isFinite(receiveAmount) || receiveAmount <= 0) {
+      setSendAmount("");
+      return;
+    }
+    setSendAmount(
+      toAmountInputValue(
+        sendAmountFromReceive(receiveAmount, rate, feeType, feeValue),
+      ),
+    );
+  }
+
   const minAmount = Number(recipient?.min_transfer_amount);
   const maxAmount = Number(recipient?.max_transfer_amount);
   const hasLimits =
     Number.isFinite(minAmount) && Number.isFinite(maxAmount) && maxAmount > 0;
+
+  const receiveMin = hasLimits
+    ? receiveAmountFromSend(minAmount, rate, feeType, feeValue)
+    : 0;
+  const receiveMax = hasLimits
+    ? receiveAmountFromSend(maxAmount, rate, feeType, feeValue)
+    : 0;
+
+  const helperText = quote.hasAmount
+    ? amountSide === "send"
+      ? t("receivesAmount", { amount: quote.receiveLabel })
+      : t("youPay", { amount: quote.sendLabel })
+    : hasLimits
+      ? amountSide === "send"
+        ? t("sendRange", {
+            min: formatMoney(minAmount, sendCode),
+            max: formatMoney(maxAmount, sendCode),
+          })
+        : t("receiveRange", {
+            min: formatMoney(receiveMin, receiveCode),
+            max: formatMoney(receiveMax, receiveCode),
+          })
+      : recipient
+        ? t("receivesIn", { currency: receiveCode })
+        : undefined;
 
   return (
     <div className="space-y-10">
@@ -221,29 +312,44 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
         }}
       />
 
-      <AmountInput
-        value={amount}
-        currency={currency}
-        onChange={(value) =>
-          form.setValue("sendAmount", value, {
-            shouldDirty: true,
-            shouldTouch: true,
-          })
-        }
-        error={errors?.sendAmount?.message}
-        helperText={
-          quote.hasAmount
-            ? t("receivesAmount", { amount: quote.receiveLabel })
-            : hasLimits
-              ? t("sendRange", {
-                  min: formatMoney(minAmount, currency),
-                  max: formatMoney(maxAmount, currency),
-                })
-              : recipient
-                ? t("receivesIn", { currency: recipient.currency_code })
-                : undefined
-        }
-      />
+      <div className="space-y-4">
+        <div
+          role="group"
+          aria-label={t("amountSide")}
+          className="grid max-w-sm grid-cols-2 border border-border p-1"
+        >
+          {(["send", "receive"] as const).map((side) => {
+            const selected = amountSide === side;
+            return (
+              <button
+                key={side}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => switchAmountSide(side)}
+                className={cn(
+                  "px-3 py-2.5 text-sm font-medium transition-colors duration-150",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/15",
+                  selected
+                    ? "bg-navy text-white"
+                    : "bg-transparent text-muted hover:text-foreground",
+                )}
+              >
+                {side === "send" ? t("youSend") : t("theyGet")}
+              </button>
+            );
+          })}
+        </div>
+
+        <AmountInput
+          id={amountSide === "send" ? "send-amount" : "receive-amount"}
+          aria-label={amountSide === "send" ? t("youSend") : t("theyGet")}
+          value={amountSide === "send" ? (amount ?? "") : receiveDraft}
+          currency={amountSide === "send" ? sendCode : receiveCode}
+          onChange={handleAmountChange}
+          error={errors?.sendAmount?.message}
+          helperText={helperText}
+        />
+      </div>
     </div>
   );
 }

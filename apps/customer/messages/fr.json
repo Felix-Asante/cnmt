@@ -163,7 +163,7 @@
       "name": "Nom",
       "deliveryMethod": "Mode de réception",
       "destination": "Destination",
-      "note": "Note",
+      "note": "Instructions particulières",
       "promoCode": "Code promo",
       "promoOffFee": "{discount} de réduction sur les frais",
       "continuePayment": "Continuer le paiement",
@@ -274,6 +274,7 @@
       "to": "Vers",
       "recipient": "Bénéficiaire",
       "payout": "Réception",
+      "note": "Instructions",
       "promo": "Promo",
       "promoValue": "{code} · {discount} de réduction sur les frais",
       "extraFee": "Frais supplémentaires (transfert instantané)",
@@ -293,9 +294,14 @@
       "recent": "Récents",
       "from": "De",
       "to": "Vers",
+      "youSend": "Vous envoyez",
+      "theyGet": "Le bénéficiaire reçoit",
       "receivesAmount": "Le bénéficiaire reçoit {amount}",
+      "youPay": "Vous payez {amount}",
       "sendRange": "Envoyez de {min} à {max}",
-      "receivesIn": "Le bénéficiaire reçoit en {currency}"
+      "receiveRange": "Le bénéficiaire reçoit de {min} à {max}",
+      "receivesIn": "Le bénéficiaire reçoit en {currency}",
+      "amountSide": "Saisie du montant"
     },
     "Recipient": {
       "title": "Coordonnées du bénéficiaire",
@@ -321,7 +327,10 @@
       "chooseBank": "Choisir une banque",
       "accountHolderName": "Nom du titulaire du compte",
       "accountNumber": "Numéro de compte",
-      "accountNumberPlaceholder": "0123456789"
+      "accountNumberPlaceholder": "0123456789",
+      "noteLabel": "Instructions particulières",
+      "noteDescription": "Facultatif. Ajoutez une référence de versement ou une note.",
+      "notePlaceholder": "ex. Réf. cotisation de groupe : AMA-042"
     },
     "Promo": {
       "label": "Code promo",

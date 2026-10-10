@@ -8,6 +8,7 @@ import { Label } from "@repo/ui/label";
 import { Input } from "@repo/ui/input";
 import { PhoneInput } from "@repo/ui/phone-input";
 import { Field } from "@repo/ui/field";
+import { Textarea } from "@repo/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -492,6 +493,22 @@ export function RecipientStep({
             </div>
           </>
         )}
+
+        <Field
+          label={t("noteLabel")}
+          htmlFor="note"
+          description={t("noteDescription")}
+          error={errors.note?.message}
+        >
+          <Textarea
+            id="note"
+            {...form.register("note")}
+            placeholder={t("notePlaceholder")}
+            maxLength={160}
+            rows={3}
+            className="min-h-20 resize-none"
+          />
+        </Field>
 
         <PromoCodeField
           value={promoCode ?? ""}
