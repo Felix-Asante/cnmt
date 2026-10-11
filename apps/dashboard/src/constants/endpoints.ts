@@ -85,7 +85,9 @@ export const API_ENDPOINTS = {
       recipient_phone?: string;
     }) => createEndpoint(`admin/transfers${toQuery(params)}`),
     getByReference: (reference: string) =>
-      createEndpoint(`transfers/${encodeURIComponent(reference)}`),
+      createEndpoint(
+        `admin/transfers/reference/${encodeURIComponent(reference)}`,
+      ),
     verifyPayment: (id: string) =>
       createEndpoint(`admin/transfers/${id}/verify-payment`),
     rejectPayment: (id: string) =>

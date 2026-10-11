@@ -144,7 +144,8 @@
     "readyDescription": "Your reference usually starts with TRANS-. You’ll see live progress once we find a match.",
     "errors": {
       "empty": "Enter your transfer reference.",
-      "notFound": "Unable to find that transfer. Check the reference and try again."
+      "notFound": "Unable to find that transfer. Check the reference and try again.",
+      "cancelFailed": "Unable to cancel this transfer. Try again or contact support."
     },
     "Result": {
       "updated": "Updated {time}",
@@ -169,6 +170,14 @@
       "continuePayment": "Continue payment",
       "sendAnother": "Send another transfer",
       "backHome": "Back home",
+      "cancelTransfer": "Cancel transfer",
+      "cancelConfirm": "Cancel this unpaid transfer? You won’t be able to continue payment on this reference.",
+      "cancelReasonLabel": "Reason (optional)",
+      "cancelReasonHint": "Helps us improve — for example if you entered the wrong amount or recipient.",
+      "cancelReasonPlaceholder": "Why are you cancelling?",
+      "cancelConfirmAction": "Yes, cancel transfer",
+      "cancelKeep": "Keep transfer",
+      "cancelSuccess": "Transfer cancelled.",
       "summaryTitle": "Transfer summary",
       "youSend": "You send",
       "recipientGets": "Recipient gets",

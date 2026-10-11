@@ -65,6 +65,14 @@ export type TransferPromoCode = {
   discount_percentage: string | number;
 };
 
+export type TransferEvent = {
+  id: string;
+  status: TransferStatus;
+  actor: string;
+  note?: string;
+  created_at: string;
+};
+
 export type Transfer = {
   id: string;
   reference: string;
@@ -86,6 +94,8 @@ export type Transfer = {
   notes?: string;
   expires_at: string;
   created_at: string;
+  /** Present on admin detail fetches only. */
+  events?: TransferEvent[];
 };
 
 export type TransferListResponse = {

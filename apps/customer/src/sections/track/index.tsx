@@ -123,7 +123,10 @@ export default function TrackTransfer({
                 description={t("lookingUpDescription")}
               />
             ) : transfer ? (
-              <TransferResult transfer={transfer} />
+              <TransferResult
+                transfer={transfer}
+                onCancelled={setTransfer}
+              />
             ) : hasSearched && error ? (
               <SearchState title={t("notFoundTitle")} description={error} />
             ) : (

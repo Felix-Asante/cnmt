@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
     getByReference: (reference: string) =>
       createEndpoint(`transfers/${encodeURIComponent(reference)}`),
     create: () => createEndpoint("transfers"),
+    cancel: () => createEndpoint("transfers/cancel"),
     createUploadPaymentProofSignedUrl: () =>
       createEndpoint("transfers/payment-proof/upload-url"),
     confirmPaymentProofUploaded: () =>

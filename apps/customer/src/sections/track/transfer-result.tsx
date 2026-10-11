@@ -1,16 +1,19 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { TransferStatus, type Transfer } from "@repo/types";
 import { Badge } from "@repo/ui/badge";
 import { InformationBanner } from "@repo/ui/information-banner";
 import { Timeline } from "@repo/ui/timeline";
 import { TransferSummary } from "@repo/ui/transfer-summary";
+import { toast } from "@repo/ui/toast";
 import {
   formatAmount,
   formatExchangeRate,
 } from "@repo/utils/money";
 import {
+  canCancelTransfer,
   canContinuePayment,
   formatPromoDiscount,
   transferStatusBadgeVariant,
@@ -18,10 +21,16 @@ import {
 } from "@/utils/transfer";
 import { AlertCircle, ArrowRight, Clock3 } from "lucide-react";
 import { Button } from "@repo/ui/button";
+import { Field } from "@repo/ui/field";
+import { Textarea } from "@repo/ui/textarea";
 import { Link } from "@/i18n/navigation";
+import { cancelTransferByCustomer } from "./api/server";
+
+const CANCEL_REASON_MAX = 500;
 
 type TransferResultProps = {
   transfer: Transfer;
+  onCancelled: (transfer: Transfer) => void;
 };
 
 function recipientDestination(transfer: Transfer) {
@@ -41,12 +50,18 @@ function isExpiringSoon(expiresAt: string) {
   return expires - Date.now() < 1000 * 60 * 60 * 6;
 }
 
-export function TransferResult({ transfer }: TransferResultProps) {
+export function TransferResult({
+  transfer,
+  onCancelled,
+}: TransferResultProps) {
   const t = useTranslations("Track.Result");
   const tStatus = useTranslations("Transfer.status");
   const tTimeline = useTranslations("Transfer.timeline");
   const tMethod = useTranslations("Transfer.receivingMethod");
   const format = useFormatter();
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelling, startCancel] = useTransition();
 
   const source = transfer.route.source_country;
   const destination = transfer.route.destination_country;
@@ -56,9 +71,29 @@ export function TransferResult({ transfer }: TransferResultProps) {
     description: tTimeline(`${item.id}.description`),
   }));
   const canContinue = canContinuePayment(transfer);
+  const canCancel = canCancelTransfer(transfer);
   const showExpiry =
     transfer.status === TransferStatus.PENDING_PAYMENT &&
     isExpiringSoon(transfer.expires_at);
+
+  function handleCancel() {
+    startCancel(async () => {
+      const result = await cancelTransferByCustomer(
+        transfer.reference,
+        transfer.sender_phone,
+        cancelReason,
+      );
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      setConfirmCancel(false);
+      setCancelReason("");
+      onCancelled(result.transfer);
+      toast.success(t("cancelSuccess"));
+    });
+  }
 
   const promo = transfer.promo_code;
   const discount = promo
@@ -270,28 +305,84 @@ export function TransferResult({ transfer }: TransferResultProps) {
           </dl>
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row">
-          {canContinue ? (
-            <Button asChild size="lg" className="gap-2">
-              <Link
-                href={`/transfer?ref=${encodeURIComponent(transfer.reference)}`}
+        {confirmCancel ? (
+          <div className="space-y-4 border-t border-border pt-6">
+            <p className="text-sm leading-relaxed text-muted">
+              {t("cancelConfirm")}
+            </p>
+            <Field
+              label={t("cancelReasonLabel")}
+              htmlFor="cancel-reason"
+              description={t("cancelReasonHint")}
+            >
+              <Textarea
+                id="cancel-reason"
+                value={cancelReason}
+                onChange={(event) => setCancelReason(event.target.value)}
+                placeholder={t("cancelReasonPlaceholder")}
+                maxLength={CANCEL_REASON_MAX}
+                rows={3}
+                disabled={isCancelling}
+              />
+            </Field>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button
+                type="button"
+                size="lg"
+                loading={isCancelling}
+                onClick={handleCancel}
               >
-                {t("continuePayment")}
-                <ArrowRight className="size-4" aria-hidden />
-              </Link>
+                {t("cancelConfirmAction")}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                disabled={isCancelling}
+                onClick={() => {
+                  setConfirmCancel(false);
+                  setCancelReason("");
+                }}
+              >
+                {t("cancelKeep")}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:flex-wrap">
+            {canContinue ? (
+              <Button asChild size="lg" className="gap-2">
+                <Link
+                  href={`/transfer?ref=${encodeURIComponent(transfer.reference)}`}
+                >
+                  {t("continuePayment")}
+                  <ArrowRight className="size-4" aria-hidden />
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild size="lg" className="gap-2">
+                <Link href="/transfer">
+                  {t("sendAnother")}
+                  <ArrowRight className="size-4" aria-hidden />
+                </Link>
+              </Button>
+            )}
+            <Button asChild variant="outline" size="lg">
+              <Link href="/">{t("backHome")}</Link>
             </Button>
-          ) : (
-            <Button asChild size="lg" className="gap-2">
-              <Link href="/transfer">
-                {t("sendAnother")}
-                <ArrowRight className="size-4" aria-hidden />
-              </Link>
-            </Button>
-          )}
-          <Button asChild variant="outline" size="lg">
-            <Link href="/">{t("backHome")}</Link>
-          </Button>
-        </div>
+            {canCancel ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="lg"
+                className="text-muted sm:ml-auto"
+                onClick={() => setConfirmCancel(true)}
+              >
+                {t("cancelTransfer")}
+              </Button>
+            ) : null}
+          </div>
+        )}
       </div>
 
       <TransferSummary

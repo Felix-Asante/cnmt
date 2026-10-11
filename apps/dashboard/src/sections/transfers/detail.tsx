@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
-import { TransferStatus, type Transfer } from "@repo/types";
+import { TransferStatus, type Transfer, type TransferEvent } from "@repo/types";
 import { Button } from "@repo/ui/button";
 import { InformationBanner } from "@repo/ui/information-banner";
 import {
@@ -11,10 +11,17 @@ import {
 } from "@/utils/format";
 import { getErrorMessage } from "@/utils/request";
 import { TransferWorkflow } from "./actions";
-import { receivingMethodLabel } from "./constants";
+import { receivingMethodLabel, TRANSFER_STATUS_LABELS } from "./constants";
 import { TransferPipeline } from "./pipeline";
 import { TransferSheet, useCloseTransferSheet } from "./sheet";
 import { TransferStatusBadge } from "./status-badge";
+
+function formatEventActor(actor: string) {
+  if (actor.startsWith("customer:")) {
+    return `Customer (${actor.slice("customer:".length)})`;
+  }
+  return actor;
+}
 
 function formatPromoDiscount(value: string | number) {
   const amount = typeof value === "number" ? value : Number(value);
@@ -210,8 +217,47 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
             ) : null}
           </Section>
         ) : null}
+
+        {transfer.events && transfer.events.length > 0 ? (
+          <Activity events={transfer.events} />
+        ) : null}
       </div>
     </TransferSheet>
+  );
+}
+
+function Activity({ events }: { events: TransferEvent[] }) {
+  return (
+    <section>
+      <h3 className="text-[11px] font-medium tracking-[0.12em] text-subtle uppercase">
+        Activity
+      </h3>
+      <ol className="mt-3 space-y-3">
+        {events.map((event) => (
+          <li
+            key={event.id}
+            className="border border-border px-3 py-2.5 text-sm"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <p className="font-medium text-navy">
+                {TRANSFER_STATUS_LABELS[event.status] ?? event.status}
+              </p>
+              <p className="text-xs text-muted">
+                {formatDateTime(event.created_at)}
+              </p>
+            </div>
+            <p className="mt-1 text-muted">
+              By {formatEventActor(event.actor)}
+            </p>
+            {event.note ? (
+              <p className="mt-1.5 leading-relaxed whitespace-pre-wrap text-foreground">
+                {event.note}
+              </p>
+            ) : null}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 

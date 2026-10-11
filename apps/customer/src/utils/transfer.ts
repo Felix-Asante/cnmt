@@ -91,3 +91,8 @@ export function canContinuePayment(transfer: Transfer) {
   const expires = new Date(transfer.expires_at).getTime();
   return !Number.isNaN(expires) && expires > Date.now();
 }
+
+/** Unpaid transfers only — once proof is filed, cancel is ops-only. */
+export function canCancelTransfer(transfer: Transfer) {
+  return transfer.status === TransferStatus.PENDING_PAYMENT;
+}

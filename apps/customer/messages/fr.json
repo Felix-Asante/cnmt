@@ -144,7 +144,8 @@
     "readyDescription": "Votre référence commence généralement par TRANS-. La progression s’affiche dès qu’une correspondance est trouvée.",
     "errors": {
       "empty": "Saisissez votre référence de transfert.",
-      "notFound": "Impossible de trouver ce transfert. Vérifiez la référence et réessayez."
+      "notFound": "Impossible de trouver ce transfert. Vérifiez la référence et réessayez.",
+      "cancelFailed": "Impossible d’annuler ce transfert. Réessayez ou contactez le support."
     },
     "Result": {
       "updated": "Mis à jour {time}",
@@ -169,6 +170,14 @@
       "continuePayment": "Continuer le paiement",
       "sendAnother": "Envoyer un autre transfert",
       "backHome": "Retour à l’accueil",
+      "cancelTransfer": "Annuler le transfert",
+      "cancelConfirm": "Annuler ce transfert non payé ? Vous ne pourrez plus poursuivre le paiement avec cette référence.",
+      "cancelReasonLabel": "Motif (facultatif)",
+      "cancelReasonHint": "Cela nous aide à nous améliorer — par exemple si le montant ou le bénéficiaire était incorrect.",
+      "cancelReasonPlaceholder": "Pourquoi annulez-vous ?",
+      "cancelConfirmAction": "Oui, annuler le transfert",
+      "cancelKeep": "Conserver le transfert",
+      "cancelSuccess": "Transfert annulé.",
       "summaryTitle": "Récapitulatif du transfert",
       "youSend": "Vous envoyez",
       "recipientGets": "Le bénéficiaire reçoit",
