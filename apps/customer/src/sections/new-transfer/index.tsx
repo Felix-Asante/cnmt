@@ -17,6 +17,7 @@ import {
   getChannelExtraFee,
   getRecipientCountry,
   getSenderCountry,
+  applyPromoDiscount,
   getTransferQuote,
   resolveTransferFee,
 } from "./constants";
@@ -145,14 +146,20 @@ export default function NewTransfer({
     feeType: recipient?.fee_type ?? "fixed",
     fee: Number(recipient?.fee ?? 0),
     extraFee,
-    promoDiscountPercentage: appliedPromo?.discount_percentage,
   });
+  // Resume loads amount_sent already discounted; don't apply promo again.
+  const promoForQuote = resume ? null : appliedPromo?.discount_percentage;
   const quote = getTransferQuote(
     values.sendAmount ?? "",
     values.sendCurrency ?? "",
     recipient?.currency_code ?? "GHS",
     Number(recipient?.default_exchange_rate ?? 1),
     fee,
+    promoForQuote,
+  );
+  const amountToPay = applyPromoDiscount(
+    Number(values.sendAmount ?? 0),
+    promoForQuote,
   );
 
   const inRequestPhase = !resume && step <= 1;
@@ -555,6 +562,7 @@ export default function NewTransfer({
                     <PaymentStep
                       form={form}
                       reference={reference}
+                      amountToPay={amountToPay}
                       selectedAccountId={paymentAccountId}
                       onSelectAccount={setPaymentAccountId}
                     />

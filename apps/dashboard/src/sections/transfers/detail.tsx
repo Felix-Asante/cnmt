@@ -107,24 +107,16 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
         <Section title="Transfer">
           <Row
             label="Fee"
-            value={
-              promo
-                ? `${formatAmount(
-                    transfer.fee,
-                    source.currency_code,
-                    source.currency_symbol,
-                  )} (after ${formatPromoDiscount(promo.discount_percentage)} off)`
-                : formatAmount(
-                    transfer.fee,
-                    source.currency_code,
-                    source.currency_symbol,
-                  )
-            }
+            value={formatAmount(
+              transfer.fee,
+              source.currency_code,
+              source.currency_symbol,
+            )}
           />
           {promo ? (
             <Row
               label="Promo"
-              value={`${promo.code} · ${formatPromoDiscount(promo.discount_percentage)} off`}
+              value={`${promo.code} · ${formatPromoDiscount(promo.discount_percentage)} off send amount`}
             />
           ) : null}
           <Row

@@ -21,6 +21,7 @@ type CreateTransferResponse = {
   transfer_id: string;
   reference: string;
   expires_in: number;
+  amount_paid?: string;
   promo_code?: PreviewPromoCode;
 };
 

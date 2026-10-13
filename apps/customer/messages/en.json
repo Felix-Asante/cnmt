@@ -166,7 +166,7 @@
       "destination": "Destination",
       "note": "Special instructions",
       "promoCode": "Promo code",
-      "promoOffFee": "{discount} off the fee",
+      "promoOffFee": "{discount} off",
       "continuePayment": "Continue payment",
       "sendAnother": "Send another transfer",
       "backHome": "Back home",
@@ -184,9 +184,9 @@
       "route": "Route",
       "exchangeRate": "Exchange rate",
       "promo": "Promo",
-      "promoSummary": "{code} · {discount} off fee",
+      "promoSummary": "{code} · {discount} off",
       "submitted": "Submitted",
-      "feesIncludedPromo": "Fees included · {discount} promo off the fee"
+      "feesIncludedPromo": "Fees included · {discount} promo off"
     }
   },
   "Transfer": {
@@ -285,14 +285,14 @@
       "payout": "Payout",
       "note": "Instructions",
       "promo": "Promo",
-      "promoValue": "{code} · {discount} off fee",
+      "promoValue": "{code} · {discount} off",
       "extraFee": "Extra fee (instant transfer)",
       "youSend": "You send",
       "recipientGets": "Recipient gets",
       "rate": "Rate",
       "estimatedCompletion": "Within 30 minutes after payment verification",
       "feesIncluded": "Fees included · {notes}",
-      "promoOffFee": "{discount} promo off the fee",
+      "promoOffFee": "{discount} promo off",
       "extraFeeNote": "+{amount} extra fee",
       "mobileMoney": "Mobile money",
       "bankTransfer": "Bank transfer"
@@ -343,8 +343,8 @@
     },
     "Promo": {
       "label": "Promo code",
-      "description": "Optional. Apply a valid code to reduce the transfer fee.",
-      "applied": "{code} applied · {discount} off the fee",
+      "description": "Optional. Apply a valid code to reduce what you pay.",
+      "applied": "{code} applied · {discount} off",
       "placeholder": "SAVE10",
       "remove": "Remove",
       "apply": "Apply",

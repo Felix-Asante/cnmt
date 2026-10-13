@@ -22,6 +22,8 @@ import type { TransferFormValues } from "../schema";
 type PaymentStepProps = {
   form: UseFormReturn<TransferFormValues>;
   reference: string;
+  /** Final amount the sender must pay (after promo on principal). */
+  amountToPay: number;
   selectedAccountId: string;
   onSelectAccount: (accountId: string) => void;
 };
@@ -29,11 +31,11 @@ type PaymentStepProps = {
 export function PaymentStep({
   form,
   reference,
+  amountToPay,
   selectedAccountId,
   onSelectAccount,
 }: PaymentStepProps) {
   const t = useTranslations("NewTransfer.Payment");
-  const amount = form.watch("sendAmount");
   const currency = form.watch("sendCurrency");
   const countryId = form.watch("senderCountryCode");
 
@@ -88,10 +90,9 @@ export function PaymentStep({
     activeGroup?.accounts.find((account) => account.id === selectedAccountId) ??
     activeGroup?.accounts[0];
 
-  const parsedAmount = Number(amount);
   const displayAmount =
-    amount && Number.isFinite(parsedAmount) && parsedAmount > 0
-      ? formatMoney(parsedAmount, currency)
+    Number.isFinite(amountToPay) && amountToPay > 0
+      ? formatMoney(amountToPay, currency)
       : `— ${currency.trim() || "—"}`;
 
   function methodLabel(method: ReceivingMethod) {
