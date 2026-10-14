@@ -12,7 +12,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
-import Head from "next/head";
 
 const display = Barlow_Condensed({
   variable: "--font-display-family",
@@ -31,9 +30,19 @@ export function generateStaticParams() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Metadata");
+  const facebookDomainVerification =
+    process.env.FACEBOOK_DOMAIN_VERIFICATION?.trim();
+
   return {
     title: t("title"),
     description: t("description"),
+    ...(facebookDomainVerification
+      ? {
+          other: {
+            "facebook-domain-verification": facebookDomainVerification,
+          },
+        }
+      : {}),
   };
 }
 
@@ -55,12 +64,6 @@ export default async function RootLayout({
       lang={locale}
       className={`${display.variable} ${sans.variable} h-full antialiased`}
     >
-      <Head>
-        <meta
-          name="facebook-domain-verification"
-          content="kmrvdvqvqnuwiqc8jv9fa3q6mnk9yl"
-        />
-      </Head>
       <body className="flex min-h-full flex-col font-sans">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteHeader />
