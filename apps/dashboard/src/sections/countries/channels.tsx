@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@repo/ui/select";
 import { toast } from "@repo/ui/toast";
+import { isIbanChannelName } from "@repo/utils/iban";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { getErrorMessage } from "@/utils/request";
 import {
@@ -74,7 +75,9 @@ export function CountryChannels({
           <h2 className="text-sm font-semibold text-navy">Payment channels</h2>
           <p className="mt-1 text-sm text-muted">
             Banks and mobile money networks available for this country. Optional
-            extra fees are added on top of the corridor fee.
+            extra fees are added on top of the corridor fee. Name a bank channel{" "}
+            <span className="font-medium text-navy">IBAN</span> to enable
+            Europe IBAN payouts.
           </p>
         </div>
         {!adding ? (
@@ -135,6 +138,9 @@ export function CountryChannels({
         <ul className="divide-y divide-border border border-border">
           {channels.map((channel) => {
             const extraFee = formatExtraFee(channel.extra_fee);
+            const isIban =
+              channel.channel_type === "BANK" &&
+              isIbanChannelName(channel.name);
             return (
               <li key={channel.id} className="p-4">
                 {editingId === channel.id ? (
@@ -168,6 +174,9 @@ export function CountryChannels({
                         <Badge variant="neutral">
                           {channelTypeLabel(channel.channel_type)}
                         </Badge>
+                        {isIban ? (
+                          <Badge variant="neutral">IBAN payout</Badge>
+                        ) : null}
                         <Badge
                           variant={channel.is_active ? "success" : "neutral"}
                         >
@@ -281,7 +290,7 @@ function ChannelForm({
         <Input
           {...form.register("name")}
           id={`channel-${formId}-name`}
-          placeholder="e.g. MTN, Ecobank"
+          placeholder="e.g. MTN, Ecobank, IBAN"
           autoComplete="off"
         />
       </Field>

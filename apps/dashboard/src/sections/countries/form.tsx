@@ -261,7 +261,7 @@ function ChannelsStep({
             >
               <Input
                 {...form.register(`payment_channels.${index}.name`)}
-                placeholder="e.g. MTN, Ecobank"
+                placeholder="e.g. MTN, Ecobank, IBAN"
                 autoComplete="off"
               />
             </Field>

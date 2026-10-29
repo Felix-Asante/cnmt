@@ -37,3 +37,11 @@ yarn-error.log*
 .DS_Store
 *.pem
 .cursor
+
+# Brag / Hyperframes video output
+brag-output/
+brag-output-*/
+
+# Client marketing kit deliverables
+marketing-kit/
+marketing-kit-*/

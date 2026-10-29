@@ -295,7 +295,8 @@
       "promoOffFee": "promo {discount}",
       "extraFeeNote": "+{amount} de frais supplémentaires",
       "mobileMoney": "Mobile money",
-      "bankTransfer": "Virement bancaire"
+      "bankTransfer": "Virement bancaire",
+      "ibanTransfer": "Virement IBAN"
     },
     "Transfer": {
       "title": "Envoyez de l’argent à l’étranger",
@@ -316,6 +317,7 @@
       "title": "Coordonnées du bénéficiaire",
       "descriptionMobile": "Ajoutez votre WhatsApp pour les mises à jour, puis les informations pour un versement mobile money.",
       "descriptionBank": "Ajoutez votre WhatsApp pour les mises à jour, puis les informations pour un virement bancaire.",
+      "descriptionIban": "Ajoutez votre WhatsApp pour les mises à jour, puis le nom du titulaire et l’IBAN pour un virement bancaire européen.",
       "sendAgain": "Renvoyer",
       "select": "Sélectionner",
       "whatsappLabel": "Votre numéro WhatsApp",
@@ -327,6 +329,7 @@
       "payoutMethod": "Mode de réception",
       "mobileMoney": "Mobile money",
       "bankTransfer": "Virement bancaire",
+      "ibanTransfer": "Virement IBAN",
       "network": "Réseau",
       "chooseNetwork": "Choisir un réseau",
       "mobileNumber": "Numéro mobile money",
@@ -337,6 +340,9 @@
       "accountHolderName": "Nom du titulaire du compte",
       "accountNumber": "Numéro de compte",
       "accountNumberPlaceholder": "0123456789",
+      "iban": "IBAN",
+      "ibanDescription": "Numéro de compte bancaire international. Les espaces sont acceptés.",
+      "ibanPlaceholder": "DE89 3704 0044 0532 0130 00",
       "noteLabel": "Instructions particulières",
       "noteDescription": "Facultatif. Ajoutez une référence de versement ou une note.",
       "notePlaceholder": "ex. Réf. cotisation de groupe : AMA-042"
@@ -449,6 +455,8 @@
       "bankAccountNumberRequired": "Saisissez un numéro de compte valide.",
       "bankAccountNumberInvalid": "Utilisez uniquement des lettres et des chiffres.",
       "bankAccountNumberMax": "Le numéro de compte est trop long.",
+      "ibanRequired": "Saisissez l’IBAN du bénéficiaire.",
+      "ibanInvalid": "Saisissez un IBAN valide.",
       "noteMax": "La note ne doit pas dépasser 160 caractères.",
       "promoCodeMax": "Le code promo est trop long.",
       "proofRequired": "Téléversez une preuve de paiement pour continuer.",

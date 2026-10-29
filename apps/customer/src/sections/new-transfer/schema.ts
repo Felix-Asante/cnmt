@@ -4,9 +4,11 @@ import {
   isAllowedMimeType,
   PAYMENT_PROOF_UPLOAD,
 } from "@repo/utils/file";
+import { isValidIban, normalizeIban } from "@repo/utils/iban";
 import { validatePhoneNumber } from "@repo/utils/phone";
 
 const receivingMethodSchema = z.enum(["mobile_money", "bank"]);
+const bankPayoutKindSchema = z.enum(["local", "iban"]);
 
 export type ValidationMessageKey =
   | "senderCountryRequired"
@@ -26,6 +28,8 @@ export type ValidationMessageKey =
   | "bankAccountNumberRequired"
   | "bankAccountNumberInvalid"
   | "bankAccountNumberMax"
+  | "ibanRequired"
+  | "ibanInvalid"
   | "noteMax"
   | "promoCodeMax"
   | "proofRequired"
@@ -55,6 +59,7 @@ export function createTransferRequestPayloadSchema(t: ValidationTranslator) {
         .max(80, t("recipientNameMax")),
       recipientPhone: z.string().trim().max(20, t("recipientPhoneMax")),
       receivingMethod: receivingMethodSchema,
+      bankPayoutKind: bankPayoutKindSchema.default("local"),
       network: z.string().optional(),
       bank: z.string().optional(),
       bankAccountName: z.string().trim().max(80, t("bankAccountNameMax")),
@@ -62,6 +67,7 @@ export function createTransferRequestPayloadSchema(t: ValidationTranslator) {
         .string()
         .trim()
         .max(34, t("bankAccountNumberMax")),
+      iban: z.string().trim().max(42).optional().or(z.literal("")),
       note: z.string().max(160, t("noteMax")).optional(),
       promoCode: z
         .string()
@@ -100,19 +106,37 @@ export function createTransferRequestPayloadSchema(t: ValidationTranslator) {
         return;
       }
 
-      if (!data.bank || !isUuid(data.bank)) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["bank"],
-          message: t("bankRequired"),
-        });
-      }
-
       if (data.bankAccountName.trim().length < 2) {
         ctx.addIssue({
           code: "custom",
           path: ["bankAccountName"],
           message: t("bankAccountNameRequired"),
+        });
+      }
+
+      if (data.bankPayoutKind === "iban") {
+        const iban = normalizeIban(data.iban ?? "");
+        if (!iban) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["iban"],
+            message: t("ibanRequired"),
+          });
+        } else if (!isValidIban(iban)) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["iban"],
+            message: t("ibanInvalid"),
+          });
+        }
+        return;
+      }
+
+      if (!data.bank || !isUuid(data.bank)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["bank"],
+          message: t("bankRequired"),
         });
       }
 
@@ -163,7 +187,6 @@ export function createProofSchema(t: ValidationTranslator) {
   });
 }
 
-/** English fallback for server-side structural checks (errors are not shown). */
 const serverMessages: ValidationTranslator = (key) => key;
 
 export const transferRequestPayloadSchema =
@@ -185,10 +208,12 @@ export const defaultTransferValues: TransferFormValues = {
   recipientName: "",
   recipientPhone: "",
   receivingMethod: "mobile_money",
+  bankPayoutKind: "local",
   network: "",
   bank: "",
   bankAccountName: "",
   bankAccountNumber: "",
+  iban: "",
   note: "",
   promoCode: "",
   proofFile: null,
@@ -202,10 +227,12 @@ export const stepFieldMap = [
     "recipientName",
     "recipientPhone",
     "receivingMethod",
+    "bankPayoutKind",
     "network",
     "bank",
     "bankAccountName",
     "bankAccountNumber",
+    "iban",
   ],
   [],
   [],
