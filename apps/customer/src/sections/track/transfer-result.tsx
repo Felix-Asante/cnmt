@@ -8,6 +8,7 @@ import { InformationBanner } from "@repo/ui/information-banner";
 import { Timeline } from "@repo/ui/timeline";
 import { TransferSummary } from "@repo/ui/transfer-summary";
 import { toast } from "@repo/ui/toast";
+import { isIbanChannelName, maskIban } from "@repo/utils/iban";
 import {
   formatAmount,
   formatExchangeRate,
@@ -36,6 +37,16 @@ type TransferResultProps = {
 function recipientDestination(transfer: Transfer) {
   const { recipient } = transfer;
   if (recipient.receiving_method === "BANK") {
+    if (isIbanChannelName(recipient.bank_name)) {
+      return [
+        "IBAN",
+        recipient.account_number
+          ? maskIban(recipient.account_number)
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+    }
     return [recipient.bank_name, recipient.account_number]
       .filter(Boolean)
       .join(" · ");

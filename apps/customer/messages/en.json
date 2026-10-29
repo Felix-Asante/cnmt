@@ -295,7 +295,8 @@
       "promoOffFee": "{discount} promo off",
       "extraFeeNote": "+{amount} extra fee",
       "mobileMoney": "Mobile money",
-      "bankTransfer": "Bank transfer"
+      "bankTransfer": "Bank transfer",
+      "ibanTransfer": "IBAN transfer"
     },
     "Transfer": {
       "title": "Send money abroad",
@@ -316,6 +317,7 @@
       "title": "Recipient details",
       "descriptionMobile": "Add your WhatsApp for updates, then the details for their mobile money payout.",
       "descriptionBank": "Add your WhatsApp for updates, then the details for their bank payout.",
+      "descriptionIban": "Add your WhatsApp for updates, then the account holder name and IBAN for their European bank payout.",
       "sendAgain": "Send again",
       "select": "Select",
       "whatsappLabel": "Your WhatsApp number",
@@ -327,6 +329,7 @@
       "payoutMethod": "Payout method",
       "mobileMoney": "Mobile money",
       "bankTransfer": "Bank transfer",
+      "ibanTransfer": "IBAN transfer",
       "network": "Network",
       "chooseNetwork": "Choose network",
       "mobileNumber": "Mobile money number",
@@ -337,6 +340,9 @@
       "accountHolderName": "Account holder name",
       "accountNumber": "Account number",
       "accountNumberPlaceholder": "0123456789",
+      "iban": "IBAN",
+      "ibanDescription": "International bank account number. Spaces are fine.",
+      "ibanPlaceholder": "DE89 3704 0044 0532 0130 00",
       "noteLabel": "Special instructions",
       "noteDescription": "Optional. Add a payout reference or note.",
       "notePlaceholder": "e.g. Group contribution ref: AMA-042"
@@ -449,6 +455,8 @@
       "bankAccountNumberRequired": "Enter a valid account number.",
       "bankAccountNumberInvalid": "Use letters and numbers only.",
       "bankAccountNumberMax": "Account number is too long.",
+      "ibanRequired": "Enter the recipient’s IBAN.",
+      "ibanInvalid": "Enter a valid IBAN.",
       "noteMax": "Note must be 160 characters or fewer.",
       "promoCodeMax": "Promo code is too long.",
       "proofRequired": "Upload a payment proof to continue.",

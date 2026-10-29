@@ -1,4 +1,4 @@
-import type { ReceivingMethod } from "./constants";
+import type { BankPayoutKind, ReceivingMethod } from "./constants";
 
 const CORRIDORS_KEY = "cnmt.recent-corridors";
 const RECIPIENTS_KEY = "cnmt.saved-recipients";
@@ -13,10 +13,12 @@ export type SavedRecipient = {
   name: string;
   phone: string;
   receivingMethod: ReceivingMethod;
+  bankPayoutKind?: BankPayoutKind;
   network?: string;
   bank?: string;
   bankAccountName?: string;
   bankAccountNumber?: string;
+  iban?: string;
   senderCountryCode: string;
   recipientCountryCode: string;
   sendCurrency: string;
@@ -45,11 +47,12 @@ function writeJson<T>(key: string, value: T) {
 function recipientKey(
   recipient: Pick<
     SavedRecipient,
-    "phone" | "bankAccountNumber" | "recipientCountryCode" | "name"
+    "phone" | "bankAccountNumber" | "iban" | "recipientCountryCode" | "name"
   >,
 ) {
   const identity =
     recipient.phone ||
+    recipient.iban ||
     recipient.bankAccountNumber ||
     recipient.name.toLowerCase();
   return `${identity}-${recipient.recipientCountryCode}`;

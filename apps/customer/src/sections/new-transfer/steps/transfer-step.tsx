@@ -13,6 +13,8 @@ import {
   getSenderCountry,
   getTransferQuote,
   receiveAmountFromSend,
+  bankPayoutKindFor,
+  selectableBanks,
   sendAmountFromReceive,
   toAmountInputValue,
 } from "../constants";
@@ -129,7 +131,9 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
     if (recipientCountry) {
       const method =
         recipientCountry.mobile_networks.length > 0 ? "mobile_money" : "bank";
+      const bankKind = bankPayoutKindFor(recipientCountry);
       form.setValue("receivingMethod", method, { shouldDirty: true });
+      form.setValue("bankPayoutKind", bankKind, { shouldDirty: true });
       form.setValue(
         "network",
         method === "mobile_money"
@@ -139,9 +143,15 @@ export function TransferStep({ form, transferOptions }: TransferStepProps) {
       );
       form.setValue(
         "bank",
-        method === "bank" ? itemId(recipientCountry.banks[0]) : "",
+        method === "bank" && bankKind === "local"
+          ? itemId(selectableBanks(recipientCountry)[0])
+          : "",
         { shouldDirty: true },
       );
+      form.setValue("iban", "", { shouldDirty: true });
+      if (bankKind !== "local") {
+        form.setValue("bankAccountNumber", "", { shouldDirty: true });
+      }
     }
   }
 

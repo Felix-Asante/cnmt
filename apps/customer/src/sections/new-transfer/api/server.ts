@@ -4,6 +4,7 @@ import { API_ENDPOINTS } from "@/constants/endpoints";
 import { cleanDeep } from "@/utils/clean-deep";
 import { isUuid } from "@/utils/id";
 import { validatePhoneNumber } from "@repo/utils/phone";
+import { normalizeIban } from "@repo/utils/iban";
 import { request } from "@/utils/request";
 import type { PaymentAccount, PreviewPromoCode, TransferOptions } from "@repo/types";
 import {
@@ -95,10 +96,15 @@ export const createTransfer = async (
     const senderPhone = senderRes.normalized;
 
     const isBank = data.receivingMethod === "bank";
+    const isIbanPayout = isBank && data.bankPayoutKind === "iban";
     let recipientPhone: string | undefined = undefined;
 
     if (isBank) {
-      if (!data.bank || !isUuid(data.bank)) {
+      if (isIbanPayout) {
+        if (!normalizeIban(data.iban ?? "")) {
+          throw new Error("Invalid transfer data");
+        }
+      } else if (!data.bank || !isUuid(data.bank)) {
         throw new Error("Invalid transfer data");
       }
     } else {
@@ -122,8 +128,10 @@ export const createTransfer = async (
           ? data.bankAccountName.trim()
           : data.recipientName.trim(),
         receiving_method: isBank ? "BANK" : "MOBILE_MONEY",
-        bank_id: isBank ? data.bank : undefined,
-        account_number: isBank ? data.bankAccountNumber : undefined,
+        bank_id: isBank && !isIbanPayout ? data.bank : undefined,
+        account_number:
+          isBank && !isIbanPayout ? data.bankAccountNumber : undefined,
+        iban: isIbanPayout ? normalizeIban(data.iban ?? "") : undefined,
         receiving_network_id: isBank ? undefined : data.network,
         recipient_phone: isBank ? undefined : recipientPhone,
       },

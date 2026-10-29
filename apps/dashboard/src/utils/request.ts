@@ -63,6 +63,10 @@ export async function request<T>({
   if (!res.ok) {
     if (res.status === 401) {
       clearAuth();
+      // Route guards only run on navigation; bounce home if still in-app.
+      if (window.location.pathname !== "/") {
+        window.location.assign("/");
+      }
     }
     throw new ApiError(readErrorMessage(data, res.status), res.status);
   }

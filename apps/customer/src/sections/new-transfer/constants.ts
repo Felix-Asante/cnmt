@@ -3,9 +3,15 @@ import type {
   TransferDestinationCountry,
   TransferSourceCountry,
 } from "@repo/types";
+import {
+  destinationSupportsIban,
+  getIbanChannel,
+  localBankChannels,
+} from "@repo/utils/iban";
 import { formatMoney } from "@repo/utils/money";
 
 export type ReceivingMethod = "mobile_money" | "bank";
+export type BankPayoutKind = "local" | "iban";
 
 export const REQUEST_STEP_IDS = ["transfer", "recipient"] as const;
 export const FULFILLMENT_STEP_IDS = ["payment", "upload", "done"] as const;
@@ -145,7 +151,6 @@ export function applyPromoDiscount(
   return Math.max(Math.round((amount - discount) * 100) / 100, 0);
 }
 
-/** Channel extra fee from transfer options (0 when unset / invalid). */
 export function getChannelExtraFee(
   channels: TransferCountryPaymentChannel[] | undefined,
   channelId: string | undefined,
@@ -177,4 +182,25 @@ export function channelOptionLabel(
   const extra = getChannelExtraFee([channel], channel.id);
   if (!extra) return channel.name;
   return `${channel.name} · +${formatMoney(extra, currencyCode)}`;
+}
+
+export function selectableBanks(
+  country: Pick<TransferDestinationCountry, "banks"> | null | undefined,
+) {
+  return localBankChannels(country?.banks);
+}
+
+export function bankPayoutKindFor(
+  country: Pick<TransferDestinationCountry, "banks"> | null | undefined,
+): BankPayoutKind {
+  return destinationSupportsIban(country?.banks) ? "iban" : "local";
+}
+
+export function bankChannelIdForFee(
+  country: Pick<TransferDestinationCountry, "banks"> | null | undefined,
+  bankId: string | undefined,
+  kind: BankPayoutKind | undefined,
+) {
+  if (kind === "iban") return getIbanChannel(country?.banks)?.id;
+  return bankId;
 }

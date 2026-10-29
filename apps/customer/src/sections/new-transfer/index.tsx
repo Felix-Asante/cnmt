@@ -19,8 +19,10 @@ import {
   getSenderCountry,
   applyPromoDiscount,
   getTransferQuote,
+  bankChannelIdForFee,
   resolveTransferFee,
 } from "./constants";
+import { formatIbanDisplay, maskIban } from "@repo/utils/iban";
 import { formatMoney } from "@repo/utils/money";
 import { itemName } from "@repo/utils/lookup";
 import { formatPromoDiscount } from "@/utils/transfer";
@@ -135,7 +137,9 @@ export default function NewTransfer({
     transferOptions.destinations,
   );
   const selectedChannelId =
-    values.receivingMethod === "bank" ? values.bank : values.network;
+    values.receivingMethod === "bank"
+      ? bankChannelIdForFee(recipient, values.bank, values.bankPayoutKind)
+      : values.network;
   const selectedChannels =
     values.receivingMethod === "bank"
       ? recipient?.banks
@@ -178,16 +182,27 @@ export default function NewTransfer({
       : Math.max(step - 3, 0);
 
   const summaryItems = useMemo(() => {
+    const isIban = values.bankPayoutKind === "iban";
     const channelNameValue =
       values.receivingMethod === "mobile_money"
         ? itemName(recipient?.mobile_networks ?? [], values.network)
-        : itemName(recipient?.banks ?? [], values.bank);
+        : isIban
+          ? t("summary.ibanTransfer")
+          : itemName(recipient?.banks ?? [], values.bank);
     const payoutDetail =
       values.receivingMethod === "mobile_money"
         ? channelNameValue || t("summary.mobileMoney")
-        : [channelNameValue, values.bankAccountNumber]
+        : [
+            channelNameValue,
+            isIban
+              ? values.iban
+                ? maskIban(values.iban)
+                : null
+              : values.bankAccountNumber,
+          ]
             .filter(Boolean)
-            .join(" · ") || t("summary.bankTransfer");
+            .join(" · ") ||
+          (isIban ? t("summary.ibanTransfer") : t("summary.bankTransfer"));
 
     return [
       {
@@ -440,10 +455,14 @@ export default function NewTransfer({
         name: requestValues.recipientName,
         phone: requestValues.recipientPhone,
         receivingMethod: requestValues.receivingMethod,
+        bankPayoutKind: requestValues.bankPayoutKind,
         network: requestValues.network,
         bank: requestValues.bank,
         bankAccountName: requestValues.bankAccountName,
         bankAccountNumber: requestValues.bankAccountNumber,
+        iban: requestValues.iban
+          ? formatIbanDisplay(requestValues.iban)
+          : "",
         senderCountryCode: requestValues.senderCountryCode,
         recipientCountryCode: requestValues.recipientCountryCode,
         sendCurrency: requestValues.sendCurrency,

@@ -18,10 +18,13 @@ import {
 } from "@repo/ui/select";
 import { cn } from "@/lib/utils";
 import {
+  bankPayoutKindFor,
   channelOptionLabel,
   getRecipientCountry,
   getSenderCountry,
+  selectableBanks,
 } from "../constants";
+import { formatIbanDisplay, maskIban } from "@repo/utils/iban";
 import { itemId, itemName } from "@repo/utils/lookup";
 import { getSavedRecipients, type SavedRecipient } from "../memory";
 import type { TransferFormValues } from "../schema";
@@ -101,6 +104,10 @@ export function RecipientStep({
   );
   const senderCountry = getSenderCountry(senderCode, transferOptions.sources);
   const method = useWatch({ control: form.control, name: "receivingMethod" });
+  const bankPayoutKind = useWatch({
+    control: form.control,
+    name: "bankPayoutKind",
+  });
   const network = useWatch({ control: form.control, name: "network" });
   const bank = useWatch({ control: form.control, name: "bank" });
   const recipientName = useWatch({
@@ -109,6 +116,8 @@ export function RecipientStep({
   });
   const errors = form.formState.errors;
   const isMobileMoney = method === "mobile_money";
+  const isIbanPayout = method === "bank" && bankPayoutKind === "iban";
+  const localBanks = selectableBanks(country);
 
   useEffect(() => {
     setSaved(getSavedRecipients());
@@ -121,6 +130,11 @@ export function RecipientStep({
     if (country.mobile_networks.length > 0) methods.push("mobile_money");
     if (country.banks.length > 0) methods.push("bank");
     setPaymentChannels(methods);
+
+    const nextKind = bankPayoutKindFor(country);
+    if (nextKind !== bankPayoutKind) {
+      form.setValue("bankPayoutKind", nextKind, { shouldDirty: true });
+    }
 
     const nextMethod =
       method === "mobile_money" && !methods.includes("mobile_money")
@@ -142,11 +156,22 @@ export function RecipientStep({
       return;
     }
 
-    const ids = country.banks.map((item) => item.id);
-    if (ids[0] && !ids.includes(bank ?? "")) {
-      form.setValue("bank", ids[0]);
+    if (nextKind === "iban") {
+      if (bank) form.setValue("bank", "", { shouldDirty: true });
+      if (form.getValues("bankAccountNumber")) {
+        form.setValue("bankAccountNumber", "", { shouldDirty: true });
+      }
+      return;
     }
-  }, [bank, country, form, method, network]);
+
+    const bankIds = selectableBanks(country).map((item) => item.id);
+    if (bankIds[0] && !bankIds.includes(bank ?? "")) {
+      form.setValue("bank", bankIds[0]);
+    }
+    if (form.getValues("iban")) {
+      form.setValue("iban", "", { shouldDirty: true });
+    }
+  }, [bank, bankPayoutKind, country, form, method, network]);
 
   function applySaved(recipient: SavedRecipient) {
     form.setValue("senderCountryCode", recipient.senderCountryCode, {
@@ -181,6 +206,18 @@ export function RecipientStep({
       shouldDirty: true,
       shouldValidate: true,
     });
+    form.setValue(
+      "bankPayoutKind",
+      recipient.bankPayoutKind ??
+        bankPayoutKindFor(
+          getRecipientCountry(
+            recipient.recipientCountryCode,
+            recipient.senderCountryCode,
+            transferOptions.destinations,
+          ),
+        ),
+      { shouldDirty: true, shouldValidate: true },
+    );
     form.setValue("bankAccountName", recipient.bankAccountName ?? "", {
       shouldDirty: true,
       shouldValidate: true,
@@ -189,13 +226,19 @@ export function RecipientStep({
       shouldDirty: true,
       shouldValidate: true,
     });
+    form.setValue("iban", recipient.iban ?? "", {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   }
 
   function setMethod(next: "mobile_money" | "bank") {
+    const nextKind = bankPayoutKindFor(country);
     form.setValue("receivingMethod", next, {
       shouldValidate: true,
       shouldDirty: true,
     });
+    form.setValue("bankPayoutKind", nextKind, { shouldDirty: true });
 
     if (next === "mobile_money") {
       form.setValue("network", itemId(country?.mobile_networks[0]), {
@@ -205,16 +248,23 @@ export function RecipientStep({
       form.setValue("bank", "", { shouldDirty: true });
       form.setValue("bankAccountName", "", { shouldDirty: true });
       form.setValue("bankAccountNumber", "", { shouldDirty: true });
+      form.setValue("iban", "", { shouldDirty: true });
       return;
     }
 
     form.setValue("network", "", { shouldDirty: true });
     form.setValue("recipientPhone", "", { shouldDirty: true });
     form.clearErrors("recipientPhone");
-    form.setValue("bank", itemId(country?.banks[0]), {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
+    if (nextKind === "iban") {
+      form.setValue("bank", "", { shouldDirty: true });
+      form.setValue("bankAccountNumber", "", { shouldDirty: true });
+    } else {
+      form.setValue("bank", itemId(selectableBanks(country)[0]), {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      form.setValue("iban", "", { shouldDirty: true });
+    }
     if (!form.getValues("bankAccountName") && recipientName) {
       form.setValue("bankAccountName", recipientName, { shouldDirty: true });
     }
@@ -234,7 +284,11 @@ export function RecipientStep({
           {t("title")}
         </h1>
         <p className="text-[15px] leading-relaxed text-muted">
-          {isMobileMoney ? t("descriptionMobile") : t("descriptionBank")}
+          {isMobileMoney
+            ? t("descriptionMobile")
+            : isIbanPayout
+              ? t("descriptionIban")
+              : t("descriptionBank")}
         </p>
       </header>
 
@@ -257,14 +311,18 @@ export function RecipientStep({
                   </span>
                   <span className="block truncate text-xs text-muted">
                     {recipient.receivingMethod === "bank"
-                      ? [
-                          itemName(country.banks, recipient.bank),
-                          recipient.bankAccountNumber
-                            ? `••••${recipient.bankAccountNumber.slice(-4)}`
-                            : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")
+                      ? recipient.iban
+                        ? [t("ibanTransfer"), maskIban(recipient.iban)]
+                            .filter(Boolean)
+                            .join(" · ")
+                        : [
+                            itemName(country.banks, recipient.bank),
+                            recipient.bankAccountNumber
+                              ? `••••${recipient.bankAccountNumber.slice(-4)}`
+                              : null,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")
                       : [
                           recipient.phone,
                           itemName(
@@ -349,7 +407,11 @@ export function RecipientStep({
           <div className="grid grid-cols-2 border border-border p-1">
             {paymentChannels.map((item) => {
               const label =
-                item === "mobile_money" ? t("mobileMoney") : t("bankTransfer");
+                item === "mobile_money"
+                  ? t("mobileMoney")
+                  : bankPayoutKindFor(country) === "iban"
+                    ? t("ibanTransfer")
+                    : t("bankTransfer");
               const selected = method === item;
               return (
                 <button
@@ -430,6 +492,48 @@ export function RecipientStep({
               />
             </Field>
           </>
+        ) : isIbanPayout ? (
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field
+              label={t("accountHolderName")}
+              htmlFor="bankAccountName"
+              required
+              error={errors.bankAccountName?.message}
+            >
+              <Input
+                {...form.register("bankAccountName")}
+                placeholder={t("fullNamePlaceholder")}
+                autoComplete="name"
+              />
+            </Field>
+
+            <Field
+              label={t("iban")}
+              htmlFor="iban"
+              required
+              description={t("ibanDescription")}
+              error={errors.iban?.message}
+            >
+              <Input
+                {...form.register("iban", {
+                  onChange: (event) => {
+                    const formatted = formatIbanDisplay(event.target.value);
+                    if (formatted !== event.target.value) {
+                      form.setValue("iban", formatted, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                    }
+                  },
+                })}
+                placeholder={t("ibanPlaceholder")}
+                autoComplete="off"
+                spellCheck={false}
+                autoCapitalize="characters"
+                className="font-mono tracking-wide uppercase"
+              />
+            </Field>
+          </div>
         ) : (
           <>
             <SelectField
@@ -454,7 +558,7 @@ export function RecipientStep({
                   <SelectValue placeholder={t("chooseBank")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {country.banks.map((item) => (
+                  {localBanks.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {channelOptionLabel(item, country.currency_code)}
                     </SelectItem>

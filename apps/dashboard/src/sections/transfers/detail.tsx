@@ -4,6 +4,7 @@ import { ExternalLink } from "lucide-react";
 import { TransferStatus, type Transfer, type TransferEvent } from "@repo/types";
 import { Button } from "@repo/ui/button";
 import { InformationBanner } from "@repo/ui/information-banner";
+import { formatIbanDisplay, isIbanChannelName } from "@repo/utils/iban";
 import {
   formatAmount,
   formatDateTime,
@@ -35,6 +36,9 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
   const expired =
     transfer.status === TransferStatus.PENDING_PAYMENT &&
     new Date(transfer.expires_at).getTime() < Date.now();
+  const isIbanPayout =
+    transfer.recipient.receiving_method === "BANK" &&
+    isIbanChannelName(transfer.recipient.bank_name);
   const payoutChannel =
     transfer.recipient.receiving_method === "BANK"
       ? transfer.recipient.bank_name
@@ -166,7 +170,7 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
             label="Method"
             value={receivingMethodLabel(transfer.recipient.receiving_method)}
           />
-          {payoutChannel ? (
+          {payoutChannel && !isIbanPayout ? (
             <Row
               label={
                 transfer.recipient.receiving_method === "BANK"
@@ -178,8 +182,12 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
           ) : null}
           {transfer.recipient.account_number ? (
             <Row
-              label="Account number"
-              value={transfer.recipient.account_number}
+              label={isIbanPayout ? "IBAN" : "Account number"}
+              value={
+                isIbanPayout
+                  ? formatIbanDisplay(transfer.recipient.account_number)
+                  : transfer.recipient.account_number
+              }
             />
           ) : null}
           {transfer.recipient.phone ? (
