@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>C.N Connect — Customer Brag</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Schibsted+Grotesk:wght@400;500;600&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #ffffff;
+        font-family: "Schibsted Grotesk", sans-serif;
+        color: #0a1a2f;
+      }
+      .scene,
+      .clip {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      .scene-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 96px 140px;
+        gap: 28px;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 2;
+      }
+      .bg {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 80% 60% at 0% 0%,
+            rgb(253 232 233 / 0.9),
+            transparent 52%
+          ),
+          radial-gradient(
+            ellipse 60% 50% at 100% 0%,
+            rgb(232 237 244 / 0.95),
+            transparent 48%
+          ),
+          linear-gradient(180deg, #ffffff 40%, #f7f8fa 100%);
+      }
+      .glow {
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(48px);
+        pointer-events: none;
+      }
+      .glow-brand {
+        width: 520px;
+        height: 420px;
+        top: -80px;
+        left: -40px;
+        background: rgb(208 16 24 / 0.16);
+      }
+      .glow-navy {
+        width: 480px;
+        height: 380px;
+        right: -60px;
+        bottom: -40px;
+        background: rgb(10 26 47 / 0.1);
+      }
+      .eyebrow {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #d01018;
+      }
+      .display {
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.01em;
+        line-height: 0.96;
+        color: #0a1a2f;
+      }
+      .display-xl {
+        font-size: 148px;
+      }
+      .display-lg {
+        font-size: 108px;
+      }
+      .display-md {
+        font-size: 72px;
+      }
+      .accent {
+        color: #d01018;
+      }
+      .body {
+        font-size: 34px;
+        line-height: 1.45;
+        color: #5a6577;
+        max-width: 920px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 28px;
+        border: 1px solid #e2e6ee;
+        background: #ffffff;
+        border-radius: 999px;
+        box-shadow: 0 18px 40px rgb(10 26 47 / 0.1);
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: #0a1a2f;
+        width: fit-content;
+      }
+      .flag {
+        font-size: 30px;
+        line-height: 1;
+      }
+      .card {
+        width: 760px;
+        border: 1px solid #e2e6ee;
+        background: #ffffff;
+        padding: 36px 40px;
+        box-shadow: 0 28px 60px rgb(10 26 47 / 0.12);
+      }
+      .card-title {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #5a6577;
+        margin-bottom: 28px;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 24px;
+        padding: 16px 0;
+        border-top: 1px solid #eef1f5;
+      }
+      .row:first-of-type {
+        border-top: none;
+        padding-top: 0;
+      }
+      .row-label {
+        font-size: 26px;
+        color: #5a6577;
+      }
+      .row-value {
+        font-size: 34px;
+        font-weight: 600;
+        color: #0a1a2f;
+      }
+      .row-value.emphasis {
+        font-size: 42px;
+        font-weight: 700;
+        color: #0a1a2f;
+      }
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        height: 72px;
+        padding: 0 36px;
+        background: #d01018;
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 600;
+        width: fit-content;
+      }
+      .mark {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+      .mark-badge {
+        width: 64px;
+        height: 64px;
+        background: #d01018;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 800;
+        font-size: 28px;
+        letter-spacing: 0.06em;
+      }
+      .mark-name {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #0a1a2f;
+      }
+      .timeline {
+        width: 820px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 20px 24px;
+        border: 1px solid #e2e6ee;
+        background: #ffffff;
+      }
+      .step.done {
+        border-color: #d01018;
+        background: #fde8e9;
+      }
+      .step-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: #c5ccd8;
+        flex-shrink: 0;
+      }
+      .step.done .step-dot {
+        background: #d01018;
+      }
+      .step-label {
+        font-size: 28px;
+        font-weight: 600;
+        color: #0a1a2f;
+      }
+      .ref {
+        font-family: "Schibsted Grotesk", sans-serif;
+        font-size: 28px;
+        letter-spacing: 0.08em;
+        color: #5a6577;
+      }
+      .ghost {
+        position: absolute;
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 800;
+        font-size: 220px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: rgb(10 26 47 / 0.04);
+        pointer-events: none;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="20"
+      data-width="1920"
+      data-height="1080"
+    >
+      <audio
+        id="music"
+        data-start="0"
+        data-duration="20"
+        data-track-index="0"
+        src="assets/music/happy-beats-business-moves-vol-11-by-ende-dot-app.mp3"
+      ></audio>
+
+      <audio
+        id="sfx-hook"
+        data-start="1.55"
+        data-duration="0.05"
+        data-track-index="3"
+        src="assets/sfx/interface/select_008.ogg"
+      ></audio>
+      <audio
+        id="sfx-chip"
+        data-start="4.2"
+        data-duration="0.1"
+        data-track-index="4"
+        src="assets/sfx/interface/click_001.ogg"
+      ></audio>
+      <audio
+        id="sfx-row1"
+        data-start="6.95"
+        data-duration="0.31"
+        data-track-index="3"
+        src="assets/sfx/ui/switch1.ogg"
+      ></audio>
+      <audio
+        id="sfx-row2"
+        data-start="7.55"
+        data-duration="0.1"
+        data-track-index="4"
+        src="assets/sfx/interface/click_003.ogg"
+      ></audio>
+      <audio
+        id="sfx-row3"
+        data-start="8.2"
+        data-duration="0.1"
+        data-track-index="5"
+        src="assets/sfx/interface/click_001.ogg"
+      ></audio>
+      <audio
+        id="sfx-delivered"
+        data-start="14.1"
+        data-duration="0.12"
+        data-track-index="3"
+        src="assets/sfx/interface/bong_001.ogg"
+      ></audio>
+
+      <!-- Scene 1: Hook 0–2.5 -->
+      <div
+        id="scene-1"
+        class="scene clip"
+        data-start="0"
+        data-duration="2.5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-brand" data-layout-ignore></div>
+        <div class="scene-content" style="justify-content: center; gap: 20px">
+          <p class="eyebrow" id="s1-eyebrow">C.N.M.T</p>
+          <h1 class="display display-xl" id="s1-title">
+            For <span class="accent">everyone</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Scene 2: Reveal 2.5–6.0 -->
+      <div
+        id="scene-2"
+        class="scene clip"
+        data-start="2.5"
+        data-duration="3.5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-brand" data-layout-ignore></div>
+        <div class="glow glow-navy" data-layout-ignore></div>
+        <div class="ghost" style="top: 120px; right: 80px" data-layout-ignore>
+          SEND
+        </div>
+        <div class="scene-content" style="gap: 32px">
+          <p class="eyebrow" id="s2-eyebrow">C.N.M.T</p>
+          <h2 class="display display-lg" id="s2-title">
+            International<br />money transfer<br /><span class="accent"
+              >for everyone</span
+            >
+          </h2>
+          <p class="body" id="s2-body">
+            Clear rates. Verified payouts. Mobile money or bank.
+          </p>
+          <div class="chip" id="s2-chip">
+            <span class="flag">🇬🇧</span>
+            <span>GBP → GHS</span>
+            <span class="flag">🇬🇭</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 3: Quote 6.0–11.0 -->
+      <div
+        id="scene-3"
+        class="scene clip"
+        data-start="6"
+        data-duration="5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-navy" data-layout-ignore></div>
+        <div
+          class="scene-content"
+          style="flex-direction: row; align-items: center; gap: 80px"
+        >
+          <div style="flex: 1; max-width: 720px">
+            <p class="eyebrow" id="s3-eyebrow">New transfer</p>
+            <h2
+              class="display display-md"
+              id="s3-title"
+              style="margin-top: 18px"
+            >
+              Rates stay visible<br />as you type
+            </h2>
+            <p
+              class="body"
+              id="s3-body"
+              style="margin-top: 24px; font-size: 30px"
+            >
+              Choose the corridor, amount, and payout method — then pay with
+              your reference.
+            </p>
+          </div>
+          <div class="card" id="s3-card">
+            <p class="card-title">Transfer summary</p>
+            <div class="row" id="s3-row1">
+              <span class="row-label">You send</span>
+              <span class="row-value emphasis">£250.00</span>
+            </div>
+            <div class="row" id="s3-row2">
+              <span class="row-label">They get</span>
+              <span class="row-value emphasis">GH₵4,850.00</span>
+            </div>
+            <div class="row" id="s3-row3">
+              <span class="row-label">Payout</span>
+              <span class="row-value">Ghana · MTN</span>
+            </div>
+            <div class="row" id="s3-row4">
+              <span class="row-label">Fees</span>
+              <span class="row-value">Included</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 4: Track 11.0–16.0 -->
+      <div
+        id="scene-4"
+        class="scene clip"
+        data-start="11"
+        data-duration="5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-brand" data-layout-ignore></div>
+        <div
+          class="scene-content"
+          style="flex-direction: row; align-items: center; gap: 80px"
+        >
+          <div style="flex: 1; max-width: 680px">
+            <p class="eyebrow" id="s4-eyebrow">Track transfer</p>
+            <h2
+              class="display display-md"
+              id="s4-title"
+              style="margin-top: 18px"
+            >
+              Verified before<br /><span class="accent">payout</span>
+            </h2>
+            <p class="ref" id="s4-ref" style="margin-top: 28px">
+              TRANS-UK-GH-4821
+            </p>
+          </div>
+          <div class="timeline" id="s4-timeline">
+            <div class="step done" id="s4-step1">
+              <span class="step-dot"></span>
+              <span class="step-label">Request submitted</span>
+            </div>
+            <div class="step" id="s4-step2">
+              <span class="step-dot"></span>
+              <span class="step-label">Payment</span>
+            </div>
+            <div class="step" id="s4-step3">
+              <span class="step-dot"></span>
+              <span class="step-label">Verification</span>
+            </div>
+            <div class="step" id="s4-step4">
+              <span class="step-dot"></span>
+              <span class="step-label">Delivered</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 5: Outro 16.0–20.0 -->
+      <div
+        id="scene-5"
+        class="scene clip"
+        data-start="16"
+        data-duration="4"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-brand" data-layout-ignore></div>
+        <div class="scene-content" style="align-items: flex-start; gap: 36px">
+          <div class="mark" id="s5-mark">
+            <div class="mark-badge">CN</div>
+            <div class="mark-name">C.N.M.T</div>
+          </div>
+          <h2 class="display display-md" id="s5-title">
+            Fast money transfer<br />at your convenience
+          </h2>
+          <p class="body" id="s5-body">Start a transfer in about a minute.</p>
+          <div class="cta" id="s5-cta">Send money →</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+
+        // --- Scene 1 (local 0–2.5) ---
+        // Title already visible at t=0 for social thumbnail; eyebrow eases in.
+        gsap.set("#s1-eyebrow", { opacity: 0, y: 18 });
+        gsap.set("#s1-title", { opacity: 1, y: 0 });
+        tl.to(
+          "#s1-eyebrow",
+          { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          0.1,
+        );
+        tl.to(
+          "#scene-1",
+          { opacity: 0, duration: 0.35, ease: "power2.in" },
+          2.2,
+        );
+
+        // --- Scene 2 (global 2.5 → local 0) ---
+        gsap.set(["#s2-eyebrow", "#s2-title", "#s2-body", "#s2-chip"], {
+          opacity: 0,
+          y: 32,
+        });
+        tl.fromTo(
+          "#scene-2",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.35, ease: "power2.out" },
+          2.5,
+        );
+        tl.to(
+          "#s2-eyebrow",
+          { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          2.65,
+        );
+        tl.to(
+          "#s2-title",
+          { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" },
+          2.85,
+        );
+        tl.to(
+          "#s2-body",
+          { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },
+          3.15,
+        );
+        tl.to(
+          "#s2-chip",
+          { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },
+          3.9,
+        );
+        tl.to(
+          "#scene-2",
+          { opacity: 0, duration: 0.3, ease: "power2.in" },
+          5.85,
+        );
+
+        // --- Scene 3 (global 6.0) ---
+        gsap.set(
+          [
+            "#s3-eyebrow",
+            "#s3-title",
+            "#s3-body",
+            "#s3-card",
+            "#s3-row1",
+            "#s3-row2",
+            "#s3-row3",
+            "#s3-row4",
+          ],
+          { opacity: 0, y: 24 },
+        );
+        tl.fromTo(
+          "#scene-3",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.35, ease: "power2.out" },
+          6.0,
+        );
+        tl.to(
+          "#s3-eyebrow",
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
+          6.15,
+        );
+        tl.to(
+          "#s3-title",
+          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+          6.3,
+        );
+        tl.to(
+          "#s3-body",
+          { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          6.55,
+        );
+        tl.to(
+          "#s3-card",
+          { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },
+          6.7,
+        );
+        tl.to(
+          "#s3-row1",
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
+          6.95,
+        );
+        tl.to(
+          "#s3-row2",
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
+          7.5,
+        );
+        tl.to(
+          "#s3-row3",
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
+          8.05,
+        );
+        tl.to(
+          "#s3-row4",
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
+          8.55,
+        );
+        tl.to(
+          "#scene-3",
+          { opacity: 0, duration: 0.35, ease: "power2.in" },
+          10.7,
+        );
+
+        // --- Scene 4 (global 11.0) ---
+        gsap.set(["#s4-eyebrow", "#s4-title", "#s4-ref", "#s4-timeline"], {
+          opacity: 0,
+          y: 24,
+        });
+        gsap.set(["#s4-step2", "#s4-step3", "#s4-step4"], { opacity: 0.35 });
+        tl.fromTo(
+          "#scene-4",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.35, ease: "power2.out" },
+          11.0,
+        );
+        tl.to(
+          "#s4-eyebrow",
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
+          11.15,
+        );
+        tl.to(
+          "#s4-title",
+          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+          11.3,
+        );
+        tl.to(
+          "#s4-ref",
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
+          11.55,
+        );
+        tl.to(
+          "#s4-timeline",
+          { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          11.7,
+        );
+        tl.to(
+          "#s4-step2",
+          {
+            opacity: 1,
+            duration: 0.25,
+            onStart: () =>
+              document.querySelector("#s4-step2")?.classList.add("done"),
+          },
+          12.4,
+        );
+        tl.to(
+          "#s4-step3",
+          {
+            opacity: 1,
+            duration: 0.25,
+            onStart: () =>
+              document.querySelector("#s4-step3")?.classList.add("done"),
+          },
+          13.2,
+        );
+        tl.to(
+          "#s4-step4",
+          {
+            opacity: 1,
+            duration: 0.3,
+            onStart: () =>
+              document.querySelector("#s4-step4")?.classList.add("done"),
+          },
+          14.05,
+        );
+        tl.to(
+          "#scene-4",
+          { opacity: 0, duration: 0.35, ease: "power2.in" },
+          15.7,
+        );
+
+        // --- Scene 5 (global 16.0) ---
+        gsap.set(["#s5-mark", "#s5-title", "#s5-body", "#s5-cta"], {
+          opacity: 0,
+          y: 28,
+        });
+        tl.fromTo(
+          "#scene-5",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.4, ease: "power2.out" },
+          16.0,
+        );
+        tl.to(
+          "#s5-mark",
+          { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          16.1,
+        );
+        tl.to(
+          "#s5-title",
+          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+          16.25,
+        );
+        tl.to(
+          "#s5-body",
+          { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          16.5,
+        );
+        tl.to(
+          "#s5-cta",
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
+          16.85,
+        );
+
+        // Soft music fade via volume on the element if supported by runtime
+        const music = document.getElementById("music");
+        if (music) {
+          music.volume = 0.55;
+          tl.to(
+            music,
+            { volume: 0.12, duration: 0.9, ease: "power1.out" },
+            18.8,
+          );
+        }
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

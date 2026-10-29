@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "historyId": "f137008c-4f98-4846-b290-6653f792776a",
+  "currentRevision": "59868391-6887-4d13-a3bc-fd874c61b438",
+  "pendingChanges": false,
+  "files": {
+    "AGENTS.md": {
+      "hash": "1b36171117cb7c18f4100a0db6a3782ff2e096115995733200445cc2e80a4060",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/1b/1b36171117cb7c18f4100a0db6a3782ff2e096115995733200445cc2e80a4060"
+    },
+    "CLAUDE.md": {
+      "hash": "1b36171117cb7c18f4100a0db6a3782ff2e096115995733200445cc2e80a4060",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/1b/1b36171117cb7c18f4100a0db6a3782ff2e096115995733200445cc2e80a4060"
+    },
+    "DESIGN.md": {
+      "hash": "cb599f6f7001a6a8476b875d7cd265b51bcd095a167e21d0f8f96dcead78104b",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/cb/cb599f6f7001a6a8476b875d7cd265b51bcd095a167e21d0f8f96dcead78104b"
+    },
+    "assets/sfx/interface/bong_001.ogg": {
+      "hash": "d21d0f0b782445db579d11e2506b24cd1ac9d664ee33aeaf807761aa7b6fd710",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/d2/d21d0f0b782445db579d11e2506b24cd1ac9d664ee33aeaf807761aa7b6fd710"
+    },
+    "assets/sfx/interface/click_001.ogg": {
+      "hash": "ccfb7fa0cccdd9faec0eb16033c732b1e308d139d80f799161495d58f7adcdb9",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/cc/ccfb7fa0cccdd9faec0eb16033c732b1e308d139d80f799161495d58f7adcdb9"
+    },
+    "assets/sfx/interface/click_003.ogg": {
+      "hash": "2fa929138bc3a0f432696588f66eac94b8f6d463905ec8808c6461ce4b054292",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/2f/2fa929138bc3a0f432696588f66eac94b8f6d463905ec8808c6461ce4b054292"
+    },
+    "assets/sfx/interface/drop_001.ogg": {
+      "hash": "692ee3a6f1821402ca649ff735bee9591dc4846c8098fc7d6a90fd15fa57c1af",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/69/692ee3a6f1821402ca649ff735bee9591dc4846c8098fc7d6a90fd15fa57c1af"
+    },
+    "assets/sfx/interface/select_008.ogg": {
+      "hash": "f703b6b1c62dae1c246a46d5c2442802588f68be2df4d17e0d65cf7e0dbfc826",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/f7/f703b6b1c62dae1c246a46d5c2442802588f68be2df4d17e0d65cf7e0dbfc826"
+    },
+    "assets/sfx/ui/switch1.ogg": {
+      "hash": "efdd1d1e2904fb2d81259cd96bb80101caceae94be02baa4b5310714a6708b19",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/ef/efdd1d1e2904fb2d81259cd96bb80101caceae94be02baa4b5310714a6708b19"
+    },
+    "hyperframes.json": {
+      "hash": "53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/53/53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50"
+    },
+    "index.html": {
+      "hash": "2a3ae94f77c25ae42ca26fb8aec30e6d45ac28ba876b0873a99d9fcb99672452",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/2a/2a3ae94f77c25ae42ca26fb8aec30e6d45ac28ba876b0873a99d9fcb99672452"
+    },
+    "meta.json": {
+      "hash": "b91235e29034376c02d680c95ad3fb228a5a89eb973333b4ca29f10e6a2f7e55",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/b9/b91235e29034376c02d680c95ad3fb228a5a89eb973333b4ca29f10e6a2f7e55"
+    },
+    "package.json": {
+      "hash": "54a5d8a720e811c7619dfb6e7d3cef8f44a194aeccc2d5ba84ed226f470b84c0",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/54/54a5d8a720e811c7619dfb6e7d3cef8f44a194aeccc2d5ba84ed226f470b84c0"
+    },
+    "assets/music/happy-beats-business-moves-vol-11-by-ende-dot-app.mp3": {
+      "hash": "364a546834db4c0c2e3b3240eb6df03e98b7362230154b04c5c614442f6660d7",
+      "content": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/36/364a546834db4c0c2e3b3240eb6df03e98b7362230154b04c5c614442f6660d7"
+    }
+  },
+  "revisions": {
+    "45318dca-84d7-423f-87e4-193da41f02eb": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1793110569366,
+      "endedAt": 1793110569366,
+      "files": {
+        "index.html": {
+          "before": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/53/535ca6702b5d2bbd7722be62728a1a8db5c26c7a667518f4479f4bf1024514bd",
+          "after": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/19/19068ba46aca79b090c20de0ce18ea9a4a9e1c5859479fc019d436d1e0097c45"
+        }
+      }
+    },
+    "59868391-6887-4d13-a3bc-fd874c61b438": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1793110616208,
+      "endedAt": 1793110616209,
+      "files": {
+        "index.html": {
+          "before": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/19/19068ba46aca79b090c20de0ce18ea9a4a9e1c5859479fc019d436d1e0097c45",
+          "after": "/Users/felix/.cache/hyperframes/history/f137008c-4f98-4846-b290-6653f792776a/blobs/2a/2a3ae94f77c25ae42ca26fb8aec30e6d45ac28ba876b0873a99d9fcb99672452"
+        }
+      }
+    }
+  },
+  "checks": {
+    "latest": {
+      "revision": null,
+      "id": "017aec0f-2e21-4a51-8abe-4a8b6bb14ec9"
+    },
+    "revisions": {},
+    "unversioned": [
+      {
+        "id": "017aec0f-2e21-4a51-8abe-4a8b6bb14ec9",
+        "scope": "project",
+        "report": "/Users/felix/Desktop/work/cnmt/web/brag-output-2026-10-27-141325/composition/.hyperframes/artifacts/checks/017aec0f-2e21-4a51-8abe-4a8b6bb14ec9.json",
+        "metadata": {
+          "ok": true,
+          "browserSkipped": false,
+          "options": {
+            "samples": 9,
+            "atTransitions": false,
+            "maxIssues": 80,
+            "collapseStatic": true,
+            "tolerance": 2,
+            "timeout": 3000,
+            "contrast": true,
+            "strict": false,
+            "snapshots": false,
+            "browserGpuMode": "auto"
+          }
+        },
+        "createdAt": 1793110550292,
+        "contentHash": "62c5c17541558fc4658b9871b9bf02a880aaa9897ae8ecf9134fd9d97281ff75",
+        "revision": null,
+        "inputFingerprint": "5b15a4ce2b4b088eac774915dcea544204a507edace3e91e7ccb96bf0091b3a5",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      }
+    ]
+  },
+  "snapshots": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "renders": {
+    "latest": {
+      "id": "8fa2c9e4-5146-4ca4-afa5-8e2beedd693c",
+      "completedAt": 1793110660129,
+      "output": "/Users/felix/Desktop/work/cnmt/web/brag-output-2026-10-27-141325/brag.mp4",
+      "status": "completed",
+      "revision": "59868391-6887-4d13-a3bc-fd874c61b438"
+    },
+    "retainedRevisions": [
+      "59868391-6887-4d13-a3bc-fd874c61b438"
+    ]
+  },
+  "pendingArtifactCleanup": []
+}

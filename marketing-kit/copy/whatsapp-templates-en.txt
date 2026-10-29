@@ -1,0 +1,81 @@
+C.N.M.T — WhatsApp message templates (English)
+Phone: +212 715 617 637
+Secondary: +212 627 140 999
+Click-to-chat: https://wa.me/212715617637?text=Hi%20C.N.M.T%2C%20I%20want%20to%20send%20money%20%E2%80%94%20please%20quote%20GBP%E2%86%92GHS
+================================================
+
+1) FIRST REPLY / WELCOME
+------------------------
+Welcome to C.N.M.T 👋
+International money transfer for everyone.
+
+Clear rates as you type · every transfer gets a reference · verified before payout · you can cancel unpaid before you pay.
+
+Tell me:
+• How much you want to send (or how much they should receive)
+• Corridor (e.g. GBP → GHS)
+• Mobile money or bank for the recipient
+
+I’ll send a clear quote.
+
+
+2) RATE OF THE DAY (edit numbers daily)
+---------------------------------------
+Today’s indicative rate — GBP → GHS
+
+1 GBP ≈ ____ GHS
+Fees stay visible on your quote.
+Promo (if any): ______
+
+Reply “QUOTE” + amount and I’ll lock your numbers with a TRANS- reference.
+
+
+3) HOW IT WORKS (forwardable)
+-----------------------------
+How C.N.M.T works — short version:
+
+1. You request a transfer → get a clear TRANS- reference
+2. You pay the exact amount + put the reference in the payment note
+3. Upload payment proof (screenshot/PDF) — verified before payout
+4. Track status anytime
+5. Change of mind? Cancel unpaid before you pay
+
+Message me to start.
+
+
+4) PAYMENT REMINDER
+-------------------
+Please pay exactly: ______
+Reference: TRANS-____________
+Put the reference in the transfer note, then send me the proof (screenshot or PDF).
+
+We verify before payout.
+
+
+5) TRACK / STATUS
+-----------------
+Send your TRANS- reference and I’ll check the status.
+Or track here: [paste customer track link if you use the app]
+
+Statuses: Request submitted → Payment → Verification → Delivered
+
+
+6) CANCEL (unpaid only — calm tone)
+-----------------------------------
+No problem — if the transfer is still unpaid (pending payment), you can cancel it.
+
+Send the TRANS- reference and optional reason (e.g. wrong amount), and I’ll confirm cancellation.
+You’re in control before you pay.
+
+
+7) SUPPORT CLOSE
+----------------
+Need a human? WhatsApp or call +212 715 617 637
+Always include your TRANS- reference so we can help faster.
+Mon–Sat · 9:00–18:00 GMT
+
+
+8) BROADCAST / STATUS CAPTION
+-----------------------------
+Clear rates in. Verified payout out. Cancel anytime before you pay — C.N.M.T
+Message to send →

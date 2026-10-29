@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>C.N Connect — Trust Loop</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Schibsted+Grotesk:wght@400;500;600&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #ffffff;
+        font-family: "Schibsted Grotesk", sans-serif;
+        color: #0a1a2f;
+      }
+      .scene,
+      .clip {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      .bg {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 80% 60% at 0% 0%,
+            rgb(253 232 233 / 0.88),
+            transparent 52%
+          ),
+          radial-gradient(
+            ellipse 55% 45% at 100% 0%,
+            rgb(232 237 244 / 0.95),
+            transparent 48%
+          ),
+          linear-gradient(180deg, #ffffff 42%, #f7f8fa 100%);
+      }
+      .glow {
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(52px);
+        pointer-events: none;
+      }
+      .glow-brand {
+        width: 520px;
+        height: 400px;
+        top: -90px;
+        left: -50px;
+        background: rgb(208 16 24 / 0.15);
+      }
+      .glow-navy {
+        width: 460px;
+        height: 360px;
+        right: -40px;
+        bottom: -50px;
+        background: rgb(10 26 47 / 0.1);
+      }
+      .scene-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 88px 128px;
+        gap: 24px;
+        box-sizing: border-box;
+      }
+      .eyebrow {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #d01018;
+      }
+      .display {
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.01em;
+        line-height: 0.96;
+        color: #0a1a2f;
+      }
+      .display-xl {
+        font-size: 118px;
+      }
+      .display-lg {
+        font-size: 86px;
+      }
+      .display-md {
+        font-size: 64px;
+      }
+      .accent {
+        color: #d01018;
+      }
+      .body {
+        font-size: 30px;
+        line-height: 1.4;
+        color: #5a6577;
+        max-width: 900px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 24px;
+        border: 1px solid #e2e6ee;
+        background: #ffffff;
+        border-radius: 999px;
+        box-shadow: 0 16px 36px rgb(10 26 47 / 0.1);
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        width: fit-content;
+      }
+      .card {
+        width: 700px;
+        border: 1px solid #e2e6ee;
+        background: #ffffff;
+        padding: 32px 36px;
+        box-shadow: 0 24px 50px rgb(10 26 47 / 0.1);
+      }
+      .card-title {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #5a6577;
+        margin-bottom: 20px;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 14px 0;
+        border-top: 1px solid #eef1f5;
+        font-size: 28px;
+      }
+      .row:first-of-type {
+        border-top: 0;
+        padding-top: 0;
+      }
+      .row-label {
+        color: #5a6577;
+      }
+      .row-value {
+        font-weight: 600;
+        color: #0a1a2f;
+      }
+      .row-value.big {
+        font-size: 36px;
+        font-weight: 700;
+      }
+      .promo {
+        color: #d01018;
+        font-weight: 600;
+      }
+      .pay-panel {
+        width: 640px;
+        background: #0a1a2f;
+        color: #ffffff;
+        padding: 36px 40px;
+      }
+      .pay-label {
+        font-size: 28px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgb(255 255 255 / 0.55);
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+      }
+      .pay-amount {
+        margin-top: 12px;
+        font-size: 64px;
+        font-weight: 700;
+      }
+      .pay-ref {
+        margin-top: 14px;
+        font-size: 28px;
+        color: rgb(255 255 255 / 0.75);
+        letter-spacing: 0.06em;
+      }
+      .account {
+        margin-top: 18px;
+        border: 2px solid #d01018;
+        background: #fde8e9;
+        padding: 18px 22px;
+        font-size: 28px;
+        font-weight: 600;
+      }
+      .upload {
+        margin-top: 18px;
+        border: 2px dashed #c5ccd8;
+        background: #ffffff;
+        padding: 28px 24px;
+        text-align: center;
+        font-size: 28px;
+        color: #5a6577;
+      }
+      .upload.filled {
+        border-style: solid;
+        border-color: #0a1a2f;
+        color: #0a1a2f;
+        font-weight: 600;
+      }
+      .timeline {
+        width: 760px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 22px;
+        border: 1px solid #e2e6ee;
+        background: #ffffff;
+        font-size: 28px;
+        font-weight: 600;
+      }
+      .step .dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        background: #c5ccd8;
+        flex-shrink: 0;
+      }
+      .step.on {
+        border-color: #d01018;
+        background: #fde8e9;
+      }
+      .step.on .dot {
+        background: #d01018;
+      }
+      .step.done {
+        border-color: #1f7a45;
+        background: #e8f6ee;
+      }
+      .step.done .dot {
+        background: #1f7a45;
+      }
+      .step.cancelled {
+        border-color: #0a1a2f;
+        background: #e8edf4;
+      }
+      .step.cancelled .dot {
+        background: #0a1a2f;
+      }
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        height: 68px;
+        padding: 0 34px;
+        background: #d01018;
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 600;
+        width: fit-content;
+      }
+      .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        height: 56px;
+        padding: 0 24px;
+        border: 1px solid #e2e6ee;
+        background: #ffffff;
+        font-size: 28px;
+        font-weight: 600;
+        width: fit-content;
+      }
+      .btn-ghost.active {
+        border-color: #0a1a2f;
+        background: #e8edf4;
+      }
+      .mark {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .mark-badge {
+        width: 60px;
+        height: 60px;
+        background: #d01018;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 800;
+        font-size: 28px;
+      }
+      .mark-name {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .support {
+        display: inline-flex;
+        gap: 16px;
+        align-items: center;
+        padding: 14px 20px;
+        border: 1px solid #e2e6ee;
+        background: #ffffff;
+        font-size: 28px;
+        color: #5a6577;
+        width: fit-content;
+      }
+      .ref-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 20px;
+        border: 1px solid #e2e6ee;
+        background: #ffffff;
+        font-size: 28px;
+        letter-spacing: 0.06em;
+        width: fit-content;
+      }
+      .copy-btn {
+        padding: 8px 14px;
+        background: #0a1a2f;
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="25"
+      data-width="1920"
+      data-height="1080"
+    >
+      <audio
+        id="music"
+        data-start="0"
+        data-duration="25"
+        data-track-index="0"
+        src="assets/music/happy-beats-business-moves-vol-11-by-ende-dot-app.mp3"
+      ></audio>
+      <audio
+        id="sfx-hook"
+        data-start="1.55"
+        data-duration="0.05"
+        data-track-index="3"
+        src="assets/sfx/interface/select_008.ogg"
+      ></audio>
+      <audio
+        id="sfx-row"
+        data-start="4.0"
+        data-duration="0.1"
+        data-track-index="4"
+        src="assets/sfx/interface/click_001.ogg"
+      ></audio>
+      <audio
+        id="sfx-copy"
+        data-start="6.7"
+        data-duration="0.1"
+        data-track-index="5"
+        src="assets/sfx/ui/switch1.ogg"
+      ></audio>
+      <audio
+        id="sfx-pay"
+        data-start="9.2"
+        data-duration="0.1"
+        data-track-index="3"
+        src="assets/sfx/interface/click_003.ogg"
+      ></audio>
+      <audio
+        id="sfx-upload"
+        data-start="10.6"
+        data-duration="0.12"
+        data-track-index="4"
+        src="assets/sfx/interface/drop_001.ogg"
+      ></audio>
+      <audio
+        id="sfx-track"
+        data-start="16.2"
+        data-duration="0.12"
+        data-track-index="3"
+        src="assets/sfx/interface/bong_001.ogg"
+      ></audio>
+      <audio
+        id="sfx-cancel"
+        data-start="20.4"
+        data-duration="0.1"
+        data-track-index="4"
+        src="assets/sfx/interface/select_008.ogg"
+      ></audio>
+
+      <!-- 1 Hook 0–2.5 -->
+      <div
+        id="scene-1"
+        class="scene clip"
+        data-start="0"
+        data-duration="2.5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-brand" data-layout-ignore></div>
+        <div class="scene-content">
+          <p class="eyebrow" id="s1-eye">C.N Connect</p>
+          <h1 class="display display-xl" id="s1-title">
+            Money that moves<br /><span class="accent">with proof</span>
+          </h1>
+          <p class="body" id="s1-body">Clear rates in. Verified payout out.</p>
+        </div>
+      </div>
+
+      <!-- 2 Send 2.5–8.0 -->
+      <div
+        id="scene-2"
+        class="scene clip"
+        data-start="2.5"
+        data-duration="5.5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-navy" data-layout-ignore></div>
+        <div
+          class="scene-content"
+          style="flex-direction: row; align-items: center; gap: 72px"
+        >
+          <div style="flex: 1; max-width: 700px">
+            <p class="eyebrow" id="s2-eye">Send transfer</p>
+            <h2
+              class="display display-md"
+              id="s2-title"
+              style="margin-top: 14px"
+            >
+              Rates stay visible<br />as you type
+            </h2>
+            <div class="chip" id="s2-chip" style="margin-top: 28px">
+              🇬🇧 GBP → GHS 🇬🇭
+            </div>
+            <p
+              class="body"
+              id="s2-who"
+              style="margin-top: 22px; font-size: 28px"
+            >
+              Ama Mensah · Ghana · MTN
+            </p>
+            <div class="ref-pill" id="s2-ref" style="margin-top: 22px">
+              <span>TRANS-UK-GH-4821</span>
+              <span class="copy-btn" id="s2-copy">Copy</span>
+            </div>
+          </div>
+          <div class="card" id="s2-card">
+            <p class="card-title">Transfer summary</p>
+            <div class="row" id="s2-r1">
+              <span class="row-label">You send</span>
+              <span class="row-value big">£250.00</span>
+            </div>
+            <div class="row" id="s2-r2">
+              <span class="row-label">They get</span>
+              <span class="row-value big">GH₵4,850.00</span>
+            </div>
+            <div class="row" id="s2-r3">
+              <span class="row-label">Fees</span>
+              <span class="row-value">Included</span>
+            </div>
+            <div class="row" id="s2-r4">
+              <span class="row-label">Promo</span>
+              <span class="row-value promo">SAVE10 · 10% off</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Pay + upload 8.0–13.0 -->
+      <div
+        id="scene-3"
+        class="scene clip"
+        data-start="8"
+        data-duration="5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-brand" data-layout-ignore></div>
+        <div
+          class="scene-content"
+          style="flex-direction: row; align-items: center; gap: 72px"
+        >
+          <div style="flex: 1; max-width: 680px">
+            <p class="eyebrow" id="s3-eye">Pay &amp; verify</p>
+            <h2
+              class="display display-md"
+              id="s3-title"
+              style="margin-top: 14px"
+            >
+              Verified before<br /><span class="accent">payout</span>
+            </h2>
+            <p class="body" id="s3-body" style="margin-top: 20px">
+              Send the exact amount with your reference, then upload proof.
+            </p>
+          </div>
+          <div style="width: 640px">
+            <div class="pay-panel" id="s3-pay">
+              <p class="pay-label">Amount to pay</p>
+              <p class="pay-amount">£225.00</p>
+              <p class="pay-ref">Reference TRANS-UK-GH-4821</p>
+            </div>
+            <div class="account" id="s3-acc">✓ Barclays · Business GBP</div>
+            <div class="upload" id="s3-up">
+              Drop payment proof here · JPG PNG PDF
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Track 13.0–18.0 -->
+      <div
+        id="scene-4"
+        class="scene clip"
+        data-start="13"
+        data-duration="5"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-navy" data-layout-ignore></div>
+        <div
+          class="scene-content"
+          style="flex-direction: row; align-items: center; gap: 72px"
+        >
+          <div style="flex: 1; max-width: 640px">
+            <p class="eyebrow" id="s4-eye">Track transfer</p>
+            <h2
+              class="display display-md"
+              id="s4-title"
+              style="margin-top: 14px"
+            >
+              Check status<br />with your reference
+            </h2>
+            <div class="btn-ghost" id="s4-cta" style="margin-top: 28px">
+              Track transfer
+            </div>
+          </div>
+          <div class="timeline" id="s4-tl">
+            <div class="step on" id="s4-s1">
+              <span class="dot"></span>Request submitted
+            </div>
+            <div class="step" id="s4-s2"><span class="dot"></span>Payment</div>
+            <div class="step" id="s4-s3">
+              <span class="dot"></span>Verification
+            </div>
+            <div class="step" id="s4-s4">
+              <span class="dot"></span>Delivered
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Cancel trust 18.0–22.0 -->
+      <div
+        id="scene-5"
+        class="scene clip"
+        data-start="18"
+        data-duration="4"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-brand" data-layout-ignore></div>
+        <div
+          class="scene-content"
+          style="flex-direction: row; align-items: center; gap: 72px"
+        >
+          <div style="flex: 1; max-width: 680px">
+            <p class="eyebrow" id="s5-eye">Before you pay</p>
+            <h2
+              class="display display-md"
+              id="s5-title"
+              style="margin-top: 14px"
+            >
+              Change of mind?<br /><span class="accent">Cancel unpaid</span>
+            </h2>
+            <p class="body" id="s5-body" style="margin-top: 20px">
+              Only while pending payment — you’re in control.
+            </p>
+          </div>
+          <div class="card" id="s5-card">
+            <p class="card-title">Cancel transfer</p>
+            <p
+              class="body"
+              id="s5-confirm"
+              style="font-size: 28px; max-width: none"
+            >
+              Cancel this unpaid transfer? Optional reason:
+            </p>
+            <p
+              class="body"
+              id="s5-reason"
+              style="margin-top: 12px; font-size: 28px; color: #0a1a2f"
+            >
+              “Wrong amount”
+            </p>
+            <div style="display: flex; gap: 12px; margin-top: 22px">
+              <div class="cta" id="s5-yes">Yes, cancel</div>
+              <div class="btn-ghost" id="s5-keep">Keep transfer</div>
+            </div>
+            <div class="step cancelled" id="s5-status" style="margin-top: 22px">
+              <span class="dot"></span>Cancelled
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 Outro 22.0–25.0 -->
+      <div
+        id="scene-6"
+        class="scene clip"
+        data-start="22"
+        data-duration="3"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+      >
+        <div class="bg"></div>
+        <div class="glow glow-brand" data-layout-ignore></div>
+        <div class="scene-content" style="gap: 28px">
+          <div class="mark" id="s6-mark">
+            <div class="mark-badge">CN</div>
+            <div class="mark-name">C.N Connect</div>
+          </div>
+          <h2 class="display display-md" id="s6-title">
+            International money transfer<br /><span class="accent"
+              >for everyone</span
+            >
+          </h2>
+          <p class="body" id="s6-body">You’re in control before you pay.</p>
+          <div class="cta" id="s6-cta">Send money →</div>
+          <div class="support" id="s6-support">
+            Support · WhatsApp or phone · include your reference
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        const music = document.getElementById("music");
+        if (music) music.volume = 0.5;
+
+        // Scene 1 — title visible at 0 for thumbnail
+        gsap.set(["#s1-eye", "#s1-body"], { opacity: 0, y: 18 });
+        gsap.set("#s1-title", { opacity: 1, y: 0 });
+        tl.to(
+          "#s1-eye",
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
+          0.1,
+        );
+        tl.to(
+          "#s1-body",
+          { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          0.85,
+        );
+        tl.to(
+          "#scene-1",
+          { opacity: 0, duration: 0.3, ease: "power2.in" },
+          2.25,
+        );
+
+        // Scene 2
+        gsap.set(
+          [
+            "#s2-eye",
+            "#s2-title",
+            "#s2-chip",
+            "#s2-who",
+            "#s2-ref",
+            "#s2-card",
+            "#s2-r1",
+            "#s2-r2",
+            "#s2-r3",
+            "#s2-r4",
+          ],
+          { opacity: 0, y: 22 },
+        );
+        tl.fromTo(
+          "#scene-2",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3 },
+          2.5,
+        );
+        tl.to("#s2-eye", { opacity: 1, y: 0, duration: 0.3 }, 2.6);
+        tl.to("#s2-title", { opacity: 1, y: 0, duration: 0.45 }, 2.75);
+        tl.to("#s2-chip", { opacity: 1, y: 0, duration: 0.35 }, 3.1);
+        tl.to("#s2-card", { opacity: 1, y: 0, duration: 0.4 }, 3.35);
+        tl.to("#s2-r1", { opacity: 1, y: 0, duration: 0.3 }, 3.7);
+        tl.to("#s2-r2", { opacity: 1, y: 0, duration: 0.3 }, 4.15);
+        tl.to("#s2-r3", { opacity: 1, y: 0, duration: 0.3 }, 4.55);
+        tl.to("#s2-r4", { opacity: 1, y: 0, duration: 0.3 }, 4.95);
+        tl.to("#s2-who", { opacity: 1, y: 0, duration: 0.3 }, 5.4);
+        tl.to("#s2-ref", { opacity: 1, y: 0, duration: 0.35 }, 5.9);
+        tl.to(
+          "#s2-copy",
+          { scale: 1.06, duration: 0.12, yoyo: true, repeat: 1 },
+          6.65,
+        );
+        tl.to("#scene-2", { opacity: 0, duration: 0.3 }, 7.75);
+
+        // Scene 3
+        gsap.set(
+          ["#s3-eye", "#s3-title", "#s3-body", "#s3-pay", "#s3-acc", "#s3-up"],
+          {
+            opacity: 0,
+            y: 22,
+          },
+        );
+        tl.fromTo(
+          "#scene-3",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3 },
+          8.0,
+        );
+        tl.to("#s3-eye", { opacity: 1, y: 0, duration: 0.3 }, 8.1);
+        tl.to("#s3-title", { opacity: 1, y: 0, duration: 0.45 }, 8.25);
+        tl.to("#s3-body", { opacity: 1, y: 0, duration: 0.35 }, 8.55);
+        tl.to("#s3-pay", { opacity: 1, y: 0, duration: 0.4 }, 8.75);
+        tl.to("#s3-acc", { opacity: 1, y: 0, duration: 0.35 }, 9.25);
+        tl.to("#s3-up", { opacity: 1, y: 0, duration: 0.35 }, 9.85);
+        tl.call(
+          () => {
+            const el = document.querySelector("#s3-up");
+            if (el) {
+              el.classList.add("filled");
+              el.textContent = "payment-proof.pdf · ready to verify";
+            }
+          },
+          null,
+          10.55,
+        );
+        tl.to("#scene-3", { opacity: 0, duration: 0.3 }, 12.75);
+
+        // Scene 4
+        gsap.set(["#s4-eye", "#s4-title", "#s4-cta", "#s4-tl"], {
+          opacity: 0,
+          y: 22,
+        });
+        gsap.set(["#s4-s2", "#s4-s3", "#s4-s4"], { opacity: 0.4 });
+        tl.fromTo(
+          "#scene-4",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3 },
+          13.0,
+        );
+        tl.to("#s4-eye", { opacity: 1, y: 0, duration: 0.3 }, 13.1);
+        tl.to("#s4-title", { opacity: 1, y: 0, duration: 0.45 }, 13.25);
+        tl.to("#s4-cta", { opacity: 1, y: 0, duration: 0.3 }, 13.55);
+        tl.to("#s4-tl", { opacity: 1, y: 0, duration: 0.35 }, 13.7);
+        tl.call(
+          () => document.querySelector("#s4-cta")?.classList.add("active"),
+          null,
+          14.1,
+        );
+        tl.to(
+          "#s4-s2",
+          {
+            opacity: 1,
+            duration: 0.2,
+            onStart: () =>
+              document.querySelector("#s4-s2")?.classList.add("on"),
+          },
+          14.5,
+        );
+        tl.to(
+          "#s4-s3",
+          {
+            opacity: 1,
+            duration: 0.2,
+            onStart: () => {
+              document.querySelector("#s4-s2")?.classList.remove("on");
+              document.querySelector("#s4-s2")?.classList.add("done");
+              document.querySelector("#s4-s3")?.classList.add("on");
+            },
+          },
+          15.3,
+        );
+        tl.to(
+          "#s4-s4",
+          {
+            opacity: 1,
+            duration: 0.25,
+            onStart: () => {
+              document.querySelector("#s4-s3")?.classList.remove("on");
+              document.querySelector("#s4-s3")?.classList.add("done");
+              document.querySelector("#s4-s4")?.classList.add("done");
+            },
+          },
+          16.15,
+        );
+        tl.to("#scene-4", { opacity: 0, duration: 0.3 }, 17.75);
+
+        // Scene 5 cancel
+        gsap.set(
+          [
+            "#s5-eye",
+            "#s5-title",
+            "#s5-body",
+            "#s5-card",
+            "#s5-confirm",
+            "#s5-reason",
+            "#s5-yes",
+            "#s5-keep",
+          ],
+          { opacity: 0, y: 20 },
+        );
+        gsap.set("#s5-status", { opacity: 0, y: 12 });
+        tl.fromTo(
+          "#scene-5",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3 },
+          18.0,
+        );
+        tl.to("#s5-eye", { opacity: 1, y: 0, duration: 0.3 }, 18.1);
+        tl.to("#s5-title", { opacity: 1, y: 0, duration: 0.4 }, 18.25);
+        tl.to("#s5-body", { opacity: 1, y: 0, duration: 0.35 }, 18.55);
+        tl.to("#s5-card", { opacity: 1, y: 0, duration: 0.35 }, 18.7);
+        tl.to(
+          ["#s5-confirm", "#s5-reason", "#s5-yes", "#s5-keep"],
+          { opacity: 1, y: 0, duration: 0.35 },
+          19.0,
+        );
+        tl.to(
+          "#s5-yes",
+          { scale: 1.05, duration: 0.12, yoyo: true, repeat: 1 },
+          20.3,
+        );
+        tl.to("#s5-status", { opacity: 1, y: 0, duration: 0.35 }, 20.55);
+        tl.to("#scene-5", { opacity: 0, duration: 0.3 }, 21.75);
+
+        // Scene 6 outro
+        gsap.set(
+          ["#s6-mark", "#s6-title", "#s6-body", "#s6-cta", "#s6-support"],
+          {
+            opacity: 0,
+            y: 20,
+          },
+        );
+        tl.fromTo(
+          "#scene-6",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.35 },
+          22.0,
+        );
+        tl.to("#s6-mark", { opacity: 1, y: 0, duration: 0.35 }, 22.1);
+        tl.to("#s6-title", { opacity: 1, y: 0, duration: 0.45 }, 22.25);
+        tl.to("#s6-body", { opacity: 1, y: 0, duration: 0.35 }, 22.45);
+        tl.to("#s6-cta", { opacity: 1, y: 0, duration: 0.3 }, 22.65);
+        tl.to("#s6-support", { opacity: 1, y: 0, duration: 0.3 }, 22.85);
+        if (music) tl.to(music, { volume: 0.1, duration: 0.8 }, 23.9);
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>
