@@ -38,6 +38,20 @@ const EXTRA: CountryCatalogEntry[] = [
   },
 ];
 
+const CURRENCY_OVERRIDES: Record<
+  string,
+  Pick<
+    CountryCatalogEntry,
+    "currency_code" | "currency_name" | "currency_symbol"
+  >
+> = {
+  LR: {
+    currency_code: "USD",
+    currency_name: "US Dollar",
+    currency_symbol: "$",
+  },
+};
+
 function getCallingCode(idd?: { root?: string; suffixes?: string[] }): string {
   if (!idd || !idd.root) return "";
   if (idd.root === "+1") return "+1";
@@ -79,7 +93,8 @@ export function getCountryCatalog(): CountryCatalogEntry[] {
   for (const country of worldCountries as unknown as WorldCountry[]) {
     const entry = fromWorldCountry(country);
     if (!entry) continue;
-    byIso.set(entry.iso_code, entry);
+    const override = CURRENCY_OVERRIDES[entry.iso_code];
+    byIso.set(entry.iso_code, override ? { ...entry, ...override } : entry);
   }
 
   for (const entry of EXTRA) {
@@ -166,4 +181,3 @@ export function getCountryPickerOptions(
       meta: `${entry.iso_code} · ${entry.currency_code}`,
     }));
 }
-
