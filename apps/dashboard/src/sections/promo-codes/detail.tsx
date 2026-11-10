@@ -7,9 +7,15 @@ import { toast } from "@repo/ui/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { formatDate, formatDateTime } from "@/utils/format";
 import { getErrorMessage } from "@/utils/request";
-import { createPromoCode, deletePromoCode, updatePromoCode } from "./api";
+import {
+  createPromoCode,
+  deletePromoCode,
+  updatePromoCode,
+  type RouteOption,
+} from "./api";
 import { PromoCodeForm } from "./form";
 import {
+  DISCOUNT_TARGET_LABELS,
   formatDiscountPercent,
   promoWindowBadgeVariant,
   promoWindowLabel,
@@ -21,7 +27,13 @@ import {
 } from "./schema";
 import { PromoCodeSheet, useClosePromoCodeSheet } from "./sheet";
 
-export function PromoCodeDetail({ promoCode }: { promoCode: PromoCode }) {
+export function PromoCodeDetail({
+  promoCode,
+  routeOptions,
+}: {
+  promoCode: PromoCode;
+  routeOptions: RouteOption[];
+}) {
   const router = useRouter();
   const close = useClosePromoCodeSheet();
   const [editing, setEditing] = useState(false);
@@ -68,11 +80,12 @@ export function PromoCodeDetail({ promoCode }: { promoCode: PromoCode }) {
   return (
     <PromoCodeSheet
       title={promoCode.code}
-      description={`${formatDiscountPercent(promoCode.discount_percentage)} off`}
+      description={`${formatDiscountPercent(promoCode.discount_percentage)} · ${DISCOUNT_TARGET_LABELS[promoCode.discount_target]}`}
     >
       {editing ? (
         <div className="px-5 py-5">
           <PromoCodeForm
+            routeOptions={routeOptions}
             lockCode
             pending={pendingAction === "save"}
             submitLabel="Save changes"
@@ -95,6 +108,18 @@ export function PromoCodeDetail({ promoCode }: { promoCode: PromoCode }) {
               label="Discount"
               value={formatDiscountPercent(promoCode.discount_percentage)}
             />
+            <Row
+              label="Applied"
+              value={DISCOUNT_TARGET_LABELS[promoCode.discount_target]}
+            />
+            <Row
+              label="Routes"
+              value={
+                promoCode.applies_to_all_routes
+                  ? "All routes"
+                  : "Only the routes listed below"
+              }
+            />
             <Row label="Starts" value={formatDate(promoCode.start_date)} />
             <Row label="Ends" value={formatDate(promoCode.end_date)} />
             <Row label="Max uses" value={String(promoCode.max_uses)} />
@@ -102,6 +127,21 @@ export function PromoCodeDetail({ promoCode }: { promoCode: PromoCode }) {
             <Row label="Created" value={formatDateTime(promoCode.created_at)} />
             <Row label="Updated" value={formatDateTime(promoCode.updated_at)} />
           </dl>
+
+          {promoCode.routes.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-navy">Route rules</p>
+              <dl className="border border-border">
+                {promoCode.routes.map((rule) => (
+                  <Row
+                    key={rule.route_id}
+                    label={`${rule.source_country_name} → ${rule.destination_country_name}`}
+                    value={`${formatDiscountPercent(rule.discount_percentage ?? promoCode.discount_percentage)} · ${DISCOUNT_TARGET_LABELS[rule.discount_target]}`}
+                  />
+                ))}
+              </dl>
+            </div>
+          ) : null}
 
           <div className="flex flex-wrap gap-2">
             <Button
@@ -139,7 +179,11 @@ export function PromoCodeDetail({ promoCode }: { promoCode: PromoCode }) {
   );
 }
 
-export function PromoCodeCreate() {
+export function PromoCodeCreate({
+  routeOptions,
+}: {
+  routeOptions: RouteOption[];
+}) {
   const router = useRouter();
   const close = useClosePromoCodeSheet();
   const [isPending, startTransition] = useTransition();
@@ -160,10 +204,11 @@ export function PromoCodeCreate() {
   return (
     <PromoCodeSheet
       title="Add promo code"
-      description="Customers enter this code to receive a percentage discount."
+      description="Customers enter this code to get a percentage discount or a recipient bonus."
     >
       <div className="px-5 py-5">
         <PromoCodeForm
+          routeOptions={routeOptions}
           pending={isPending}
           submitLabel="Create promo code"
           onCancel={close}

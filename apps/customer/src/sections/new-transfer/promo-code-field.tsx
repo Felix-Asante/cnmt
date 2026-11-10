@@ -45,6 +45,7 @@ export function PromoCodeField({
             ? t("applied", {
                 code: applied.code,
                 discount: formatPromoDiscount(applied.discount_percentage),
+                target: applied.discount_target,
               })
             : t("description")
         }

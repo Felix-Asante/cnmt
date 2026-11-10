@@ -120,7 +120,11 @@ export function TransferDetail({ transfer }: { transfer: Transfer }) {
           {promo ? (
             <Row
               label="Promo"
-              value={`${promo.code} · ${formatPromoDiscount(promo.discount_percentage)} off send amount`}
+              value={
+                promo.discount_target === "RECIPIENT_AMOUNT"
+                  ? `${promo.code} · ${formatPromoDiscount(promo.discount_percentage)} · +${promo.bonus_amount} to recipient`
+                  : `${promo.code} · ${formatPromoDiscount(promo.discount_percentage)} · ${promo.discount_amount} off send amount`
+              }
             />
           ) : null}
           <Row

@@ -1,3 +1,4 @@
+import type { PromoDiscountTarget } from "./promo-code";
 import type {
   TransferDestinationCountry,
   TransferSourceCountry,
@@ -63,6 +64,11 @@ export type TransferPaymentInstructions = {
 export type TransferPromoCode = {
   code: string;
   discount_percentage: string | number;
+  discount_target: PromoDiscountTarget;
+  /** Taken off what the sender paid (source currency). */
+  discount_amount: string;
+  /** Added to what the recipient gets (destination currency). */
+  bonus_amount: string;
 };
 
 export type TransferEvent = {

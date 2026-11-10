@@ -5,6 +5,10 @@ import type {
 } from "@repo/types";
 import { API_ENDPOINTS } from "@/constants/endpoints";
 import { request } from "@/utils/request";
+import { listCountries } from "@/sections/countries/api";
+import { listRoutes } from "@/sections/routes/api";
+
+export type RouteOption = { id: string; label: string };
 
 export function listPromoCodes() {
   return request<PromoCode[]>({
@@ -35,6 +39,16 @@ export function deletePromoCode(id: string) {
   });
 }
 
-export function loadPromoCodesPage() {
-  return listPromoCodes().then((promoCodes) => ({ promoCodes }));
+export async function loadPromoCodesPage() {
+  const [promoCodes, routes, countries] = await Promise.all([
+    listPromoCodes(),
+    listRoutes({}),
+    listCountries(),
+  ]);
+  const countryName = new Map(countries.map((c) => [c.id, c.name]));
+  const routeOptions: RouteOption[] = routes.map((route) => ({
+    id: route.id,
+    label: `${countryName.get(route.source_country_id) ?? "?"} → ${countryName.get(route.destination_country_id) ?? "?"}`,
+  }));
+  return { promoCodes, routeOptions };
 }

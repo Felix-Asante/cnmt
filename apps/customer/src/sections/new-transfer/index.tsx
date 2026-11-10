@@ -17,7 +17,7 @@ import {
   getChannelExtraFee,
   getRecipientCountry,
   getSenderCountry,
-  applyPromoDiscount,
+  applyPromo,
   getTransferQuote,
   bankChannelIdForFee,
   resolveTransferFee,
@@ -89,9 +89,11 @@ export default function NewTransfer({
   const [step, setStep] = useState(resume ? 3 : 0);
   const [reference, setReference] = useState(resume?.reference ?? "");
   const [paymentAccountId, setPaymentAccountId] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState<PreviewPromoCode | null>(
-    null,
-  );
+  // A promo is checked for one route; it stops applying if the route changes.
+  const [checkedPromo, setCheckedPromo] = useState<{
+    promo: PreviewPromoCode;
+    route: string;
+  } | null>(null);
   const [promoError, setPromoError] = useState<string | undefined>();
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const idempotencyKeyRef = useRef<string | null>(null);
@@ -127,6 +129,9 @@ export default function NewTransfer({
   });
 
   const values = useWatch({ control: form.control });
+  const routeKey = `${values.senderCountryCode}-${values.recipientCountryCode}`;
+  const appliedPromo =
+    checkedPromo?.route === routeKey ? checkedPromo.promo : null;
   const sender = getSenderCountry(
     values.senderCountryCode ?? "",
     transferOptions.sources,
@@ -152,7 +157,7 @@ export default function NewTransfer({
     extraFee,
   });
   // Resume loads amount_sent already discounted; don't apply promo again.
-  const promoForQuote = resume ? null : appliedPromo?.discount_percentage;
+  const promoForQuote = resume ? null : appliedPromo;
   const quote = getTransferQuote(
     values.sendAmount ?? "",
     values.sendCurrency ?? "",
@@ -161,10 +166,11 @@ export default function NewTransfer({
     fee,
     promoForQuote,
   );
-  const amountToPay = applyPromoDiscount(
+  const amountToPay = applyPromo(
     Number(values.sendAmount ?? 0),
+    Number(recipient?.default_exchange_rate ?? 1),
     promoForQuote,
-  );
+  ).pay;
 
   const inRequestPhase = !resume && step <= 1;
   const isSubmittedScreen = step === 2;
@@ -236,6 +242,7 @@ export default function NewTransfer({
               value: t("summary.promoValue", {
                 code: appliedPromo.code,
                 discount: formatPromoDiscount(appliedPromo.discount_percentage),
+                target: appliedPromo.discount_target,
               }),
             },
           ]
@@ -260,14 +267,18 @@ export default function NewTransfer({
 
   async function handleApplyPromo(code: string) {
     setPromoError(undefined);
-    const result = await previewPromoCode(code);
+    const result = await previewPromoCode(code, {
+      sourceCountryId: values.senderCountryCode ?? "",
+      destinationCountryId: values.recipientCountryCode ?? "",
+      senderPhone: values.senderWhatsApp,
+    });
     if (!result.ok) {
-      setAppliedPromo(null);
+      setCheckedPromo(null);
       setPromoError(result.error);
       return result.error;
     }
 
-    setAppliedPromo(result.promo);
+    setCheckedPromo({ promo: result.promo, route: routeKey });
     form.setValue("promoCode", result.promo.code, {
       shouldDirty: true,
       shouldValidate: true,
@@ -276,7 +287,7 @@ export default function NewTransfer({
   }
 
   function handleClearPromo() {
-    setAppliedPromo(null);
+    setCheckedPromo(null);
     setPromoError(undefined);
     form.setValue("promoCode", "", { shouldDirty: true });
   }
@@ -502,7 +513,7 @@ export default function NewTransfer({
     });
     setReference("");
     setPaymentAccountId("");
-    setAppliedPromo(null);
+    setCheckedPromo(null);
     setPromoError(undefined);
     setStep(0);
     if (resume) {
@@ -699,6 +710,7 @@ export default function NewTransfer({
                         discount: formatPromoDiscount(
                           appliedPromo.discount_percentage,
                         ),
+                        target: appliedPromo.discount_target,
                       })
                     : null,
                   extraFee > 0

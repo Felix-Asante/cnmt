@@ -61,6 +61,14 @@ export function PromoCodeTable({ promoCodes }: { promoCodes: PromoCode[] }) {
                 </td>
                 <td className="px-4 py-3.5 tabular-nums text-foreground">
                   {formatDiscountPercent(promo.discount_percentage)}
+                  <p className="mt-0.5 text-xs text-muted">
+                    {promo.discount_target === "RECIPIENT_AMOUNT"
+                      ? "Recipient bonus"
+                      : "Off transfer"}
+                    {promo.applies_to_all_routes
+                      ? ""
+                      : ` · ${promo.routes.length} route${promo.routes.length === 1 ? "" : "s"}`}
+                  </p>
                 </td>
                 <td className="px-4 py-3.5 whitespace-nowrap text-foreground">
                   {formatDate(promo.start_date)}

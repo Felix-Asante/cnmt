@@ -2,8 +2,14 @@ import { z } from "zod";
 import type {
   CreatePromoCodePayload,
   PromoCode,
+  PromoDiscountTarget,
   UpdatePromoCodePayload,
 } from "@repo/types";
+
+export const DISCOUNT_TARGET_LABELS: Record<PromoDiscountTarget, string> = {
+  SEND_AMOUNT: "Off the transfer amount",
+  RECIPIENT_AMOUNT: "Added to recipient amount",
+};
 
 const dateSchema = z
   .string()
@@ -17,8 +23,17 @@ const percentSchema = z
   .refine((value) => Number.isFinite(Number(value)), "Enter a valid number.")
   .refine((value) => {
     const amount = Number(value);
-    return amount >= 0 && amount <= 100;
-  }, "Discount must be between 0 and 100.");
+    return amount > 0 && amount <= 100;
+  }, "Discount must be greater than 0 and at most 100.");
+
+const targetSchema = z.enum(["SEND_AMOUNT", "RECIPIENT_AMOUNT"]);
+
+const routeRuleSchema = z.object({
+  route_id: z.string().min(1, "Choose a route."),
+  discount_target: targetSchema,
+  // Empty = use the code's discount.
+  discount_percentage: z.union([z.literal(""), percentSchema]),
+});
 
 const usesSchema = z
   .string()
@@ -39,8 +54,26 @@ export const promoCodeFormSchema = z
     end_date: dateSchema,
     max_uses: usesSchema,
     max_uses_per_user: usesSchema,
+    discount_target: targetSchema,
+    applies_to_all_routes: z.boolean(),
+    routes: z.array(routeRuleSchema),
   })
   .superRefine((values, ctx) => {
+    if (!values.applies_to_all_routes && values.routes.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["routes"],
+        message: "Add at least one route, or allow all routes.",
+      });
+    }
+    const ids = values.routes.map((r) => r.route_id).filter(Boolean);
+    if (new Set(ids).size !== ids.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["routes"],
+        message: "Each route can only be added once.",
+      });
+    }
     if (values.end_date < values.start_date) {
       ctx.addIssue({
         code: "custom",
@@ -69,6 +102,9 @@ export function defaultPromoCodeFormValues(
     end_date: "",
     max_uses: "1",
     max_uses_per_user: "1",
+    discount_target: "SEND_AMOUNT",
+    applies_to_all_routes: true,
+    routes: [],
     ...values,
   };
 }
@@ -98,19 +134,14 @@ export function valuesFromPromoCode(promo: PromoCode): PromoCodeFormValues {
     end_date: toDateInputValue(promo.end_date),
     max_uses: String(promo.max_uses),
     max_uses_per_user: String(promo.max_uses_per_user),
-  };
-}
-
-export function toCreatePayload(
-  values: PromoCodeFormValues,
-): CreatePromoCodePayload {
-  return {
-    code: values.code.trim().toUpperCase(),
-    discount_percentage: values.discount_percentage.trim(),
-    start_date: toIsoStart(values.start_date),
-    end_date: toIsoEnd(values.end_date),
-    max_uses: Number(values.max_uses),
-    max_uses_per_user: Number(values.max_uses_per_user),
+    discount_target: promo.discount_target,
+    applies_to_all_routes: promo.applies_to_all_routes,
+    routes: promo.routes.map((rule) => ({
+      route_id: rule.route_id,
+      discount_target: rule.discount_target,
+      discount_percentage:
+        rule.discount_percentage == null ? "" : String(rule.discount_percentage),
+    })),
   };
 }
 
@@ -119,10 +150,26 @@ export function toUpdatePayload(
 ): UpdatePromoCodePayload {
   return {
     discount_percentage: values.discount_percentage.trim(),
+    discount_target: values.discount_target,
+    applies_to_all_routes: values.applies_to_all_routes,
+    routes: values.routes.map((rule) => ({
+      route_id: rule.route_id,
+      discount_target: rule.discount_target,
+      discount_percentage: rule.discount_percentage.trim() || undefined,
+    })),
     start_date: toIsoStart(values.start_date),
     end_date: toIsoEnd(values.end_date),
     max_uses: Number(values.max_uses),
     max_uses_per_user: Number(values.max_uses_per_user),
+  };
+}
+
+export function toCreatePayload(
+  values: PromoCodeFormValues,
+): CreatePromoCodePayload {
+  return {
+    code: values.code.trim().toUpperCase(),
+    ...toUpdatePayload(values),
   };
 }
 
