@@ -261,7 +261,10 @@ export default function NewTransfer({
         value: quote.receiveLabel,
         emphasis: true,
       },
-      { label: t("summary.rate"), value: recipient?.default_exchange_rate ?? "" },
+      {
+        label: t("summary.rate"),
+        value: recipient?.default_exchange_rate ?? "",
+      },
     ];
   }, [appliedPromo, extraFee, quote, recipient, sender, t, values]);
 
@@ -471,9 +474,7 @@ export default function NewTransfer({
         bank: requestValues.bank,
         bankAccountName: requestValues.bankAccountName,
         bankAccountNumber: requestValues.bankAccountNumber,
-        iban: requestValues.iban
-          ? formatIbanDisplay(requestValues.iban)
-          : "",
+        iban: requestValues.iban ? formatIbanDisplay(requestValues.iban) : "",
         senderCountryCode: requestValues.senderCountryCode,
         recipientCountryCode: requestValues.recipientCountryCode,
         sendCurrency: requestValues.sendCurrency,
