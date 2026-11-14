@@ -166,7 +166,7 @@
       "destination": "Destination",
       "note": "Instructions particulières",
       "promoCode": "Code promo",
-      "promoOffFee": "{discount} de réduction",
+      "promoOffFee": "{target, select, RECIPIENT_AMOUNT {+{discount} pour le bénéficiaire} other {{discount} de réduction}}",
       "continuePayment": "Continuer le paiement",
       "sendAnother": "Envoyer un autre transfert",
       "backHome": "Retour à l’accueil",
@@ -184,9 +184,9 @@
       "route": "Trajet",
       "exchangeRate": "Taux de change",
       "promo": "Promo",
-      "promoSummary": "{code} · {discount} de réduction",
+      "promoSummary": "{code} · {target, select, RECIPIENT_AMOUNT {+{discount} pour le bénéficiaire} other {{discount} de réduction}}",
       "submitted": "Soumis",
-      "feesIncludedPromo": "Frais inclus · promo {discount}"
+      "feesIncludedPromo": "Frais inclus · {target, select, RECIPIENT_AMOUNT {bonus promo {discount}} other {promo {discount}}}"
     }
   },
   "Transfer": {
@@ -285,14 +285,14 @@
       "payout": "Réception",
       "note": "Instructions",
       "promo": "Promo",
-      "promoValue": "{code} · {discount} de réduction",
+      "promoValue": "{code} · {target, select, RECIPIENT_AMOUNT {+{discount} pour le bénéficiaire} other {{discount} de réduction}}",
       "extraFee": "Frais supplémentaires (transfert instantané)",
       "youSend": "Vous envoyez",
       "recipientGets": "Le bénéficiaire reçoit",
       "rate": "Taux",
       "estimatedCompletion": "Sous 30 minutes après vérification du paiement",
       "feesIncluded": "Frais inclus · {notes}",
-      "promoOffFee": "promo {discount}",
+      "promoOffFee": "{target, select, RECIPIENT_AMOUNT {bonus promo {discount}} other {promo {discount}}}",
       "extraFeeNote": "+{amount} de frais supplémentaires",
       "mobileMoney": "Mobile money",
       "bankTransfer": "Virement bancaire",
@@ -349,8 +349,8 @@
     },
     "Promo": {
       "label": "Code promo",
-      "description": "Facultatif. Appliquez un code valide pour réduire le montant à payer.",
-      "applied": "{code} appliqué · {discount} de réduction",
+      "description": "Facultatif. Appliquez un code valide pour payer moins ou envoyer plus.",
+      "applied": "{code} appliqué · {target, select, RECIPIENT_AMOUNT {le bénéficiaire reçoit {discount} de plus} other {{discount} de réduction}}",
       "placeholder": "SAVE10",
       "remove": "Retirer",
       "apply": "Appliquer",

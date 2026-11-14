@@ -10,7 +10,9 @@ type TransferPageProps = {
   searchParams: Promise<{ ref?: string }>;
 };
 
-export default async function TransferPage({ searchParams }: TransferPageProps) {
+export default async function TransferPage({
+  searchParams,
+}: TransferPageProps) {
   const { ref } = await searchParams;
   const trimmed = ref?.trim() ?? "";
   const transferOptions = await getTransferOptions();

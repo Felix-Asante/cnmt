@@ -149,7 +149,11 @@ export function TransferResult({
       ? [
           {
             label: t("promo"),
-            value: t("promoSummary", { code: promo.code, discount }),
+            value: t("promoSummary", {
+              code: promo.code,
+              discount,
+              target: promo.discount_target,
+            }),
           },
         ]
       : []),
@@ -308,7 +312,11 @@ export function TransferResult({
                   {promo.code}
                   <span className="font-normal text-muted">
                     {" "}
-                    · {t("promoOffFee", { discount })}
+                    ·{" "}
+                    {t("promoOffFee", {
+                      discount,
+                      target: promo.discount_target,
+                    })}
                   </span>
                 </dd>
               </div>
@@ -409,8 +417,11 @@ export function TransferResult({
           `${transfer.status}.estimatedArrival`,
         )}
         feesIncludedText={
-          discount
-            ? t("feesIncludedPromo", { discount })
+          promo && discount
+            ? t("feesIncludedPromo", {
+                discount,
+                target: promo.discount_target,
+              })
             : undefined
         }
       />

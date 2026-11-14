@@ -1,4 +1,5 @@
 import type {
+  PreviewPromoCode,
   TransferCountryPaymentChannel,
   TransferDestinationCountry,
   TransferSourceCountry,
@@ -59,15 +60,13 @@ export function getTransferQuote(
   receiveCurrency: string,
   rate: number,
   fee: number,
-  promoDiscountPercentage?: string | number | null,
+  promo?: QuotePromo,
 ): TransferQuote {
   const amount = Number(sendAmount);
   const hasAmount =
     Boolean(sendAmount) && Number.isFinite(amount) && amount > 0;
-  const receiveAmount = hasAmount ? Math.max(amount * rate - fee, 0) : 0;
-  const payAmount = hasAmount
-    ? applyPromoDiscount(amount, promoDiscountPercentage)
-    : 0;
+  const { pay: payAmount, bonus } = applyPromo(amount, rate, promo);
+  const receiveAmount = hasAmount ? Math.max(amount * rate - fee, 0) + bonus : 0;
 
   return {
     fee,
@@ -131,24 +130,28 @@ export function calculateFee(
   return Math.floor((amount * fee) / 100) ?? 0;
 }
 
-export function applyPromoDiscount(
-  amount: number,
-  discountPercentage?: string | number | null,
-) {
-  if (!Number.isFinite(amount) || amount <= 0) return 0;
-  if (
-    discountPercentage === undefined ||
-    discountPercentage === null ||
-    discountPercentage === ""
-  ) {
-    return Math.round(amount * 100) / 100;
+type QuotePromo = Pick<
+  PreviewPromoCode,
+  "discount_percentage" | "discount_target"
+> | null;
+
+const roundMoney = (value: number) => Math.round(value * 100) / 100;
+
+/**
+ * Mirrors the API: the discount either comes off what the sender pays, or is
+ * converted at the rate and added to what the recipient gets.
+ */
+export function applyPromo(amount: number, rate: number, promo?: QuotePromo) {
+  if (!Number.isFinite(amount) || amount <= 0) return { pay: 0, bonus: 0 };
+  const pct = Number(promo?.discount_percentage);
+  if (!promo || !Number.isFinite(pct) || pct <= 0) {
+    return { pay: roundMoney(amount), bonus: 0 };
   }
-  const pct = Number(discountPercentage);
-  if (!Number.isFinite(pct) || pct <= 0) {
-    return Math.round(amount * 100) / 100;
+  const discount = roundMoney((amount * pct) / 100);
+  if (promo.discount_target === "RECIPIENT_AMOUNT") {
+    return { pay: roundMoney(amount), bonus: roundMoney(discount * rate) };
   }
-  const discount = Math.round(((amount * pct) / 100) * 100) / 100;
-  return Math.max(Math.round((amount - discount) * 100) / 100, 0);
+  return { pay: Math.max(roundMoney(amount - discount), 0), bonus: 0 };
 }
 
 export function getChannelExtraFee(

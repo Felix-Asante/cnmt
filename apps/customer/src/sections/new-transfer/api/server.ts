@@ -223,8 +223,17 @@ function readErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+/**
+ * Checks a code for the selected route (and sender, when the phone is valid)
+ * so the quote shows exactly what the transfer will get.
+ */
 export async function previewPromoCode(
   code: string,
+  context: {
+    sourceCountryId: string;
+    destinationCountryId: string;
+    senderPhone?: string;
+  },
 ): Promise<PreviewPromoCodeResult> {
   const t = await getTranslations("NewTransfer.Promo");
   const trimmed = code.trim();
@@ -232,9 +241,18 @@ export async function previewPromoCode(
     return { ok: false, error: t("empty") };
   }
 
+  const params: Record<string, string> = {
+    source_country_id: context.sourceCountryId,
+    destination_country_id: context.destinationCountryId,
+  };
+  const phone = validatePhoneNumber(context.senderPhone ?? "");
+  if (phone.isValid && phone.normalized) {
+    params.sender_phone = phone.normalized;
+  }
+
   try {
     const promo = await request<PreviewPromoCode>({
-      endpoint: API_ENDPOINTS.promoCodes.preview(trimmed),
+      endpoint: API_ENDPOINTS.promoCodes.preview(trimmed, params),
       method: "GET",
       cache: "no-store",
     });

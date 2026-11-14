@@ -1,4 +1,10 @@
-import { useEffect, useEffectEvent, useId, useRef, type ReactNode } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useId,
+  useRef,
+  type ReactNode,
+} from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -53,13 +59,16 @@ export function Sheet({
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className={cn(
-          "absolute inset-y-0 right-0 flex w-full max-w-2xl flex-col border-l border-border bg-background outline-none",
+          "absolute inset-y-0 right-0 flex w-full max-w-3xl flex-col border-l border-border bg-background outline-none",
           className,
         )}
       >
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-4">
           <div className="min-w-0">
-            <h2 id={titleId} className="truncate text-lg font-semibold text-navy">
+            <h2
+              id={titleId}
+              className="truncate text-lg font-semibold text-navy"
+            >
               {title}
             </h2>
             {description ? (

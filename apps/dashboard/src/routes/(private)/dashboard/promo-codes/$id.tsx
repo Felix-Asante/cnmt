@@ -12,10 +12,10 @@ export const Route = createFileRoute("/(private)/dashboard/promo-codes/$id")({
 
 function Page() {
   const { id } = Route.useParams();
-  const { promoCodes } = parentRoute.useLoaderData();
+  const { promoCodes, routeOptions } = parentRoute.useLoaderData();
   const promoCode = promoCodes.find((item) => item.id === id);
 
   if (!promoCode) return <PromoCodeNotFound />;
 
-  return <PromoCodeDetail promoCode={promoCode} />;
+  return <PromoCodeDetail promoCode={promoCode} routeOptions={routeOptions} />;
 }
