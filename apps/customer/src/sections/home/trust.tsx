@@ -10,7 +10,7 @@ export function HomeTrust() {
 
   return (
     <section className="border-y border-border bg-surface">
-      <div className="mx-auto w-full max-w-[1080px] px-4 py-14 sm:px-6">
+      <div className="mx-auto w-full max-w-page px-4 py-14 sm:px-6">
         <motion.div
           className="grid gap-8 md:grid-cols-3"
           initial={reduceMotion ? false : { opacity: 0 }}

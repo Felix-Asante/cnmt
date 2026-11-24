@@ -44,7 +44,7 @@ export function SelectContent({
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         className={cn(
-          "relative z-50 max-h-72 min-w-(--radix-select-trigger-width) overflow-hidden border border-border bg-background shadow-md",
+          "relative z-50 max-h-72 min-w-[var(--radix-select-trigger-width)] overflow-hidden border border-border bg-background shadow-md",
           position === "popper" && "data-[side=bottom]:translate-y-1",
           className,
         )}

@@ -14,7 +14,7 @@ export function HomeFinalCta() {
 
   return (
     <section className="bg-navy text-white">
-      <div className="mx-auto w-full max-w-[1080px] px-4 py-20 sm:px-6 md:py-24">
+      <div className="mx-auto w-full max-w-page px-4 py-20 sm:px-6 md:py-24">
         <motion.div
           className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-end"
           initial={reduceMotion ? false : { opacity: 0, y: 12 }}

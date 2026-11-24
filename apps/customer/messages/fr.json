@@ -42,14 +42,33 @@
   },
   "Home": {
     "Hero": {
-      "brand": "C.N Connect",
-      "titleLine1": "Transfert",
-      "titleLine2": "d’argent international",
-      "titleAccent": "pour tous",
-      "description": "Envoyez de l’argent à vos proches à l’étranger avec des taux clairs, des paiements vérifiés, et une réception par mobile money ou virement bancaire.",
+      "titleLine1": "Envoyez",
+      "titleLine2": "à vos proches",
+      "titleAccent": "en minutes",
+      "description": "Consultez le taux et le montant exact reçu par vos proches avant de payer. Versement sur leur compte mobile money ou bancaire.",
       "sendMoney": "Envoyer de l’argent",
       "trackTransfer": "Suivre un transfert",
-      "howItWorks": "Comment ça marche"
+      "howItWorks": "Comment ça marche",
+      "countries": "{count, plural, one {Envois vers # pays} other {Envois vers # pays}}",
+      "trust": {
+        "speed": "La plupart des transferts arrivent en quelques minutes après confirmation du paiement",
+        "verified": "Chaque paiement vérifié avant le versement",
+        "payout": "Mobile money ou compte bancaire",
+        "support": "Une vraie équipe sur WhatsApp et par téléphone"
+      }
+    },
+    "Quote": {
+      "title": "Simuler un envoi",
+      "liveRates": "Taux du jour",
+      "from": "De",
+      "to": "Vers",
+      "youSend": "Vous envoyez",
+      "theyGet": "Ils reçoivent",
+      "rate": "1 {send} = {receive}",
+      "feesIncluded": "Frais inclus",
+      "range": "Envoyez entre {min} et {max}",
+      "continue": "Envoyer de l’argent",
+      "disclaimer": "Vous vérifierez chaque détail avant de payer."
     },
     "Destinations": {
       "eyebrow": "Corridors",
@@ -117,7 +136,6 @@
       "supportEyebrow": "Parler au support"
     },
     "Illustration": {
-      "availableToSend": "Disponible à l’envoi",
       "delivered": "Reçu",
       "newTransfer": "Nouveau transfert",
       "sendMoney": "Envoyer de l’argent",
@@ -125,7 +143,9 @@
       "theyGet": "Ils reçoivent",
       "ghanaMtn": "Ghana · MTN",
       "nigeriaBank": "Nigeria · Banque",
-      "continue": "Continuer"
+      "continue": "Continuer",
+      "sendAgain": "Renvoyer",
+      "recentRecipients": "Bénéficiaires récents"
     }
   },
   "Track": {
