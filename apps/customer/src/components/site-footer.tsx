@@ -11,7 +11,7 @@ export function SiteFooter() {
 
   return (
     <footer className="mt-auto border-t border-border bg-background">
-      <div className="mx-auto flex w-full max-w-280 flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="mx-auto flex w-full max-w-page flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
           <p className="font-display text-xs font-bold tracking-[0.14em] text-navy uppercase">
             {tBrand("name")}

@@ -42,14 +42,33 @@
   },
   "Home": {
     "Hero": {
-      "brand": "C.N Connect",
-      "titleLine1": "International",
-      "titleLine2": "money transfer",
-      "titleAccent": "for everyone",
-      "description": "Send money to loved ones abroad with clear rates, verified payouts, and delivery to mobile money or bank.",
+      "titleLine1": "Send money",
+      "titleLine2": "home in",
+      "titleAccent": "minutes",
+      "description": "See the rate and exactly what your family receives before you pay. Delivered to their mobile money wallet or bank account.",
       "sendMoney": "Send money",
       "trackTransfer": "Track transfer",
-      "howItWorks": "How it works"
+      "howItWorks": "How it works",
+      "countries": "{count, plural, one {Sending to # country} other {Sending to # countries}}",
+      "trust": {
+        "speed": "Most transfers arrive within minutes once payment is confirmed",
+        "verified": "Every payment verified before payout",
+        "payout": "Mobile money or bank account",
+        "support": "Real people on WhatsApp and phone"
+      }
+    },
+    "Quote": {
+      "title": "Get a quote",
+      "liveRates": "Today’s rate",
+      "from": "From",
+      "to": "To",
+      "youSend": "You send",
+      "theyGet": "They receive",
+      "rate": "1 {send} = {receive}",
+      "feesIncluded": "Fees included",
+      "range": "Send between {min} and {max}",
+      "continue": "Send money",
+      "disclaimer": "You’ll confirm every detail before you pay."
     },
     "Destinations": {
       "eyebrow": "Corridors",
@@ -117,7 +136,6 @@
       "supportEyebrow": "Talk to support"
     },
     "Illustration": {
-      "availableToSend": "Available to send",
       "delivered": "Delivered",
       "newTransfer": "New transfer",
       "sendMoney": "Send money",
@@ -125,7 +143,9 @@
       "theyGet": "They get",
       "ghanaMtn": "Ghana · MTN",
       "nigeriaBank": "Nigeria · Bank",
-      "continue": "Continue"
+      "continue": "Continue",
+      "sendAgain": "Send again",
+      "recentRecipients": "Recent recipients"
     }
   },
   "Track": {
@@ -480,5 +500,14 @@
       "submitFailedDescription": "Check the details and try again.",
       "submitUnexpectedDescription": "Something went wrong. Please try again."
     }
+  },
+  "UnsupportedBrowser": {
+    "title": "Your browser is out of date",
+    "body": "Some parts of this site may not display or work correctly. Update your phone’s software, or open this page in an up-to-date browser such as Chrome or Safari. If you opened this link inside WhatsApp or Facebook, tap the menu and choose “Open in browser”."
+  },
+  "PageError": {
+    "title": "Something went wrong",
+    "description": "This page couldn’t load on your device. Try again, or update your browser if the problem continues.",
+    "retry": "Try again"
   }
 }

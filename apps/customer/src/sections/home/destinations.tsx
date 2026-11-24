@@ -10,11 +10,11 @@ export function HomeDestinations() {
   const t = useTranslations("Home.Destinations");
   const locale = useLocale();
   const reduceMotion = useReducedMotion();
-  const regionNames = new Intl.DisplayNames([locale], { type: "region" });
+  const regionNames = getRegionNames(locale);
 
   return (
     <section className="border-b border-border bg-background">
-      <div className="mx-auto w-full max-w-[1080px] px-4 py-20 sm:px-6 md:py-24">
+      <div className="mx-auto w-full max-w-page px-4 py-20 sm:px-6 md:py-24">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-xl">
             <p className="text-xs font-medium tracking-[0.16em] text-brand uppercase">
@@ -62,7 +62,7 @@ export function HomeDestinations() {
               </span>
               <span>
                 <span className="block text-sm font-medium text-foreground">
-                  {regionNames.of(code) ?? code}
+                  {regionNames?.of(code) ?? code}
                 </span>
                 <span className="block text-xs text-muted">{code}</span>
               </span>
@@ -72,4 +72,14 @@ export function HomeDestinations() {
       </div>
     </section>
   );
+}
+
+function getRegionNames(locale: string) {
+  try {
+    return typeof Intl.DisplayNames === "function"
+      ? new Intl.DisplayNames([locale], { type: "region" })
+      : null;
+  } catch {
+    return null;
+  }
 }

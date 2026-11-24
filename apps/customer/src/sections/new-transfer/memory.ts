@@ -25,7 +25,11 @@ export type SavedRecipient = {
 };
 
 function canUseStorage() {
-  return typeof window !== "undefined" && Boolean(window.localStorage);
+  try {
+    return typeof window !== "undefined" && Boolean(window.localStorage);
+  } catch {
+    return false;
+  }
 }
 
 function readJson<T>(key: string, fallback: T): T {
@@ -41,7 +45,11 @@ function readJson<T>(key: string, fallback: T): T {
 
 function writeJson<T>(key: string, value: T) {
   if (!canUseStorage()) return;
-  window.localStorage.setItem(key, JSON.stringify(value));
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Storage can be full or blocked (private mode, in-app browsers).
+  }
 }
 
 function recipientKey(

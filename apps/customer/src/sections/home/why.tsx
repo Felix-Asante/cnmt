@@ -17,7 +17,7 @@ export function HomeWhy() {
 
   return (
     <section className="bg-background">
-      <div className="mx-auto w-full max-w-[1080px] px-4 py-20 sm:px-6 md:py-24">
+      <div className="mx-auto w-full max-w-page px-4 py-20 sm:px-6 md:py-24">
         <div className="max-w-xl">
           <p className="text-xs font-medium tracking-[0.16em] text-brand uppercase">
             {t("eyebrow")}
