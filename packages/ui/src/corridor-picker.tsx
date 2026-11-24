@@ -104,7 +104,11 @@ function CountrySlot({
       : options;
 
     if (!recentCodes.length || normalized) {
-      return { recent: [] as CorridorOption[], rest: matched, filtered: matched };
+      return {
+        recent: [] as CorridorOption[],
+        rest: matched,
+        filtered: matched,
+      };
     }
 
     const recentOptions = recentCodes
@@ -331,7 +335,7 @@ function CountrySlot({
               role="dialog"
               aria-modal="true"
               aria-labelledby={titleId}
-              className="relative z-10 flex max-h-[min(92dvh,920px)] min-h-[min(62dvh,560px)] w-full flex-col rounded-t-2xl border border-border border-b-0 bg-background shadow-[0_-12px_40px_rgb(10_26_47/0.18)]"
+              className="relative z-10 flex max-h-[min(92vh,920px)] min-h-[min(62vh,560px)] supports-[height:1dvh]:max-h-[min(92dvh,920px)] supports-[height:1dvh]:min-h-[min(62dvh,560px)] w-full flex-col rounded-t-2xl border border-border border-b-0 bg-background shadow-[0_-12px_40px_rgb(10_26_47/0.18)]"
               style={{
                 paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
               }}

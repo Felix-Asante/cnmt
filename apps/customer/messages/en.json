@@ -480,5 +480,14 @@
       "submitFailedDescription": "Check the details and try again.",
       "submitUnexpectedDescription": "Something went wrong. Please try again."
     }
+  },
+  "UnsupportedBrowser": {
+    "title": "Your browser is out of date",
+    "body": "Some parts of this site may not display or work correctly. Update your phone’s software, or open this page in an up-to-date browser such as Chrome or Safari. If you opened this link inside WhatsApp or Facebook, tap the menu and choose “Open in browser”."
+  },
+  "PageError": {
+    "title": "Something went wrong",
+    "description": "This page couldn’t load on your device. Try again, or update your browser if the problem continues.",
+    "retry": "Try again"
   }
 }

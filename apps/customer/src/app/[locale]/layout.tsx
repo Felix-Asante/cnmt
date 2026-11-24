@@ -10,6 +10,7 @@ import {
 import { Toaster } from "@repo/ui/toast";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { UnsupportedBrowserNotice } from "@/components/unsupported-browser-notice";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -65,6 +66,7 @@ export default async function RootLayout({
       className={`${display.variable} ${sans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
+        <UnsupportedBrowserNotice />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteHeader />
           <div className="flex flex-1 flex-col">{children}</div>
