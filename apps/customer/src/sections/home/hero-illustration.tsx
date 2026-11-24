@@ -9,10 +9,13 @@ function PhoneFrame({
   className,
   children,
   delay = 0,
+  rotate = 0,
 }: {
   className?: string;
   children: ReactNode;
   delay?: number;
+  /** Degrees. Passed to framer-motion, which owns this element's transform. */
+  rotate?: number;
 }) {
   const reduceMotion = useReducedMotion();
 
@@ -22,6 +25,7 @@ function PhoneFrame({
         "relative w-[200px] overflow-hidden rounded-[2rem] border-[3px] border-navy bg-background shadow-[0_28px_60px_rgb(10_26_47/0.16)] sm:w-[220px]",
         className,
       )}
+      style={{ rotate }}
       initial={reduceMotion ? false : { opacity: 0, y: 28 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
@@ -40,7 +44,7 @@ export function HeroIllustration({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "relative mx-auto aspect-[5/4] w-full max-w-[540px]",
+        "relative mx-auto h-[480px] w-full max-w-[540px] sm:aspect-[5/4] sm:h-auto",
         className,
       )}
       aria-hidden
@@ -63,7 +67,7 @@ export function HeroIllustration({ className }: { className?: string }) {
       />
 
       <motion.div
-        className="absolute top-[10%] left-[2%] z-20 flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 shadow-md sm:left-[6%]"
+        className="absolute top-0 left-[2%] z-20 flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 shadow-md sm:left-[4%]"
         initial={reduceMotion ? false : { opacity: 0, x: -12 }}
         animate={
           reduceMotion
@@ -88,7 +92,7 @@ export function HeroIllustration({ className }: { className?: string }) {
       </motion.div>
 
       <motion.div
-        className="absolute right-[0%] bottom-[10%] z-20 rounded-full border border-border bg-background px-3 py-2 shadow-md sm:right-[4%]"
+        className="absolute bottom-0 left-[4%] z-20 rounded-full border border-border bg-background px-3 py-2 shadow-md sm:left-[8%]"
         initial={reduceMotion ? false : { opacity: 0, x: 12 }}
         animate={
           reduceMotion
@@ -115,16 +119,17 @@ export function HeroIllustration({ className }: { className?: string }) {
       </motion.div>
 
       <PhoneFrame
-        className="absolute top-[6%] left-[8%] z-0 -rotate-6 sm:left-[12%]"
+        className="absolute top-[10%] left-[6%] z-0 sm:left-[10%]"
+        rotate={-6}
         delay={0.08}
       >
         <div className="rounded-2xl bg-navy px-3 py-4 text-white">
           <p className="text-[10px] text-white/55">{tBrand("name")}</p>
           <p className="mt-1 font-display text-2xl font-bold tracking-tight">
-            £250.00
+            {t("sendAgain")}
           </p>
           <p className="mt-0.5 text-[10px] text-white/50">
-            {t("availableToSend")}
+            {t("recentRecipients")}
           </p>
         </div>
         <div className="mt-3 space-y-2">
@@ -156,7 +161,8 @@ export function HeroIllustration({ className }: { className?: string }) {
       </PhoneFrame>
 
       <PhoneFrame
-        className="absolute top-[14%] right-[2%] z-10 rotate-[7deg] sm:right-[6%]"
+        className="absolute top-[16%] right-[2%] z-10 sm:right-[6%]"
+        rotate={7}
         delay={0.18}
       >
         <p className="text-[10px] font-medium tracking-[0.14em] text-brand uppercase">

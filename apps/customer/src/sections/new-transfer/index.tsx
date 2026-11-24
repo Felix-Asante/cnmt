@@ -68,9 +68,18 @@ export type ResumePayment = {
   senderCountryCode: string;
 };
 
+/** Prefill from the home page quote (`/transfer?from=&to=&amount=`). */
+export type InitialTransfer = {
+  senderCountryCode: string;
+  sendCurrency: string;
+  recipientCountryCode?: string;
+  sendAmount?: string;
+};
+
 type NewTransferProps = {
   transferOptions: TransferOptions;
   resume?: ResumePayment;
+  initial?: InitialTransfer;
 };
 
 type PendingAction = "submit" | "upload" | null;
@@ -78,6 +87,7 @@ type PendingAction = "submit" | "upload" | null;
 export default function NewTransfer({
   transferOptions,
   resume,
+  initial,
 }: NewTransferProps) {
   const t = useTranslations("NewTransfer");
   const tValidation = useTranslations("NewTransfer.Validation");
@@ -100,13 +110,23 @@ export default function NewTransfer({
   const pendingActionRef = useRef<PendingAction>(null);
   const busy = pendingAction !== null;
 
-  const firstSenderCountry = transferOptions.sources[0];
-  const firstDestination = firstSenderCountry
-    ? firstDestinationForSource(
-        firstSenderCountry.id.toString(),
-        transferOptions.destinations,
-      )
-    : undefined;
+  const firstSenderCountry = initial
+    ? getSenderCountry(initial.senderCountryCode, transferOptions.sources)
+    : transferOptions.sources[0];
+  const firstDestination =
+    (initial?.recipientCountryCode
+      ? getRecipientCountry(
+          initial.recipientCountryCode,
+          initial.senderCountryCode,
+          transferOptions.destinations,
+        )
+      : undefined) ??
+    (firstSenderCountry
+      ? firstDestinationForSource(
+          firstSenderCountry.id.toString(),
+          transferOptions.destinations,
+        )
+      : undefined);
 
   const form = useForm<TransferFormValues>({
     resolver: (values, context, options) =>
@@ -120,7 +140,7 @@ export default function NewTransfer({
       senderCountryCode:
         resume?.senderCountryCode ?? firstSenderCountry?.id.toString() ?? "",
       recipientCountryCode: firstDestination?.id.toString() ?? "",
-      sendAmount: resume?.sendAmount ?? "",
+      sendAmount: resume?.sendAmount ?? initial?.sendAmount ?? "",
       sendCurrency:
         resume?.sendCurrency ?? firstSenderCountry?.currency_code ?? "GBP",
     },
@@ -539,7 +559,7 @@ export default function NewTransfer({
 
   return (
     <main className="min-h-full bg-[#f7f8fa]">
-      <div className="mx-auto w-full max-w-270 px-4 py-8 sm:px-6 md:py-12">
+      <div className="mx-auto w-full max-w-page px-4 py-8 sm:px-6 md:py-12">
         {!isSubmittedScreen && !isCompleteScreen ? (
           <div className="mb-10">
             <Stepper steps={stepperSteps} currentStep={stepperIndex} />
