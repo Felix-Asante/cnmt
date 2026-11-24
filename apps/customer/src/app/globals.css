@@ -1,2 +1,55 @@
-@import "tailwindcss";
-@import "@repo/tailwind-config";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens (:root variables) are generated from tailwind.config.ts. */
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans-family), "Schibsted Grotesk", sans-serif;
+    font-feature-settings:
+      "ss01" on,
+      "kern" on;
+    line-height: 1.5;
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: var(--brand-soft);
+    color: var(--navy);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--foreground);
+    text-wrap: balance;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--subtle);
+  }
+}

@@ -14,7 +14,7 @@ export function HomeDestinations() {
 
   return (
     <section className="border-b border-border bg-background">
-      <div className="mx-auto w-full max-w-[1080px] px-4 py-20 sm:px-6 md:py-24">
+      <div className="mx-auto w-full max-w-page px-4 py-20 sm:px-6 md:py-24">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-xl">
             <p className="text-xs font-medium tracking-[0.16em] text-brand uppercase">

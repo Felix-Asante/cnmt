@@ -64,7 +64,7 @@ export default function TrackTransfer({
 
   return (
     <main className="min-h-full bg-[#f7f8fa]">
-      <div className="mx-auto w-full max-w-270 px-4 py-8 sm:px-6 md:py-12">
+      <div className="mx-auto w-full max-w-page px-4 py-8 sm:px-6 md:py-12">
         <div className="bg-background px-5 py-7 sm:px-8 sm:py-9 md:px-10 md:py-10">
           <header className="max-w-2xl space-y-2">
             <p className="text-xs font-medium tracking-[0.16em] text-brand uppercase">
