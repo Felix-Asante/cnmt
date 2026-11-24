@@ -480,5 +480,14 @@
       "submitFailedDescription": "Vérifiez les informations et réessayez.",
       "submitUnexpectedDescription": "Une erreur s’est produite. Veuillez réessayer."
     }
+  },
+  "UnsupportedBrowser": {
+    "title": "Votre navigateur n’est pas à jour",
+    "body": "Certaines parties de ce site risquent de ne pas s’afficher ou de ne pas fonctionner correctement. Mettez à jour le logiciel de votre téléphone ou ouvrez cette page dans un navigateur récent comme Chrome ou Safari. Si vous avez ouvert ce lien dans WhatsApp ou Facebook, touchez le menu et choisissez « Ouvrir dans le navigateur »."
+  },
+  "PageError": {
+    "title": "Une erreur est survenue",
+    "description": "Cette page n’a pas pu se charger sur votre appareil. Réessayez ou mettez à jour votre navigateur si le problème persiste.",
+    "retry": "Réessayer"
   }
 }

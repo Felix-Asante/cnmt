@@ -8,6 +8,15 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "browserslist": [
+    "chrome >= 87",
+    "and_chr >= 87",
+    "edge >= 88",
+    "firefox >= 78",
+    "safari >= 14",
+    "ios_saf >= 14",
+    "samsung >= 14"
+  ],
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
     "@repo/types": "*",

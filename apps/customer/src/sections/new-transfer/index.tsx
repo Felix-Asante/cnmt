@@ -26,6 +26,7 @@ import { formatIbanDisplay, maskIban } from "@repo/utils/iban";
 import { formatMoney } from "@repo/utils/money";
 import { itemName } from "@repo/utils/lookup";
 import { formatPromoDiscount } from "@/utils/transfer";
+import { randomUuid } from "@/utils/id";
 import { Link, useRouter } from "@/i18n/navigation";
 import { rememberCorridor, rememberRecipient } from "./memory";
 import {
@@ -441,7 +442,7 @@ export default function NewTransfer({
     if (!valid) return;
 
     const { proofFile: _proofFile, ...requestValues } = form.getValues();
-    idempotencyKeyRef.current ??= crypto.randomUUID();
+    idempotencyKeyRef.current ??= randomUuid();
     pendingActionRef.current = "submit";
     setPendingAction("submit");
 
